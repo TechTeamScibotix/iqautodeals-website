@@ -543,6 +543,68 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Browse by Location & Model Section */}
+      <section className="bg-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
+              Shop Cars by Location or Model
+            </h2>
+            <p className="text-lg text-gray-600">Find the perfect vehicle in your area or browse by your favorite make and model</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Browse by Location */}
+            <Link href="/locations" className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-8 hover:shadow-2xl hover:border-blue-400 transition-all group">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-blue-600 w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <MapPin className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-dark">Browse by Location</h3>
+              </div>
+              <p className="text-gray-700 mb-6 leading-relaxed">
+                Find used cars from trusted dealers in your city. We cover all 50 states and 180+ major cities across the US.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Atlanta</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Los Angeles</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Houston</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Chicago</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">+178 more</span>
+              </div>
+              <div className="flex items-center text-blue-600 font-semibold text-lg group-hover:gap-3 transition-all">
+                View All Locations
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Browse by Model */}
+            <Link href="/models" className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-8 hover:shadow-2xl hover:border-green-400 transition-all group">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-green-600 w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Car className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-dark">Browse by Model</h3>
+              </div>
+              <p className="text-gray-700 mb-6 leading-relaxed">
+                Shop used cars by your favorite make and model. Find popular vehicles from Toyota, Honda, Ford, Chevrolet, and more.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Toyota Tacoma</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Honda Civic</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Ford F-150</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Jeep Wrangler</span>
+                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">+58 more</span>
+              </div>
+              <div className="flex items-center text-green-600 font-semibold text-lg group-hover:gap-3 transition-all">
+                View All Models
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="bg-gray-50 py-20 border-t border-gray-200">
         <div className="container mx-auto px-4">
