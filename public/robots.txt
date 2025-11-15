@@ -1,0 +1,24 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/deals/
+Disallow: /login
+Disallow: /register
+
+# Allow search engines to crawl public pages
+Allow: /$
+Allow: /search
+
+# Crawl-delay for aggressive bots
+User-agent: Bingbot
+Crawl-delay: 1
+
+User-agent: Googlebot
+Crawl-delay: 0
+
+# Sitemap location
+Sitemap: https://iqautodeals.com/sitemap.xml

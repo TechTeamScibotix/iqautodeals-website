@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  phone         String?
+  userType      String    // "customer" or "dealer"
+  createdAt     DateTime  @default(now())
+
+  // Password reset fields
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  // Dealer specific fields
+  businessName  String?
+  address       String?
+  city          String?
+  state         String?
+  zip           String?
+  workHoursStart String?  // e.g., "09:00"
+  workHoursEnd   String?  // e.g., "18:00"
+  workDays       String?  // JSON array of days, e.g., ["Monday", "Tuesday", ...]
+
+  // Relations
+  cars          Car[]
+  dealLists     DealList[]
+  negotiations  Negotiation[]
+  acceptedDeals AcceptedDeal[]
+  customerTestDrives TestDrive[] @relation("CustomerTestDrives")
+  dealerTestDrives   TestDrive[] @relation("DealerTestDrives")
+}
+
+model Car {
+  id              String   @id @default(uuid())
+  dealerId        String
+  make            String
+  model           String
+  year            Int
+  vin             String   @unique
+  mileage         Int
+  color           String
+  transmission    String
+  salePrice       Float    // Dealer sets, hidden from customers
+  description     String
+  photos          String   // JSON array of photo URLs
+  latitude        Float
+  longitude       Float
+  city            String
+  state           String
+  status          String   @default("active") // active, sold, pending
+  listingFeePaid  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  dealer          User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  selectedCars    SelectedCar[]
+  acceptedDeals   AcceptedDeal[]
+}
+
+model DealList {
+  id          String   @id @default(uuid())
+  customerId  String
+  status      String   @default("active") // active, accepted, cancelled
+  createdAt   DateTime @default(now())
+
+  customer    User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  selectedCars SelectedCar[]
+}
+
+model SelectedCar {
+  id                 String   @id @default(uuid())
+  dealListId         String
+  carId              String
+  originalPrice      Float
+  currentOfferPrice  Float
+  negotiationCount   Int      @default(0)
+  status             String   @default("pending") // pending, won, lost
+  createdAt          DateTime @default(now())
+
+  dealList      DealList     @relation(fields: [dealListId], references: [id], onDelete: Cascade)
+  car           Car          @relation(fields: [carId], references: [id], onDelete: Cascade)
+  negotiations  Negotiation[]
+}
+
+model Negotiation {
+  id             String   @id @default(uuid())
+  selectedCarId  String
+  dealerId       String
+  offeredPrice   Float
+  createdAt      DateTime @default(now())
+
+  selectedCar SelectedCar @relation(fields: [selectedCarId], references: [id], onDelete: Cascade)
+  dealer      User        @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+}
+
+model AcceptedDeal {
+  id                 String   @id @default(uuid())
+  customerId         String
+  carId              String
+  finalPrice         Float
+  verificationCode   String   // 6-digit code
+  depositReleased    Boolean  @default(false)
+  customerShowedUp   Boolean  @default(false)
+  sold               Boolean  @default(false) // Manually marked as sold by dealer
+  deadDeal           Boolean  @default(false) // Deal marked as dead/cancelled by dealer
+  createdAt          DateTime @default(now())
+
+  customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  car      Car  @relation(fields: [carId], references: [id], onDelete: Cascade)
+  testDrive TestDrive?
+}
+
+model TestDrive {
+  id                 String   @id @default(uuid())
+  customerId         String
+  dealerId           String
+  acceptedDealId     String   @unique
+  scheduledDate      String   // Date in YYYY-MM-DD format
+  scheduledTime      String   // Time in HH:MM format
+  status             String   @default("scheduled") // scheduled, completed, cancelled
+  customerNotes      String?
+  createdAt          DateTime @default(now())
+
+  customer User @relation("CustomerTestDrives", fields: [customerId], references: [id], onDelete: Cascade)
+  dealer   User @relation("DealerTestDrives", fields: [dealerId], references: [id], onDelete: Cascade)
+  acceptedDeal AcceptedDeal @relation(fields: [acceptedDealId], references: [id], onDelete: Cascade)
+}
