@@ -179,5 +179,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }))
 
-  return [...staticPages, ...locationPages, ...modelPages]
+  // Price ranges for SEO expansion
+  const priceRanges = [
+    'under-5000',
+    'under-10000',
+    'under-15000',
+    'under-20000',
+    'under-25000',
+    'under-30000',
+    '5000-to-10000',
+    '10000-to-15000',
+    '15000-to-20000',
+    '20000-to-30000',
+    '30000-to-50000',
+    'over-50000',
+  ]
+
+  // Generate location + price range pages (2,952 URLs)
+  const priceRangePages: MetadataRoute.Sitemap = []
+  locations.forEach((location) => {
+    priceRanges.forEach((range) => {
+      priceRangePages.push({
+        url: `${baseUrl}/locations/${location}/${range}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.85,
+      })
+    })
+  })
+
+  return [...staticPages, ...locationPages, ...modelPages, ...priceRangePages]
 }
