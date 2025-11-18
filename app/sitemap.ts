@@ -237,5 +237,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })
   })
 
-  return [...staticPages, ...locationPages, ...modelPages, ...priceRangePages, ...bodyTypePages]
+  // Generate location + model pages (11,284 URLs - 62 models × 182 locations)
+  const modelLocationPages: MetadataRoute.Sitemap = []
+  locations.forEach((location) => {
+    models.forEach((model) => {
+      modelLocationPages.push({
+        url: `${baseUrl}/locations/${location}/${model}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.80,
+      })
+    })
+  })
+
+  return [...staticPages, ...locationPages, ...modelPages, ...priceRangePages, ...bodyTypePages, ...modelLocationPages]
 }
