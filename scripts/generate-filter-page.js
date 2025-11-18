@@ -1,4 +1,9 @@
-import { Metadata } from 'next';
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+const filterPageContent = `import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { locations } from '@/lib/data/locations';
@@ -44,24 +49,24 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { label, max } = priceData;
 
   return {
-    title: `Used Cars ${label} in ${city}, ${stateCode} | Compare Prices | IQ Auto Deals`,
-    description: `Shop quality used cars ${label.toLowerCase()} in ${city}, ${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.`,
+    title: \`Used Cars \${label} in \${city}, \${stateCode} | Compare Prices | IQ Auto Deals\`,
+    description: \`Shop quality used cars \${label.toLowerCase()} in \${city}, \${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.\`,
     keywords: [
-      `used cars ${label.toLowerCase()} ${city}`,
-      `cars under $${max} ${city}`,
-      `cheap cars ${city}`,
-      `affordable cars ${city} ${stateCode}`,
-      `used cars for sale ${city} ${label.toLowerCase()}`,
-      `budget cars ${city}`,
-      `${label} cars ${city}`,
+      \`used cars \${label.toLowerCase()} \${city}\`,
+      \`cars under $\${max} \${city}\`,
+      \`cheap cars \${city}\`,
+      \`affordable cars \${city} \${stateCode}\`,
+      \`used cars for sale \${city} \${label.toLowerCase()}\`,
+      \`budget cars \${city}\`,
+      \`\${label} cars \${city}\`,
     ],
     openGraph: {
-      title: `Used Cars ${label} in ${city}, ${stateCode} | IQ Auto Deals`,
-      description: `Shop quality used cars ${label.toLowerCase()} in ${city}. Compare prices and save up to $5,000.`,
-      url: `https://iqautodeals.com/locations/${location}/${filter}`,
+      title: \`Used Cars \${label} in \${city}, \${stateCode} | IQ Auto Deals\`,
+      description: \`Shop quality used cars \${label.toLowerCase()} in \${city}. Compare prices and save up to $5,000.\`,
+      url: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
     },
     alternates: {
-      canonical: `https://iqautodeals.com/locations/${location}/${filter}`,
+      canonical: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
     },
   };
 }
@@ -92,8 +97,8 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://iqautodeals.com" },
               { "@type": "ListItem", "position": 2, "name": "Locations", "item": "https://iqautodeals.com/locations" },
-              { "@type": "ListItem", "position": 3, "name": city, "item": `https://iqautodeals.com/locations/${location}` },
-              { "@type": "ListItem", "position": 4, "name": label, "item": `https://iqautodeals.com/locations/${location}/${filter}` }
+              { "@type": "ListItem", "position": 3, "name": city, "item": \`https://iqautodeals.com/locations/\${location}\` },
+              { "@type": "ListItem", "position": 4, "name": label, "item": \`https://iqautodeals.com/locations/\${location}/\${filter}\` }
             ]
           })
         }}
@@ -108,18 +113,18 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": `How many used cars ${label.toLowerCase()} are available in ${city}?`,
+                "name": \`How many used cars \${label.toLowerCase()} are available in \${city}?\`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `Currently, we have approximately ${estimatedCount} quality used cars ${label.toLowerCase()} available from trusted dealers in ${city}, ${state}. Our inventory updates daily as dealers add new vehicles and competitive pricing.`
+                  "text": \`Currently, we have approximately \${estimatedCount} quality used cars \${label.toLowerCase()} available from trusted dealers in \${city}, \${state}. Our inventory updates daily as dealers add new vehicles and competitive pricing.\`
                 }
               },
               {
                 "@type": "Question",
-                "name": `What's the average savings on cars ${label.toLowerCase()} in ${city}?`,
+                "name": \`What's the average savings on cars \${label.toLowerCase()} in \${city}?\`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `${city} buyers save an average of $${avgSavings.toLocaleString()} on used cars in this price range through IQ Auto Deals. By creating competition between dealers, you get their absolute best price upfront.`
+                  "text": \`\${city} buyers save an average of $\${avgSavings.toLocaleString()} on used cars in this price range through IQ Auto Deals. By creating competition between dealers, you get their absolute best price upfront.\`
                 }
               }
             ]
@@ -133,7 +138,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "AutoDealer",
-            "name": `IQ Auto Deals - ${city}`,
+            "name": \`IQ Auto Deals - \${city}\`,
             "address": {
               "@type": "PostalAddress",
               "addressLocality": city,
@@ -165,7 +170,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
               <li className="text-gray-400">/</li>
               <li><Link href="/locations" className="text-blue-600 hover:text-blue-800">Locations</Link></li>
               <li className="text-gray-400">/</li>
-              <li><Link href={`/locations/${location}`} className="text-blue-600 hover:text-blue-800">{city}</Link></li>
+              <li><Link href={\`/locations/\${location}\`} className="text-blue-600 hover:text-blue-800">{city}</Link></li>
               <li className="text-gray-400">/</li>
               <li className="text-gray-700">{label}</li>
             </ol>
@@ -181,7 +186,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
               Shop {estimatedCount}+ Quality Pre-Owned Vehicles from Trusted Dealers
             </p>
             <p className="text-lg mb-8 text-blue-100">
-              Average savings: ${avgSavings.toLocaleString()} • Compare prices instantly • No haggling required
+              Average savings: \${avgSavings.toLocaleString()} • Compare prices instantly • No haggling required
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -191,7 +196,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
                 Browse Cars {label}
               </Link>
               <Link
-                href={`/locations/${location}`}
+                href={\`/locations/\${location}\`}
                 className="inline-block bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition border-2 border-white"
               >
                 All {city} Cars
@@ -213,7 +218,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-700">Average savings of ${avgSavings.toLocaleString()} compared to traditional dealerships</span>
+                  <span className="text-gray-700">Average savings of \${avgSavings.toLocaleString()} compared to traditional dealerships</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -256,7 +261,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
                 .map(([slug, data]) => (
                   <Link
                     key={slug}
-                    href={`/locations/${location}/${slug}`}
+                    href={\`/locations/\${location}/\${slug}\`}
                     className="block bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition text-center"
                   >
                     <div className="font-semibold text-gray-900">{data.label}</div>
@@ -282,3 +287,8 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
     </>
   );
 }
+`;
+
+const outputPath = path.join(__dirname, '../app/locations/[location]/[filter]/page.tsx');
+fs.writeFileSync(outputPath, filterPageContent);
+console.log('✓ Generated filter page successfully');
