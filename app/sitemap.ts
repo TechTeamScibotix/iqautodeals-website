@@ -195,7 +195,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'over-50000',
   ]
 
-  // Generate location + price range pages (2,952 URLs)
+  // Body types for SEO expansion
+  const bodyTypes = [
+    'suv',
+    'sedan',
+    'truck',
+    'coupe',
+    'convertible',
+    'minivan',
+    'wagon',
+    'hatchback',
+    'luxury',
+    'electric',
+    'hybrid',
+    'sports-car',
+  ]
+
+  // Generate location + price range pages (2,184 URLs)
   const priceRangePages: MetadataRoute.Sitemap = []
   locations.forEach((location) => {
     priceRanges.forEach((range) => {
@@ -208,5 +224,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })
   })
 
-  return [...staticPages, ...locationPages, ...modelPages, ...priceRangePages]
+  // Generate location + body type pages (2,184 URLs)
+  const bodyTypePages: MetadataRoute.Sitemap = []
+  locations.forEach((location) => {
+    bodyTypes.forEach((type) => {
+      bodyTypePages.push({
+        url: `${baseUrl}/locations/${location}/${type}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.85,
+      })
+    })
+  })
+
+  return [...staticPages, ...locationPages, ...modelPages, ...priceRangePages, ...bodyTypePages]
 }

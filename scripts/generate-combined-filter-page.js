@@ -1,4 +1,9 @@
-import { Metadata } from 'next';
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+const filterPageContent = `import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { locations } from '@/lib/data/locations';
@@ -54,24 +59,24 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (priceData) {
     const { label, max } = priceData;
     return {
-      title: `Used Cars ${label} in ${city}, ${stateCode} | Compare Prices | IQ Auto Deals`,
-      description: `Shop quality used cars ${label.toLowerCase()} in ${city}, ${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.`,
+      title: \`Used Cars \${label} in \${city}, \${stateCode} | Compare Prices | IQ Auto Deals\`,
+      description: \`Shop quality used cars \${label.toLowerCase()} in \${city}, \${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.\`,
       keywords: [
-        `used cars ${label.toLowerCase()} ${city}`,
-        `cars under $${max} ${city}`,
-        `cheap cars ${city}`,
-        `affordable cars ${city} ${stateCode}`,
-        `used cars for sale ${city} ${label.toLowerCase()}`,
-        `budget cars ${city}`,
-        `${label} cars ${city}`,
+        \`used cars \${label.toLowerCase()} \${city}\`,
+        \`cars under $\${max} \${city}\`,
+        \`cheap cars \${city}\`,
+        \`affordable cars \${city} \${stateCode}\`,
+        \`used cars for sale \${city} \${label.toLowerCase()}\`,
+        \`budget cars \${city}\`,
+        \`\${label} cars \${city}\`,
       ],
       openGraph: {
-        title: `Used Cars ${label} in ${city}, ${stateCode} | IQ Auto Deals`,
-        description: `Shop quality used cars ${label.toLowerCase()} in ${city}. Compare prices and save up to $5,000.`,
-        url: `https://iqautodeals.com/locations/${location}/${filter}`,
+        title: \`Used Cars \${label} in \${city}, \${stateCode} | IQ Auto Deals\`,
+        description: \`Shop quality used cars \${label.toLowerCase()} in \${city}. Compare prices and save up to $5,000.\`,
+        url: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
       },
       alternates: {
-        canonical: `https://iqautodeals.com/locations/${location}/${filter}`,
+        canonical: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
       },
     };
   }
@@ -79,24 +84,24 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   // Body type metadata
   const { label, singular } = bodyTypeData;
   return {
-    title: `Used ${label} for Sale in ${city}, ${stateCode} | Best ${singular} Deals | IQ Auto Deals`,
-    description: `Find the best used ${label.toLowerCase()} in ${city}, ${state}. Compare prices from local dealers on quality pre-owned ${label.toLowerCase()}. Get instant offers and save thousands on your next ${singular.toLowerCase()}.`,
+    title: \`Used \${label} for Sale in \${city}, \${stateCode} | Best \${singular} Deals | IQ Auto Deals\`,
+    description: \`Find the best used \${label.toLowerCase()} in \${city}, \${state}. Compare prices from local dealers on quality pre-owned \${label.toLowerCase()}. Get instant offers and save thousands on your next \${singular.toLowerCase()}.\`,
     keywords: [
-      `used ${label.toLowerCase()} ${city}`,
-      `${label.toLowerCase()} for sale ${city}`,
-      `best ${singular.toLowerCase()} deals ${city}`,
-      `pre-owned ${label.toLowerCase()} ${city} ${stateCode}`,
-      `certified ${label.toLowerCase()} ${city}`,
-      `${singular.toLowerCase()} dealers ${city}`,
-      `buy ${singular.toLowerCase()} ${city}`,
+      \`used \${label.toLowerCase()} \${city}\`,
+      \`\${label.toLowerCase()} for sale \${city}\`,
+      \`best \${singular.toLowerCase()} deals \${city}\`,
+      \`pre-owned \${label.toLowerCase()} \${city} \${stateCode}\`,
+      \`certified \${label.toLowerCase()} \${city}\`,
+      \`\${singular.toLowerCase()} dealers \${city}\`,
+      \`buy \${singular.toLowerCase()} \${city}\`,
     ],
     openGraph: {
-      title: `Used ${label} for Sale in ${city}, ${stateCode} | IQ Auto Deals`,
-      description: `Shop quality used ${label.toLowerCase()} in ${city}. Compare prices and save up to $5,000 on your next ${singular.toLowerCase()}.`,
-      url: `https://iqautodeals.com/locations/${location}/${filter}`,
+      title: \`Used \${label} for Sale in \${city}, \${stateCode} | IQ Auto Deals\`,
+      description: \`Shop quality used \${label.toLowerCase()} in \${city}. Compare prices and save up to $5,000 on your next \${singular.toLowerCase()}.\`,
+      url: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
     },
     alternates: {
-      canonical: `https://iqautodeals.com/locations/${location}/${filter}`,
+      canonical: \`https://iqautodeals.com/locations/\${location}/\${filter}\`,
     },
   };
 }
@@ -131,8 +136,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://iqautodeals.com" },
               { "@type": "ListItem", "position": 2, "name": "Locations", "item": "https://iqautodeals.com/locations" },
-              { "@type": "ListItem", "position": 3, "name": city, "item": `https://iqautodeals.com/locations/${location}` },
-              { "@type": "ListItem", "position": 4, "name": label, "item": `https://iqautodeals.com/locations/${location}/${filter}` }
+              { "@type": "ListItem", "position": 3, "name": city, "item": \`https://iqautodeals.com/locations/\${location}\` },
+              { "@type": "ListItem", "position": 4, "name": label, "item": \`https://iqautodeals.com/locations/\${location}/\${filter}\` }
             ]
           })
         }}
@@ -148,23 +153,23 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               {
                 "@type": "Question",
                 "name": isPriceRange
-                  ? `How many used cars ${label.toLowerCase()} are available in ${city}?`
-                  : `How many used ${label.toLowerCase()} are available in ${city}?`,
+                  ? \`How many used cars \${label.toLowerCase()} are available in \${city}?\`
+                  : \`How many used \${label.toLowerCase()} are available in \${city}?\`,
                 "acceptedAnswer": {
                   "@type": "Answer",
                   "text": isPriceRange
-                    ? `Currently, we have approximately ${estimatedCount} quality used cars ${label.toLowerCase()} available from trusted dealers in ${city}, ${state}. Our inventory updates daily as dealers add new vehicles and competitive pricing.`
-                    : `Currently, we have approximately ${estimatedCount} quality used ${label.toLowerCase()} available from trusted dealers in ${city}, ${state}. Our inventory updates daily with new arrivals.`
+                    ? \`Currently, we have approximately \${estimatedCount} quality used cars \${label.toLowerCase()} available from trusted dealers in \${city}, \${state}. Our inventory updates daily as dealers add new vehicles and competitive pricing.\`
+                    : \`Currently, we have approximately \${estimatedCount} quality used \${label.toLowerCase()} available from trusted dealers in \${city}, \${state}. Our inventory updates daily with new arrivals.\`
                 }
               },
               {
                 "@type": "Question",
                 "name": isPriceRange
-                  ? `What's the average savings on cars ${label.toLowerCase()} in ${city}?`
-                  : `What's the average price for used ${label.toLowerCase()} in ${city}?`,
+                  ? \`What's the average savings on cars \${label.toLowerCase()} in \${city}?\`
+                  : \`What's the average price for used \${label.toLowerCase()} in \${city}?\`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `${city} buyers save an average of $${avgSavings.toLocaleString()} on used ${isPriceRange ? 'cars in this price range' : label.toLowerCase()} through IQ Auto Deals. By creating competition between dealers, you get their absolute best price upfront.`
+                  "text": \`\${city} buyers save an average of $\${avgSavings.toLocaleString()} on used \${isPriceRange ? 'cars in this price range' : label.toLowerCase()} through IQ Auto Deals. By creating competition between dealers, you get their absolute best price upfront.\`
                 }
               }
             ]
@@ -178,7 +183,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "AutoDealer",
-            "name": `IQ Auto Deals - ${city}`,
+            "name": \`IQ Auto Deals - \${city}\`,
             "address": {
               "@type": "PostalAddress",
               "addressLocality": city,
@@ -210,7 +215,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               <li className="text-gray-400">/</li>
               <li><Link href="/locations" className="text-blue-600 hover:text-blue-800">Locations</Link></li>
               <li className="text-gray-400">/</li>
-              <li><Link href={`/locations/${location}`} className="text-blue-600 hover:text-blue-800">{city}</Link></li>
+              <li><Link href={\`/locations/\${location}\`} className="text-blue-600 hover:text-blue-800">{city}</Link></li>
               <li className="text-gray-400">/</li>
               <li className="text-gray-700">{label}</li>
             </ol>
@@ -220,23 +225,23 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
         <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              {isPriceRange ? `Used Cars ${label} in ${city}, ${stateCode}` : `Used ${label} for Sale in ${city}, ${stateCode}`}
+              {isPriceRange ? \`Used Cars \${label} in \${city}, \${stateCode}\` : \`Used \${label} for Sale in \${city}, \${stateCode}\`}
             </h1>
             <p className="text-xl mb-4">
               Shop {estimatedCount}+ Quality {isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers
             </p>
             <p className="text-lg mb-8 text-blue-100">
-              Average savings: ${avgSavings.toLocaleString()} • Compare prices instantly • No haggling required
+              Average savings: \${avgSavings.toLocaleString()} • Compare prices instantly • No haggling required
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/register"
                 className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
               >
-                {isPriceRange ? `Browse Cars ${label}` : `Browse ${label}`}
+                {isPriceRange ? \`Browse Cars \${label}\` : \`Browse \${label}\`}
               </Link>
               <Link
-                href={`/locations/${location}`}
+                href={\`/locations/\${location}\`}
                 className="inline-block bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition border-2 border-white"
               >
                 All {city} Cars
@@ -250,14 +255,14 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
             <div>
               <h2 className="text-3xl font-bold mb-6">
                 {isPriceRange
-                  ? `Why Buy a Car ${label} in ${city}?`
-                  : `Why Buy a Used ${bodyTypeData.singular} in ${city}?`
+                  ? \`Why Buy a Car \${label} in \${city}?\`
+                  : \`Why Buy a Used \${bodyTypeData.singular} in \${city}?\`
                 }
               </h2>
               <p className="text-gray-700 mb-4">
                 {isPriceRange
-                  ? `Looking for quality used cars ${label.toLowerCase()} in ${city}, ${state}? You're in the right place. IQ Auto Deals helps ${city} residents find the perfect vehicle in this price range while saving thousands.`
-                  : `Looking for a quality used ${bodyTypeData.singular.toLowerCase()} in ${city}, ${state}? IQ Auto Deals connects you with trusted dealers offering the best ${label.toLowerCase()} at competitive prices. Save thousands on your next ${bodyTypeData.singular.toLowerCase()}.`
+                  ? \`Looking for quality used cars \${label.toLowerCase()} in \${city}, \${state}? You're in the right place. IQ Auto Deals helps \${city} residents find the perfect vehicle in this price range while saving thousands.\`
+                  : \`Looking for a quality used \${bodyTypeData.singular.toLowerCase()} in \${city}, \${state}? IQ Auto Deals connects you with trusted dealers offering the best \${label.toLowerCase()} at competitive prices. Save thousands on your next \${bodyTypeData.singular.toLowerCase()}.\`
                 }
               </p>
               <ul className="space-y-3 mb-6">
@@ -265,7 +270,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-700">Average savings of ${avgSavings.toLocaleString()} compared to traditional dealerships</span>
+                  <span className="text-gray-700">Average savings of \${avgSavings.toLocaleString()} compared to traditional dealerships</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -279,8 +284,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                   </svg>
                   <span className="text-gray-700">
                     {isPriceRange
-                      ? `Wide selection of makes and models in your budget`
-                      : `Extensive inventory of ${label.toLowerCase()} from top brands`
+                      ? \`Wide selection of makes and models in your budget\`
+                      : \`Extensive inventory of \${label.toLowerCase()} from top brands\`
                     }
                   </span>
                 </li>
@@ -289,7 +294,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
 
             <div>
               <h2 className="text-3xl font-bold mb-6">
-                {isPriceRange ? 'Popular Models in This Price Range' : `Popular ${label} Brands`}
+                {isPriceRange ? 'Popular Models in This Price Range' : \`Popular \${label} Brands\`}
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 {isPriceRange ? (
@@ -338,8 +343,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
           <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6">
               {isPriceRange
-                ? `Browse Other Price Ranges in ${city}`
-                : `Browse Other Vehicle Types in ${city}`
+                ? \`Browse Other Price Ranges in \${city}\`
+                : \`Browse Other Vehicle Types in \${city}\`
               }
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -350,7 +355,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                     .map(([slug, data]) => (
                       <Link
                         key={slug}
-                        href={`/locations/${location}/${slug}`}
+                        href={\`/locations/\${location}/\${slug}\`}
                         className="block bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition text-center"
                       >
                         <div className="font-semibold text-gray-900">{data.label}</div>
@@ -362,7 +367,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                     .map(([slug, data]) => (
                       <Link
                         key={slug}
-                        href={`/locations/${location}/${slug}`}
+                        href={\`/locations/\${location}/\${slug}\`}
                         className="block bg-white border-2 border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:shadow-md transition text-center"
                       >
                         <div className="font-semibold text-gray-900">{data.label}</div>
@@ -377,7 +382,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               Ready to Find Your Perfect {isPriceRange ? 'Car' : bodyTypeData.singular} in {city}?
             </h2>
             <p className="text-xl mb-6">
-              Start browsing {estimatedCount}+ quality used {isPriceRange ? `cars ${label.toLowerCase()}` : label.toLowerCase()} today
+              Start browsing {estimatedCount}+ quality used {isPriceRange ? \`cars \${label.toLowerCase()}\` : label.toLowerCase()} today
             </p>
             <Link
               href="/register"
@@ -391,3 +396,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
     </>
   );
 }
+`;
+
+const outputPath = path.join(__dirname, '../app/locations/[location]/[filter]/page.tsx');
+fs.writeFileSync(outputPath, filterPageContent);
+console.log('✓ Generated combined filter page successfully');
