@@ -3,7 +3,7 @@ import { Calendar, ArrowLeft, CheckCircle, X, DollarSign, TrendingDown } from 'l
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'New vs Used Cars: Ultimate Guide for First-Time Buyers 2025',
+  title: 'New vs Used Cars: First-Time Buyers 2025',
   description: 'Should you buy new or used? Compare costs, depreciation, reliability, and financing. Expert advice to help first-time car buyers make the right choice.',
   keywords: 'new vs used cars, first time car buyer, should I buy new or used, car depreciation, used car benefits, new car warranty',
 };

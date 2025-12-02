@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
   const { make, model: modelName } = modelData;
 
   return {
-    title: `Used ${make} ${modelName} for Sale | Buy Certified Pre-Owned ${make} ${modelName} | IQ Auto Deals`,
+    title: `Used ${make} ${modelName} for Sale`,
     description: `Shop quality used ${make} ${modelName} for sale. Compare prices from local dealers, get instant offers, and save thousands on certified pre-owned ${make} ${modelName} vehicles. Browse our inventory with transparent pricing.`,
     keywords: [
       `used ${make} ${modelName}`,
@@ -140,7 +140,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
       `used ${modelName}`,
     ],
     openGraph: {
-      title: `Used ${make} ${modelName} for Sale | IQ Auto Deals`,
+      title: `Used ${make} ${modelName} for Sale`,
       description: `Shop quality used ${make} ${modelName}. Compare prices from local dealers and save up to $5,000.`,
       url: `https://iqautodeals.com/models/${modelSlug}`,
     },

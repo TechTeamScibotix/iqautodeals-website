@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import FinancingCalculator from '@/app/components/FinancingCalculator';
 
 export const metadata: Metadata = {
-  title: 'How to Finance a Used Car in 2025: Complete Guide | IQ Auto Deals',
+  title: 'How to Finance a Used Car in 2025',
   description: 'Learn everything about used car financing: credit scores, interest rates, loan terms, and how to get approved. Expert tips to save thousands on your auto loan.',
   keywords: 'used car financing, auto loan, car loan rates, how to finance a car, used car loan, bad credit car loan, car financing tips',
 };

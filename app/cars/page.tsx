@@ -165,6 +165,11 @@ export default function CarsPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Page Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-dark mb-6">
+          Used Cars for Sale - Browse Quality Pre-Owned Vehicles
+        </h1>
+
         {/* Search Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-dark">
@@ -404,19 +409,48 @@ export default function CarsPage() {
       {/* Footer */}
       <footer className="bg-dark text-white py-12 border-t border-gray-700 mt-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center">
-            <div className="mb-4">
-              <span className="font-bold text-2xl">IQ Auto Deals</span>
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">IQ Auto Deals</h3>
+              <p className="text-gray-400 text-sm">
+                Your trusted marketplace for quality used cars online. Compare prices from local dealers and save thousands.
+              </p>
             </div>
-            <p className="text-gray-400 text-center mb-6">
-              Your trusted marketplace for quality used cars online
-            </p>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-              <Link href="/register" className="hover:text-white transition-colors">Sign Up</Link>
-              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Popular Locations</h3>
+              <div className="flex flex-col gap-2 text-sm text-gray-400">
+                <Link href="/locations/atlanta" className="hover:text-white transition-colors">Atlanta</Link>
+                <Link href="/locations/houston" className="hover:text-white transition-colors">Houston</Link>
+                <Link href="/locations/los-angeles" className="hover:text-white transition-colors">Los Angeles</Link>
+                <Link href="/locations/chicago" className="hover:text-white transition-colors">Chicago</Link>
+                <Link href="/locations/miami" className="hover:text-white transition-colors">Miami</Link>
+                <Link href="/locations" className="hover:text-white transition-colors text-primary">All Locations →</Link>
+              </div>
             </div>
-            <p className="text-center text-gray-500 text-sm mt-8">&copy; 2025 IQ Auto Deals. All rights reserved.</p>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Popular Models</h3>
+              <div className="flex flex-col gap-2 text-sm text-gray-400">
+                <Link href="/models/toyota-camry" className="hover:text-white transition-colors">Toyota Camry</Link>
+                <Link href="/models/honda-accord" className="hover:text-white transition-colors">Honda Accord</Link>
+                <Link href="/models/ford-f150" className="hover:text-white transition-colors">Ford F-150</Link>
+                <Link href="/models/chevy-silverado" className="hover:text-white transition-colors">Chevy Silverado</Link>
+                <Link href="/models/jeep-wrangler" className="hover:text-white transition-colors">Jeep Wrangler</Link>
+                <Link href="/models" className="hover:text-white transition-colors text-primary">All Models →</Link>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-4">Resources</h3>
+              <div className="flex flex-col gap-2 text-sm text-gray-400">
+                <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+                <Link href="/guides/how-to-buy-used-car" className="hover:text-white transition-colors">How to Buy a Used Car</Link>
+                <Link href="/guides/car-financing-guide" className="hover:text-white transition-colors">Financing Guide</Link>
+                <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+                <Link href="/register" className="hover:text-white transition-colors">Sign Up</Link>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-700 pt-8 text-center">
+            <p className="text-gray-500 text-sm">&copy; 2025 IQ Auto Deals. All rights reserved.</p>
           </div>
         </div>
       </footer>

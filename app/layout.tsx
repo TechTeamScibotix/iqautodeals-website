@@ -9,7 +9,7 @@ import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
-    default: "Buy Used Cars Online - Shop Certified Pre-Owned Vehicles | IQ Auto Deals",
+    default: "Buy Used Cars Online | IQ Auto Deals",
     template: "%s | IQ Auto Deals"
   },
   description: "Shop thousands of quality used cars for sale online. Compare prices from local dealers, get instant offers, and save up to $5,000. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.",

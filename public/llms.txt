@@ -1,0 +1,32 @@
+# IQ Auto Deals
+
+## About
+IQ Auto Deals is an online marketplace connecting car buyers with local dealerships across the United States. We help buyers find quality used cars, compare prices, and get instant offers from trusted dealers.
+
+## Services
+- Used car marketplace with 16,000+ listings
+- Price comparison from local dealers
+- Instant vehicle appraisals
+- Financing assistance and calculators
+- Dealer integration via API
+
+## Coverage
+- 182 cities across all 50 US states
+- Thousands of trusted local dealerships
+- Multiple vehicle types: SUVs, sedans, trucks, luxury cars, electric vehicles
+
+## Key Features
+- Browse by location (city-specific pages)
+- Filter by price range
+- Search by vehicle make/model
+- Body type filtering (SUV, sedan, truck, etc.)
+- Educational blog content
+- Car buying guides
+
+## Contact
+- Website: https://iqautodeals.com
+- Email: support@iqautodeals.com
+- Phone: Available on website
+
+## API
+Dealer API documentation available at /API_DOCUMENTATION.md for dealership integration.

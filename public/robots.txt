@@ -1,17 +1,13 @@
-# Allow all crawlers
+# IQ Auto Deals - Robots.txt
+# https://iqautodeals.com
+
 User-agent: *
 Allow: /
 
-# Disallow admin and private areas
+# Disallow private and admin areas only
 Disallow: /api/
 Disallow: /dealer/
-Disallow: /customer/deals/
-Disallow: /login
-Disallow: /register
-
-# Allow search engines to crawl public pages
-Allow: /$
-Allow: /search
+Disallow: /customer/
 
 # Crawl-delay for aggressive bots
 User-agent: Bingbot

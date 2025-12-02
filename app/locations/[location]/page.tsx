@@ -306,7 +306,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { city, state, stateCode } = locationData;
 
   return {
-    title: `Used Cars for Sale in ${city}, ${stateCode} | Buy from Local Dealers | IQ Auto Deals`,
+    title: `Used Cars in ${city}, ${stateCode}`,
     description: `Shop quality used cars for sale in ${city}, ${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.`,
     keywords: [
       `used cars ${city}`,
@@ -323,7 +323,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       `affordable cars ${city}`,
     ],
     openGraph: {
-      title: `Used Cars for Sale in ${city}, ${stateCode} | IQ Auto Deals`,
+      title: `Used Cars in ${city}, ${stateCode}`,
       description: `Shop quality used cars in ${city}. Compare prices from local dealers and save up to $5,000.`,
       url: `https://iqautodeals.com/locations/${location}`,
     },
