@@ -499,7 +499,7 @@ export default function CarsPage() {
           onClick={closePhotoGallery}
         >
           <div
-            className="relative w-full max-w-6xl bg-white rounded-xl overflow-hidden my-8"
+            className="relative w-full max-w-7xl bg-white rounded-xl overflow-hidden my-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -510,10 +510,10 @@ export default function CarsPage() {
               <X className="w-6 h-6" />
             </button>
 
-            <div className="grid lg:grid-cols-2">
-              {/* Left: Photo Gallery */}
-              <div className="relative bg-gray-900">
-                <div className="relative aspect-[4/3]">
+            <div className="grid lg:grid-cols-5">
+              {/* Left: Photo Gallery - takes 3 columns */}
+              <div className="relative bg-gray-900 lg:col-span-3">
+                <div className="relative aspect-[16/10]">
                   <Image
                     src={viewingPhotos.photos[currentPhotoIndex]}
                     alt={`${viewingPhotos.car.year} ${viewingPhotos.car.make} ${viewingPhotos.car.model} - Photo ${currentPhotoIndex + 1}`}
@@ -571,8 +571,8 @@ export default function CarsPage() {
                 )}
               </div>
 
-              {/* Right: Vehicle Details */}
-              <div className="p-6 lg:p-8 overflow-y-auto max-h-[80vh]">
+              {/* Right: Vehicle Details - takes 2 columns */}
+              <div className="p-6 lg:p-8 overflow-y-auto max-h-[80vh] lg:col-span-2">
                 {/* Title & Price */}
                 <div className="mb-6">
                   <h2 className="text-2xl lg:text-3xl font-bold text-dark mb-2">
