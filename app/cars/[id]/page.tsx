@@ -260,7 +260,7 @@ export default async function CarDetailPage({ params }: PageProps) {
         description={car.description}
         imageUrl={photos[0]}
         vin={car.vin}
-        dealerName={car.dealer.businessName}
+        dealerName={car.dealer.businessName || undefined}
         city={car.city}
         state={car.state}
       />
