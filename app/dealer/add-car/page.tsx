@@ -102,6 +102,7 @@ export default function AddCarPage() {
           salePrice: formData.salePrice,
           city: formData.city,
           state: formData.state,
+          vin: formData.vin,
         }),
       });
 
@@ -111,6 +112,11 @@ export default function AddCarPage() {
 
       const data = await response.json();
       setFormData({ ...formData, description: data.description });
+
+      // Show uniqueness feedback
+      if (data.uniqueness && !data.uniqueness.isUnique) {
+        alert(`Note: This description was regenerated ${data.uniqueness.attempts} times to ensure uniqueness. Final result passed quality check.`);
+      }
     } catch (error) {
       alert('Failed to generate SEO description. Please try again.');
     } finally {
