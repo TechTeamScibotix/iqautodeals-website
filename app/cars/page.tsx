@@ -635,6 +635,12 @@ export default function CarsPage() {
                     <Phone className="w-5 h-5" />
                     Check Availability - Schedule Test Drive
                   </button>
+                  <Link
+                    href={`/cars/${viewingPhotos.car.id}`}
+                    className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
+                  >
+                    View Full Listing
+                  </Link>
                   {!user && (
                     <p className="text-center text-sm text-gray-600">
                       <Link href="/register?type=customer" className="text-primary font-semibold hover:underline">
