@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Upload, ImageIcon } from 'lucide-react';
+import { X, Upload, ImageIcon, Sparkles } from 'lucide-react';
 
 export default function EditCarPage() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function EditCarPage() {
   const [loading, setLoading] = useState(false);
   const [fetchingCar, setFetchingCar] = useState(true);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [generatingSEO, setGeneratingSEO] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     make: '',
@@ -129,6 +130,43 @@ export default function EditCarPage() {
 
   const removeImage = (index: number) => {
     setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleGenerateSEO = async () => {
+    if (!formData.make || !formData.model || !formData.year) {
+      alert('Please fill in Make, Model, and Year before generating SEO description');
+      return;
+    }
+
+    setGeneratingSEO(true);
+    try {
+      const response = await fetch('/api/generate-seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          make: formData.make,
+          model: formData.model,
+          year: formData.year,
+          mileage: formData.mileage,
+          color: formData.color,
+          transmission: formData.transmission,
+          salePrice: formData.salePrice,
+          city: formData.city,
+          state: formData.state,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate description');
+      }
+
+      const data = await response.json();
+      setFormData({ ...formData, description: data.description });
+    } catch (error) {
+      alert('Failed to generate SEO description. Please try again.');
+    } finally {
+      setGeneratingSEO(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -284,14 +322,27 @@ export default function EditCarPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Description *</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium">Description *</label>
+              <button
+                type="button"
+                onClick={handleGenerateSEO}
+                disabled={generatingSEO}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-4 h-4" />
+                {generatingSEO ? 'Generating...' : 'Agentix SEO'}
+              </button>
+            </div>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
               rows={4}
               required
+              placeholder="Enter description manually or click 'Agentix SEO' to auto-generate an optimized description"
             />
+            <p className="text-xs text-gray-500 mt-1">Agentix SEO generates search-optimized descriptions to help your listing rank higher</p>
           </div>
 
           {/* Image Upload Section */}
