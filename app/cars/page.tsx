@@ -4,7 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone } from 'lucide-react';
+import Footer from '../components/Footer';
+import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
+import {
+  trackSearchPerformed,
+  trackSearchNoResults,
+  trackFilterApplied,
+  trackCarGalleryOpened,
+  trackCarPhotoSwiped,
+  trackFunnelStep,
+} from '@/lib/analytics';
 
 interface CarListing {
   id: string;
@@ -17,6 +27,11 @@ interface CarListing {
   state: string;
   salePrice: number;
   photos: string;
+  description: string;
+  transmission: string;
+  vin: string;
+  isDemo?: boolean;
+  dealerId: string;
   dealer: {
     businessName: string;
   };
@@ -35,8 +50,15 @@ export default function CarsPage() {
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
+  const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
 
   useEffect(() => {
+    // Track funnel step: search started
+    trackFunnelStep({
+      step: 'search_started',
+      previousStep: 'homepage_landed',
+    });
+
     // Check if user is logged in (but don't require it)
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -50,7 +72,35 @@ export default function CarsPage() {
     try {
       const res = await fetch('/api/customer/search');
       const data = await res.json();
-      setCars(data.cars || []);
+      const loadedCars = data.cars || [];
+      setCars(loadedCars);
+
+      // Track search performed
+      trackSearchPerformed({
+        query: `${search.make} ${search.model}`.trim(),
+        resultsCount: loadedCars.length,
+        location: search.state,
+        filters: {
+          make: search.make,
+          model: search.model,
+          state: search.state,
+          condition: search.condition,
+        },
+      });
+
+      // Track if no results
+      if (loadedCars.length === 0) {
+        trackSearchNoResults({
+          query: `${search.make} ${search.model}`.trim(),
+          location: search.state,
+          filters: {
+            make: search.make,
+            model: search.model,
+            state: search.state,
+            condition: search.condition,
+          },
+        });
+      }
     } catch (error) {
       console.error('Failed to load cars:', error);
     } finally {
@@ -70,6 +120,11 @@ export default function CarsPage() {
     }
   };
 
+  const handleCheckAvailability = (car: CarListing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCheckingAvailability(car);
+  };
+
   const openPhotoGallery = (car: CarListing, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -77,6 +132,26 @@ export default function CarsPage() {
       if (photos.length > 0) {
         setViewingPhotos({ car, photos });
         setCurrentPhotoIndex(0);
+
+        // Track funnel step: car selected
+        trackFunnelStep({
+          step: 'car_selected',
+          previousStep: 'search_started',
+          metadata: {
+            carMake: car.make,
+            carModel: car.model,
+            carYear: car.year,
+            carPrice: car.salePrice,
+          },
+        });
+
+        // Track gallery opened
+        trackCarGalleryOpened({
+          vin: car.id,
+          make: car.make,
+          model: car.model,
+          photoCount: photos.length,
+        });
       } else {
         alert('No photos available for this vehicle');
       }
@@ -92,15 +167,43 @@ export default function CarsPage() {
 
   const nextPhoto = () => {
     if (viewingPhotos) {
-      setCurrentPhotoIndex((prev) => (prev + 1) % viewingPhotos.photos.length);
+      const newIndex = (currentPhotoIndex + 1) % viewingPhotos.photos.length;
+      setCurrentPhotoIndex(newIndex);
+
+      // Track photo swiped
+      trackCarPhotoSwiped({
+        vin: viewingPhotos.car.id,
+        photoIndex: newIndex,
+        totalPhotos: viewingPhotos.photos.length,
+      });
     }
   };
 
   const prevPhoto = () => {
     if (viewingPhotos) {
-      setCurrentPhotoIndex((prev) =>
-        prev === 0 ? viewingPhotos.photos.length - 1 : prev - 1
-      );
+      const newIndex = currentPhotoIndex === 0 ? viewingPhotos.photos.length - 1 : currentPhotoIndex - 1;
+      setCurrentPhotoIndex(newIndex);
+
+      // Track photo swiped
+      trackCarPhotoSwiped({
+        vin: viewingPhotos.car.id,
+        photoIndex: newIndex,
+        totalPhotos: viewingPhotos.photos.length,
+      });
+    }
+  };
+
+  // Filter change handlers with tracking
+  const handleFilterChange = (filterType: string, value: string) => {
+    setSearch(prev => ({ ...prev, [filterType]: value }));
+
+    // Track filter applied
+    if (value) {
+      trackFilterApplied({
+        filterType,
+        filterValue: value,
+        resultsCount: filteredCars.length,
+      });
     }
   };
 
@@ -114,24 +217,24 @@ export default function CarsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
+      <header className="bg-dark shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-3">
-            <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <div className="text-3xl font-bold text-primary">
               IQ Auto Deals
             </div>
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link href="/cars" className="text-primary hover:text-blue-700 transition-colors border-b-2 border-primary pb-1">
+            <Link href="/cars" className="text-primary border-b-2 border-primary pb-1">
               Cars for Sale
             </Link>
-            <Link href="/blog" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
               Research & Reviews
             </Link>
-            <Link href="/blog" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
               News & Videos
             </Link>
-            <Link href="/guides/car-financing-guide" className="text-gray-700 hover:text-primary transition-colors">
+            <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
               Financing
             </Link>
           </nav>
@@ -139,7 +242,7 @@ export default function CarsPage() {
             {user ? (
               <Link
                 href={user.userType === 'customer' ? '/customer' : '/dealer'}
-                className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
               >
                 Dashboard
               </Link>
@@ -147,14 +250,14 @@ export default function CarsPage() {
               <>
                 <Link
                   href="/login"
-                  className="text-gray-700 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold flex items-center gap-2"
+                  className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" />
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
                 >
                   Sign Up
                 </Link>
@@ -183,7 +286,7 @@ export default function CarsPage() {
           <div className="grid md:grid-cols-5 gap-4">
             <select
               value={search.condition}
-              onChange={(e) => setSearch({ ...search, condition: e.target.value })}
+              onChange={(e) => handleFilterChange('condition', e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="all">New/Used</option>
@@ -195,7 +298,7 @@ export default function CarsPage() {
               type="text"
               placeholder="Make (e.g., Toyota)"
               value={search.make}
-              onChange={(e) => setSearch({ ...search, make: e.target.value })}
+              onChange={(e) => handleFilterChange('make', e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             />
 
@@ -203,26 +306,72 @@ export default function CarsPage() {
               type="text"
               placeholder="Model (e.g., Camry)"
               value={search.model}
-              onChange={(e) => setSearch({ ...search, model: e.target.value })}
+              onChange={(e) => handleFilterChange('model', e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             />
 
             <select
               value={search.state}
-              onChange={(e) => setSearch({ ...search, state: e.target.value })}
+              onChange={(e) => handleFilterChange('state', e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="all">All States</option>
-              <option value="GA">Georgia</option>
-              <option value="FL">Florida</option>
               <option value="AL">Alabama</option>
+              <option value="AK">Alaska</option>
+              <option value="AZ">Arizona</option>
+              <option value="AR">Arkansas</option>
+              <option value="CA">California</option>
+              <option value="CO">Colorado</option>
+              <option value="CT">Connecticut</option>
+              <option value="DE">Delaware</option>
+              <option value="FL">Florida</option>
+              <option value="GA">Georgia</option>
+              <option value="HI">Hawaii</option>
+              <option value="ID">Idaho</option>
+              <option value="IL">Illinois</option>
+              <option value="IN">Indiana</option>
+              <option value="IA">Iowa</option>
+              <option value="KS">Kansas</option>
+              <option value="KY">Kentucky</option>
+              <option value="LA">Louisiana</option>
+              <option value="ME">Maine</option>
+              <option value="MD">Maryland</option>
+              <option value="MA">Massachusetts</option>
+              <option value="MI">Michigan</option>
+              <option value="MN">Minnesota</option>
+              <option value="MS">Mississippi</option>
+              <option value="MO">Missouri</option>
+              <option value="MT">Montana</option>
+              <option value="NE">Nebraska</option>
+              <option value="NV">Nevada</option>
+              <option value="NH">New Hampshire</option>
+              <option value="NJ">New Jersey</option>
+              <option value="NM">New Mexico</option>
+              <option value="NY">New York</option>
               <option value="NC">North Carolina</option>
+              <option value="ND">North Dakota</option>
+              <option value="OH">Ohio</option>
+              <option value="OK">Oklahoma</option>
+              <option value="OR">Oregon</option>
+              <option value="PA">Pennsylvania</option>
+              <option value="RI">Rhode Island</option>
               <option value="SC">South Carolina</option>
+              <option value="SD">South Dakota</option>
+              <option value="TN">Tennessee</option>
+              <option value="TX">Texas</option>
+              <option value="UT">Utah</option>
+              <option value="VT">Vermont</option>
+              <option value="VA">Virginia</option>
+              <option value="WA">Washington</option>
+              <option value="WV">West Virginia</option>
+              <option value="WI">Wisconsin</option>
+              <option value="WY">Wyoming</option>
+              <option value="DC">Washington D.C.</option>
             </select>
 
             <button
               onClick={loadCars}
-              className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all font-semibold flex items-center justify-center gap-2"
+              className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center justify-center gap-2"
             >
               <Search className="w-5 h-5" />
               Show Matches
@@ -294,9 +443,16 @@ export default function CarsPage() {
                   </div>
 
                   <div className="p-4">
-                    <h3 className="font-bold text-lg text-dark mb-2">
-                      {car.year} {car.make} {car.model}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-bold text-lg text-dark">
+                        {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                      </h3>
+                      {car.isDemo && (
+                        <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                          Sample
+                        </span>
+                      )}
+                    </div>
                     <p className="text-2xl font-bold text-primary mb-2">
                       ${car.salePrice.toLocaleString()}
                     </p>
@@ -310,150 +466,191 @@ export default function CarsPage() {
                     </div>
                     <p className="text-xs text-gray-500 mb-3">{car.dealer.businessName}</p>
 
-                    <button
-                      onClick={handleMakeDeal}
-                      className="w-full bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                    >
-                      {user ? 'Request Deal' : 'Sign In to Request Deal'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={(e) => handleCheckAvailability(car, e)}
+                        className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Check Availability - Test Drive
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
+
+      {/* Check Availability Modal */}
+      {checkingAvailability && (
+        <CheckAvailabilityModal
+          car={checkingAvailability}
+          user={user}
+          onClose={() => setCheckingAvailability(null)}
+        />
+      )}
       </div>
 
-      {/* Photo Gallery Modal */}
+      {/* Vehicle Details Modal */}
       {viewingPhotos && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
           onClick={closePhotoGallery}
         >
-          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative w-full max-w-6xl bg-white rounded-xl overflow-hidden my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
             <button
               onClick={closePhotoGallery}
-              className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition"
+              className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition"
             >
               <X className="w-6 h-6" />
             </button>
 
-            <div className="absolute top-4 left-4 z-10 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-              <h3 className="font-bold text-lg">
-                {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
-              </h3>
-              <p className="text-sm opacity-90">
-                {viewingPhotos.car.city}, {viewingPhotos.car.state} • {viewingPhotos.car.mileage.toLocaleString()} mi
-              </p>
-            </div>
+            <div className="grid lg:grid-cols-2">
+              {/* Left: Photo Gallery */}
+              <div className="relative bg-gray-900">
+                <div className="relative aspect-[4/3]">
+                  <Image
+                    src={viewingPhotos.photos[currentPhotoIndex]}
+                    alt={`${viewingPhotos.car.year} ${viewingPhotos.car.make} ${viewingPhotos.car.model} - Photo ${currentPhotoIndex + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
 
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-black/60 text-white px-4 py-2 rounded-full backdrop-blur-sm">
-              <p className="text-sm font-medium">
-                {currentPhotoIndex + 1} / {viewingPhotos.photos.length}
-              </p>
-            </div>
+                  {/* Photo Counter */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm">
+                    {currentPhotoIndex + 1} / {viewingPhotos.photos.length}
+                  </div>
 
-            <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-              <Image
-                src={viewingPhotos.photos[currentPhotoIndex]}
-                alt={`${viewingPhotos.car.year} ${viewingPhotos.car.make} ${viewingPhotos.car.model} - Photo ${currentPhotoIndex + 1}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 1280px) 100vw, 1280px"
-                priority
-              />
-            </div>
+                  {/* Navigation Arrows */}
+                  {viewingPhotos.photos.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevPhoto}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={nextPhoto}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
 
-            {viewingPhotos.photos.length > 1 && (
-              <>
-                <button
-                  onClick={prevPhoto}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
-                >
-                  <ChevronLeft className="w-8 h-8" />
-                </button>
-                <button
-                  onClick={nextPhoto}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
-                >
-                  <ChevronRight className="w-8 h-8" />
-                </button>
-              </>
-            )}
-
-            {viewingPhotos.photos.length > 1 && (
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-                {viewingPhotos.photos.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPhotoIndex(index)}
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition ${
-                      index === currentPhotoIndex ? 'ring-2 ring-white' : 'opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <Image
-                      src={photo}
-                      alt={`Thumbnail ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </button>
-                ))}
+                {/* Thumbnail Strip */}
+                {viewingPhotos.photos.length > 1 && (
+                  <div className="flex gap-1 p-2 overflow-x-auto bg-gray-800">
+                    {viewingPhotos.photos.map((photo, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPhotoIndex(index)}
+                        className={`relative flex-shrink-0 w-16 h-16 rounded overflow-hidden transition ${
+                          index === currentPhotoIndex ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <Image
+                          src={photo}
+                          alt={`Thumbnail ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Right: Vehicle Details */}
+              <div className="p-6 lg:p-8 overflow-y-auto max-h-[80vh]">
+                {/* Title & Price */}
+                <div className="mb-6">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-dark mb-2">
+                    {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
+                  </h2>
+                  <p className="text-3xl lg:text-4xl font-bold text-primary">
+                    ${viewingPhotos.car.salePrice.toLocaleString()}
+                  </p>
+                </div>
+
+                {/* Quick Specs */}
+                <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Mileage</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.mileage.toLocaleString()} mi</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Transmission</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.transmission || 'Automatic'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Exterior Color</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.color}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">Location</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.city}, {viewingPhotos.car.state}</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {viewingPhotos.car.description && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                      {viewingPhotos.car.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Dealer Info */}
+                <div className="mb-6 p-4 border border-gray-200 rounded-lg">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Sold By</p>
+                  <p className="font-semibold text-dark">{viewingPhotos.car.dealer.businessName}</p>
+                  <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                    <MapPin className="w-4 h-4" />
+                    {viewingPhotos.car.city}, {viewingPhotos.car.state}
+                  </p>
+                </div>
+
+                {/* CTA Buttons */}
+                <div className="space-y-3">
+                  <button
+                    onClick={(e) => {
+                      closePhotoGallery();
+                      handleCheckAvailability(viewingPhotos.car, e);
+                    }}
+                    className="w-full bg-primary text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Phone className="w-5 h-5" />
+                    Check Availability - Schedule Test Drive
+                  </button>
+                  {!user && (
+                    <p className="text-center text-sm text-gray-600">
+                      <Link href="/register?type=customer" className="text-primary font-semibold hover:underline">
+                        Create a free account
+                      </Link> to request competitive deals
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <footer className="bg-dark text-white py-12 border-t border-gray-700 mt-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">IQ Auto Deals</h3>
-              <p className="text-gray-400 text-sm">
-                Your trusted marketplace for quality used cars online. Compare prices from local dealers and save thousands.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Popular Locations</h3>
-              <div className="flex flex-col gap-2 text-sm text-gray-400">
-                <Link href="/locations/atlanta" className="hover:text-white transition-colors">Atlanta</Link>
-                <Link href="/locations/houston" className="hover:text-white transition-colors">Houston</Link>
-                <Link href="/locations/los-angeles" className="hover:text-white transition-colors">Los Angeles</Link>
-                <Link href="/locations/chicago" className="hover:text-white transition-colors">Chicago</Link>
-                <Link href="/locations/miami" className="hover:text-white transition-colors">Miami</Link>
-                <Link href="/locations" className="hover:text-white transition-colors text-primary">All Locations →</Link>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Popular Models</h3>
-              <div className="flex flex-col gap-2 text-sm text-gray-400">
-                <Link href="/models/toyota-camry" className="hover:text-white transition-colors">Toyota Camry</Link>
-                <Link href="/models/honda-accord" className="hover:text-white transition-colors">Honda Accord</Link>
-                <Link href="/models/ford-f150" className="hover:text-white transition-colors">Ford F-150</Link>
-                <Link href="/models/chevy-silverado" className="hover:text-white transition-colors">Chevy Silverado</Link>
-                <Link href="/models/jeep-wrangler" className="hover:text-white transition-colors">Jeep Wrangler</Link>
-                <Link href="/models" className="hover:text-white transition-colors text-primary">All Models →</Link>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">Resources</h3>
-              <div className="flex flex-col gap-2 text-sm text-gray-400">
-                <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-                <Link href="/guides/how-to-buy-used-car" className="hover:text-white transition-colors">How to Buy a Used Car</Link>
-                <Link href="/guides/car-financing-guide" className="hover:text-white transition-colors">Financing Guide</Link>
-                <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-                <Link href="/register" className="hover:text-white transition-colors">Sign Up</Link>
-              </div>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 pt-8 text-center">
-            <p className="text-gray-500 text-sm">&copy; 2025 IQ Auto Deals. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
