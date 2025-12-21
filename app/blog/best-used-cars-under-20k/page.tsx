@@ -402,7 +402,7 @@ export default function BestCarsUnder20kArticle() {
                 Browse thousands of quality used cars under $20,000. Compare prices from local dealers, request competitive offers, and drive home your dream car today.
               </p>
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
               >
                 Start Shopping Now

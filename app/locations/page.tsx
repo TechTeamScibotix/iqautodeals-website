@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Footer from '../components/Footer';
 
 export const metadata: Metadata = {
   title: 'Used Cars by Location - Shop Local Dealers Nationwide | IQ Auto Deals',
@@ -93,10 +94,10 @@ export default function LocationsPage() {
             Browse quality used cars from trusted dealers across all 50 states
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
-            Get Started
+            Browse Inventory
           </Link>
         </div>
       </section>
@@ -130,7 +131,57 @@ export default function LocationsPage() {
             </div>
           ))}
         </div>
+
+        {/* Popular Models Section */}
+        <div className="mt-16 border-t border-gray-200 pt-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">Browse by Popular Models</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/models/toyota-tacoma" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota Tacoma</span>
+            </Link>
+            <Link href="/models/toyota-4runner" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota 4Runner</span>
+            </Link>
+            <Link href="/models/honda-civic" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda Civic</span>
+            </Link>
+            <Link href="/models/honda-cr-v" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda CR-V</span>
+            </Link>
+            <Link href="/models/ford-f150" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Ford F-150</span>
+            </Link>
+            <Link href="/models/chevy-silverado" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chevy Silverado</span>
+            </Link>
+            <Link href="/models/jeep-wrangler" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jeep Wrangler</span>
+            </Link>
+            <Link href="/models/jeep-grand-cherokee" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jeep Grand Cherokee</span>
+            </Link>
+            <Link href="/models/bmw-x5" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">BMW X5</span>
+            </Link>
+            <Link href="/models/lexus-rx350" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Lexus RX 350</span>
+            </Link>
+            <Link href="/models/subaru-outback" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Subaru Outback</span>
+            </Link>
+            <Link href="/models/kia-telluride" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Kia Telluride</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/models" className="text-blue-600 font-semibold hover:underline">
+              View All Models →
+            </Link>
+          </div>
+        </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

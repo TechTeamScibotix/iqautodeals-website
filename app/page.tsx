@@ -7,6 +7,9 @@ import { Car, Search, TrendingDown, CheckCircle, Users, DollarSign, Award, Spark
 import FAQSchema from './components/FAQSchema';
 import AIChat from './components/AIChat';
 import FinancingCalculator from './components/FinancingCalculator';
+import Footer from './components/Footer';
+import { BorderBeam } from '@/components/AnimatedBorder';
+import { trackFunnelStep } from '@/lib/analytics';
 
 interface FeaturedCar {
   id: string;
@@ -15,6 +18,7 @@ interface FeaturedCar {
   year: number;
   salePrice: number;
   photos: string;
+  isDemo?: boolean;
   dealer: {
     businessName: string;
     city: string;
@@ -26,6 +30,13 @@ export default function Home() {
   const [featuredCars, setFeaturedCars] = useState<FeaturedCar[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Track funnel step: homepage landed
+  useEffect(() => {
+    trackFunnelStep({
+      step: 'homepage_landed',
+    });
+  }, []);
 
   useEffect(() => {
     const fetchFeaturedCars = async () => {
@@ -49,40 +60,40 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <AIChat />
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
+      <header className="bg-dark shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                IQ Auto Deals
-              </div>
-            </div>
+            <Link href="/" className="flex items-center gap-3">
+              <BorderBeam className="text-3xl">
+                <span className="font-bold text-primary-light">IQ Auto Deals</span>
+              </BorderBeam>
+            </Link>
 
             {/* Navigation Menu - cars.com style */}
             <nav className="hidden lg:flex gap-6 text-sm font-semibold">
-              <Link href="/cars" className="text-gray-700 hover:text-primary transition-colors">
+              <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
                 Cars for Sale
               </Link>
-              <Link href="/blog" className="text-gray-700 hover:text-primary transition-colors">
+              <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
                 Research & Reviews
               </Link>
-              <Link href="/blog" className="text-gray-700 hover:text-primary transition-colors">
+              <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
                 News & Videos
               </Link>
-              <Link href="/guides/car-financing-guide" className="text-gray-700 hover:text-primary transition-colors">
+              <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
                 Financing
               </Link>
             </nav>
 
             {/* Auth Buttons */}
             <div className="flex gap-3">
-              <Link href="/login" className="text-gray-700 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold flex items-center gap-2">
+              <Link href="/login" className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold flex items-center gap-2">
                 <LogIn className="w-4 h-4" />
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center gap-2"
+                className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold flex items-center gap-2"
               >
                 <UserPlus className="w-4 h-4" />
                 Sign Up
@@ -93,7 +104,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative bg-gradient-to-br from-gray-100 to-gray-200 py-16">
+      <section className="relative bg-light py-16">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-5 gap-8 items-start">
             {/* Left: Search Panel */}
@@ -166,7 +177,7 @@ export default function Home() {
                 {/* Search Button */}
                 <Link
                   href="/cars"
-                  className="w-full bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
+                  className="w-full bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 text-sm"
                 >
                   Show Matches
                 </Link>
@@ -174,7 +185,7 @@ export default function Home() {
 
               {/* Promotional Banner */}
               <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-2 rounded-lg text-center">
+                <div className="bg-secondary text-white px-3 py-2 rounded-lg text-center">
                   <p className="font-bold text-sm">Dealers: Sign Up Free - Trial 90 Days Free!</p>
                 </div>
               </div>
@@ -281,9 +292,16 @@ export default function Home() {
                         )}
                       </div>
                       <div className="p-4">
-                        <h4 className="font-bold text-lg text-dark mb-1">
-                          {car.year} {car.make} {car.model}
-                        </h4>
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h4 className="font-bold text-lg text-dark">
+                            {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                          </h4>
+                          {car.isDemo && (
+                            <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                              Sample
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-600 mb-2 flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {car.dealer.city}, {car.dealer.state}
@@ -348,7 +366,7 @@ export default function Home() {
       </section>
 
       {/* Car Loan Calculator Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 py-20 border-t border-gray-200">
+      <section className="bg-light-dark py-20 border-t border-gray-200">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">Car Loan Calculator</h2>
@@ -363,7 +381,7 @@ export default function Home() {
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <p className="text-sm text-gray-600 text-center">
-                  Ready to find your perfect car? <Link href="/register?type=customer" className="text-primary font-semibold hover:underline">Start shopping now</Link> and compare prices from local dealers.
+                  Ready to find your perfect car? <Link href="/cars" className="text-primary font-semibold hover:underline">Start shopping now</Link> and compare prices from local dealers.
                 </p>
               </div>
             </div>
@@ -421,7 +439,7 @@ export default function Home() {
               <ul className="space-y-4">
                 <li className="flex gap-3 items-start">
                   <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">List your inventory for only $19 per car</span>
+                  <span className="text-gray-700">90-day free trial - Silver, Gold, Platinum packages</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
@@ -535,7 +553,7 @@ export default function Home() {
           <div className="text-center mt-12">
             <Link
               href="/blog"
-              className="inline-block bg-primary text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-blue-700 transition-colors"
+              className="inline-block bg-primary text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-primary-dark transition-colors"
             >
               View All Articles
             </Link>
@@ -555,48 +573,48 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Browse by Location */}
-            <Link href="/locations" className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-8 hover:shadow-2xl hover:border-blue-400 transition-all group">
+            <Link href="/locations" className="bg-white border border-border rounded-xl p-8 hover:shadow-xl hover:border-primary transition-all group">
               <div className="flex items-center gap-4 mb-6">
-                <div className="bg-blue-600 w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="bg-primary w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                   <MapPin className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-dark">Browse by Location</h3>
               </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-text-secondary mb-6 leading-relaxed">
                 Find used cars from trusted dealers in your city. We cover all 50 states and 180+ major cities across the US.
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Atlanta</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Los Angeles</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Houston</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Chicago</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">+178 more</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Atlanta</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Los Angeles</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Houston</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Chicago</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">+178 more</span>
               </div>
-              <div className="flex items-center text-blue-600 font-semibold text-lg group-hover:gap-3 transition-all">
+              <div className="flex items-center text-primary font-semibold text-lg group-hover:gap-3 transition-all">
                 View All Locations
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
             {/* Browse by Model */}
-            <Link href="/models" className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-8 hover:shadow-2xl hover:border-green-400 transition-all group">
+            <Link href="/models" className="bg-white border border-border rounded-xl p-8 hover:shadow-xl hover:border-accent transition-all group">
               <div className="flex items-center gap-4 mb-6">
-                <div className="bg-green-600 w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="bg-accent w-16 h-16 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Car className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-dark">Browse by Model</h3>
               </div>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-text-secondary mb-6 leading-relaxed">
                 Shop used cars by your favorite make and model. Find popular vehicles from Toyota, Honda, Ford, Chevrolet, and more.
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Toyota Tacoma</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Honda Civic</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Ford F-150</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">Jeep Wrangler</span>
-                <span className="bg-white px-3 py-1 rounded-full text-sm font-semibold text-gray-700">+58 more</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Toyota Tacoma</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Honda Civic</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Ford F-150</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">Jeep Wrangler</span>
+                <span className="bg-light-dark px-3 py-1 rounded-full text-sm font-medium text-text-secondary">+58 more</span>
               </div>
-              <div className="flex items-center text-green-600 font-semibold text-lg group-hover:gap-3 transition-all">
+              <div className="flex items-center text-accent font-semibold text-lg group-hover:gap-3 transition-all">
                 View All Models
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -606,7 +624,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section className="bg-gray-50 py-20 border-t border-gray-200">
+      <section className="bg-light py-20 border-t border-gray-200">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4 flex items-center justify-center gap-2">
@@ -712,25 +730,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark text-white py-12 border-t border-gray-700">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center">
-            <div className="mb-4">
-              <span className="font-bold text-2xl">IQ Auto Deals</span>
-            </div>
-            <p className="text-gray-400 text-center mb-6">
-              Your trusted marketplace for quality used cars online
-            </p>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-              <Link href="/register" className="hover:text-white transition-colors">Sign Up</Link>
-              <Link href="/dealer-integration" className="hover:text-white transition-colors">Dealer Integration</Link>
-              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-            </div>
-            <p className="text-center text-gray-500 text-sm mt-8">&copy; 2025 IQ Auto Deals. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

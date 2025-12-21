@@ -113,7 +113,7 @@ export default function BlogPage() {
             Browse thousands of quality used cars and get competitive offers from local dealers
           </p>
           <Link
-            href="/register?type=customer"
+            href="/cars"
             className="inline-block bg-white text-primary px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors"
           >
             Start Shopping Now

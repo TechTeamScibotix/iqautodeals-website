@@ -188,7 +188,7 @@ export default function HowToBuyUsedCarGuide() {
                 Browse thousands of quality used cars with verified history. Compare prices from multiple dealers and get the best deal.
               </p>
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
               >
                 Browse Cars Now

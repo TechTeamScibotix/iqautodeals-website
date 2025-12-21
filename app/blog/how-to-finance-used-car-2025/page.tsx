@@ -225,7 +225,7 @@ export default function FinanceGuideArticle() {
                 Browse thousands of quality used cars on IQ Auto Deals. Compare prices from local dealers and get competitive financing offers all in one place.
               </p>
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
               >
                 Start Shopping Now

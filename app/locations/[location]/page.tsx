@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Footer from '../../components/Footer';
 
 // Location data for all 50 states + major cities
 const locations = {
@@ -355,7 +356,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
             Shop Quality Pre-Owned Vehicles from Trusted Dealers in {city}, {state}
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
             Browse Cars in {city}
@@ -447,7 +448,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Find spacious and reliable SUVs perfect for {city} roads and {state} adventures.
               </p>
-              <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
                 Browse SUVs →
               </Link>
             </div>
@@ -456,7 +457,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Discover fuel-efficient and comfortable sedans from top brands available in {city}.
               </p>
-              <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
                 Browse Sedans →
               </Link>
             </div>
@@ -465,7 +466,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Powerful trucks for work or play, available from trusted dealers in {city}, {stateCode}.
               </p>
-              <Link href="/register" className="text-blue-600 font-semibold hover:underline">
+              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
                 Browse Trucks →
               </Link>
             </div>
@@ -476,14 +477,135 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
         <div className="bg-blue-50 rounded-lg p-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Perfect Car in {city}?</h2>
           <p className="text-xl text-gray-700 mb-6">
-            Join thousands of happy customers who saved money on quality used cars in {city}, {state}.
+            Browse quality used cars from trusted dealers in {city}, {state}.
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
-            Get Started Now
+            Browse Inventory
           </Link>
+        </div>
+      </section>
+
+      {/* Browse Popular Models Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Popular Used Cars in {city}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/models/toyota-tacoma" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota Tacoma</span>
+            </Link>
+            <Link href="/models/toyota-4runner" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota 4Runner</span>
+            </Link>
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda Civic</span>
+            </Link>
+            <Link href="/models/honda-cr-v" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda CR-V</span>
+            </Link>
+            <Link href="/models/ford-f150" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Ford F-150</span>
+            </Link>
+            <Link href="/models/chevy-silverado" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chevy Silverado</span>
+            </Link>
+            <Link href="/models/jeep-wrangler" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jeep Wrangler</span>
+            </Link>
+            <Link href="/models/jeep-grand-cherokee" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jeep Grand Cherokee</span>
+            </Link>
+            <Link href="/models/toyota-rav4" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota RAV4</span>
+            </Link>
+            <Link href="/models/honda-pilot" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda Pilot</span>
+            </Link>
+            <Link href="/models/bmw-x5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">BMW X5</span>
+            </Link>
+            <Link href="/models/lexus-rx350" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Lexus RX 350</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/models" className="text-blue-600 font-semibold hover:underline">
+              View All Models →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Nearby Cities Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Used Cars in Other {state} Cities</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Object.entries(locations)
+              .filter(([slug, data]) => data.state === state && slug !== location)
+              .slice(0, 12)
+              .map(([slug, data]) => (
+                <Link
+                  key={slug}
+                  href={`/locations/${slug}`}
+                  className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center"
+                >
+                  <span className="font-semibold text-gray-900">{data.city}</span>
+                </Link>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Browse Other Major Cities */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Browse Used Cars in Major Cities</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/locations/atlanta" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Atlanta</span>
+            </Link>
+            <Link href="/locations/los-angeles" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Los Angeles</span>
+            </Link>
+            <Link href="/locations/chicago" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chicago</span>
+            </Link>
+            <Link href="/locations/houston" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Houston</span>
+            </Link>
+            <Link href="/locations/phoenix" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Phoenix</span>
+            </Link>
+            <Link href="/locations/philadelphia" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Philadelphia</span>
+            </Link>
+            <Link href="/locations/san-antonio" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Antonio</span>
+            </Link>
+            <Link href="/locations/san-diego" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Diego</span>
+            </Link>
+            <Link href="/locations/dallas" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Dallas</span>
+            </Link>
+            <Link href="/locations/san-jose" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Jose</span>
+            </Link>
+            <Link href="/locations/austin" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Austin</span>
+            </Link>
+            <Link href="/locations/jacksonville" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jacksonville</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/locations" className="text-blue-600 font-semibold hover:underline">
+              View All Locations →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -527,6 +649,8 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
           }),
         }}
       />
+
+      <Footer />
     </div>
   );
 }

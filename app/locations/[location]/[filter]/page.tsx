@@ -275,7 +275,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/register"
+                href="/cars"
                 className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
               >
                 {isPriceRange ? `Browse Cars ${label}` : `Browse ${label}`}
@@ -440,10 +440,10 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               Start browsing {estimatedCount}+ quality used {isPriceRange ? `cars ${label.toLowerCase()}` : label} today
             </p>
             <Link
-              href="/register"
+              href="/cars"
               className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition text-lg"
             >
-              Get Started - It's Free
+              Browse Inventory
             </Link>
           </div>
         </section>

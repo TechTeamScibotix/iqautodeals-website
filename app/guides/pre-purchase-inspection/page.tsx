@@ -166,7 +166,7 @@ export default function PrePurchaseInspectionGuide() {
                 Browse thousands of quality used cars on IQ Auto Deals. Many come with inspection reports and warranties for peace of mind.
               </p>
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
               >
                 Browse Cars Now

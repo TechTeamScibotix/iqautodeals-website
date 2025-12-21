@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import Footer from '../../components/Footer';
 
 // Popular car models data
 const models = {
@@ -175,7 +176,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             Average Price: ${avgPrice.toLocaleString()} | Vehicle Type: {type}
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
             Browse {make} {modelName} Inventory
@@ -291,11 +292,132 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             Join thousands of happy customers who saved money on quality used {make} {modelName} vehicles.
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Browse {make} {modelName} Inventory
           </Link>
+        </div>
+      </section>
+
+      {/* Related Models from Same Brand */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Other {make} Models</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {Object.entries(models)
+              .filter(([slug, data]) => data.make === make && slug !== modelSlug)
+              .slice(0, 6)
+              .map(([slug, data]) => (
+                <Link
+                  key={slug}
+                  href={`/models/${slug}`}
+                  className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center"
+                >
+                  <span className="font-semibold text-gray-900">{data.make} {data.model}</span>
+                </Link>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Browse by Location Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Find a {make} {modelName} Near You</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/locations/atlanta" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Atlanta</span>
+            </Link>
+            <Link href="/locations/los-angeles" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Los Angeles</span>
+            </Link>
+            <Link href="/locations/chicago" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chicago</span>
+            </Link>
+            <Link href="/locations/houston" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Houston</span>
+            </Link>
+            <Link href="/locations/phoenix" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Phoenix</span>
+            </Link>
+            <Link href="/locations/philadelphia" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Philadelphia</span>
+            </Link>
+            <Link href="/locations/san-antonio" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Antonio</span>
+            </Link>
+            <Link href="/locations/san-diego" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Diego</span>
+            </Link>
+            <Link href="/locations/dallas" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Dallas</span>
+            </Link>
+            <Link href="/locations/denver" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Denver</span>
+            </Link>
+            <Link href="/locations/seattle" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Seattle</span>
+            </Link>
+            <Link href="/locations/miami" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Miami</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/locations" className="text-blue-600 font-semibold hover:underline">
+              View All Locations →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Models Section */}
+      <section className="bg-gray-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold mb-8 text-center">Other Popular Models</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/models/toyota-tacoma" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota Tacoma</span>
+            </Link>
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda Civic</span>
+            </Link>
+            <Link href="/models/ford-f150" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Ford F-150</span>
+            </Link>
+            <Link href="/models/chevy-silverado" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chevy Silverado</span>
+            </Link>
+            <Link href="/models/jeep-wrangler" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Jeep Wrangler</span>
+            </Link>
+            <Link href="/models/toyota-4runner" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Toyota 4Runner</span>
+            </Link>
+            <Link href="/models/honda-cr-v" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Honda CR-V</span>
+            </Link>
+            <Link href="/models/bmw-x5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">BMW X5</span>
+            </Link>
+            <Link href="/models/lexus-rx350" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Lexus RX 350</span>
+            </Link>
+            <Link href="/models/subaru-outback" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Subaru Outback</span>
+            </Link>
+            <Link href="/models/kia-telluride" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Kia Telluride</span>
+            </Link>
+            <Link href="/models/mazda-cx5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Mazda CX-5</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/models" className="text-blue-600 font-semibold hover:underline">
+              View All Models →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -327,6 +449,8 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
           }),
         }}
       />
+
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Footer from '../components/Footer';
 
 export const metadata: Metadata = {
   title: 'Used Cars by Make & Model - Browse Popular Vehicles | IQ Auto Deals',
@@ -117,10 +118,10 @@ export default function ModelsPage() {
             Find your perfect vehicle from top brands. Compare prices and save thousands.
           </p>
           <Link
-            href="/register"
+            href="/cars"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
-            Get Started
+            Browse Inventory
           </Link>
         </div>
       </section>
@@ -154,7 +155,57 @@ export default function ModelsPage() {
             </div>
           ))}
         </div>
+
+        {/* Popular Locations Section */}
+        <div className="mt-16 border-t border-gray-200 pt-16">
+          <h2 className="text-3xl font-bold mb-8 text-center">Browse by Location</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <Link href="/locations/atlanta" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Atlanta</span>
+            </Link>
+            <Link href="/locations/los-angeles" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Los Angeles</span>
+            </Link>
+            <Link href="/locations/chicago" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Chicago</span>
+            </Link>
+            <Link href="/locations/houston" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Houston</span>
+            </Link>
+            <Link href="/locations/phoenix" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Phoenix</span>
+            </Link>
+            <Link href="/locations/philadelphia" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Philadelphia</span>
+            </Link>
+            <Link href="/locations/san-antonio" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Antonio</span>
+            </Link>
+            <Link href="/locations/san-diego" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">San Diego</span>
+            </Link>
+            <Link href="/locations/dallas" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Dallas</span>
+            </Link>
+            <Link href="/locations/denver" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Denver</span>
+            </Link>
+            <Link href="/locations/seattle" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Seattle</span>
+            </Link>
+            <Link href="/locations/miami" className="bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center">
+              <span className="font-semibold text-gray-900">Miami</span>
+            </Link>
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/locations" className="text-blue-600 font-semibold hover:underline">
+              View All Locations →
+            </Link>
+          </div>
+        </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

@@ -330,7 +330,7 @@ export default function NewVsUsedArticle() {
 
             <div className="bg-blue-50 rounded-lg p-6 text-center">
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-blue-700 transition-colors text-lg"
               >
                 Browse Quality Used Cars Now

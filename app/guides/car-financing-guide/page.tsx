@@ -155,7 +155,7 @@ export default function CarFinancingGuide() {
                 Get pre-approved, then browse quality used cars on IQ Auto Deals. Compare prices and find your perfect vehicle.
               </p>
               <Link
-                href="/register?type=customer"
+                href="/cars"
                 className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
               >
                 Start Shopping
