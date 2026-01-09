@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone, Globe, ExternalLink } from 'lucide-react';
 import Footer from '../components/Footer';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
 import {
@@ -18,6 +18,7 @@ import {
 
 interface CarListing {
   id: string;
+  slug?: string;
   make: string;
   model: string;
   year: number;
@@ -34,7 +35,16 @@ interface CarListing {
   dealerId: string;
   dealer: {
     businessName: string;
+    websiteUrl?: string;
   };
+}
+
+interface FilterOptions {
+  makes: string[];
+  years: number[];
+  states: string[];
+  modelsByMake: Record<string, string[]>;
+  totalCount: number;
 }
 
 export default function CarsPage() {
@@ -44,13 +54,27 @@ export default function CarsPage() {
   const [search, setSearch] = useState({
     make: '',
     model: '',
-    state: 'GA',
+    state: 'all',  // Default to all states
     condition: 'all' // new, used, or all
   });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
   const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
+
+  // Dynamic filter options from database
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    makes: [],
+    years: [],
+    states: [],
+    modelsByMake: {},
+    totalCount: 0,
+  });
+
+  // Get models for selected make
+  const availableModels = search.make
+    ? filterOptions.modelsByMake[search.make.toUpperCase()] || []
+    : [];
 
   useEffect(() => {
     // Track funnel step: search started
@@ -64,13 +88,44 @@ export default function CarsPage() {
     if (userData) {
       setUser(JSON.parse(userData));
     }
+
+    // Fetch filter options from database
+    const fetchFilters = async () => {
+      try {
+        const res = await fetch('/api/filters');
+        const data = await res.json();
+        if (data.makes) {
+          setFilterOptions(data);
+        }
+      } catch (error) {
+        console.error('Failed to load filters:', error);
+      }
+    };
+    fetchFilters();
+
     loadCars();
   }, []);
+
+  // Reset model when make changes
+  useEffect(() => {
+    if (search.make && search.model) {
+      const models = filterOptions.modelsByMake[search.make.toUpperCase()] || [];
+      if (!models.includes(search.model)) {
+        setSearch((prev) => ({ ...prev, model: '' }));
+      }
+    }
+  }, [search.make, search.model, filterOptions.modelsByMake]);
 
   const loadCars = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/customer/search');
+      // Build query params
+      const params = new URLSearchParams();
+      if (search.make) params.append('make', search.make);
+      if (search.model) params.append('model', search.model);
+      if (search.state && search.state !== 'all') params.append('state', search.state);
+
+      const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
       const loadedCars = data.cars || [];
       setCars(loadedCars);
@@ -294,79 +349,49 @@ export default function CarsPage() {
               <option value="used">Used</option>
             </select>
 
-            <input
-              type="text"
-              placeholder="Make (e.g., Toyota)"
+            <select
               value={search.make}
-              onChange={(e) => handleFilterChange('make', e.target.value)}
+              onChange={(e) => {
+                handleFilterChange('make', e.target.value);
+                setSearch(prev => ({ ...prev, make: e.target.value, model: '' }));
+              }}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            />
+            >
+              <option value="">All Makes ({filterOptions.makes.length})</option>
+              {filterOptions.makes.map((make) => (
+                <option key={make} value={make}>
+                  {make}
+                </option>
+              ))}
+            </select>
 
-            <input
-              type="text"
-              placeholder="Model (e.g., Camry)"
+            <select
               value={search.model}
               onChange={(e) => handleFilterChange('model', e.target.value)}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            />
+              disabled={!search.make}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="">
+                {search.make ? `All ${search.make} Models (${availableModels.length})` : 'Select Make First'}
+              </option>
+              {availableModels.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </select>
 
             <select
               value={search.state}
               onChange={(e) => handleFilterChange('state', e.target.value)}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
-              <option value="all">All States</option>
-              <option value="AL">Alabama</option>
-              <option value="AK">Alaska</option>
-              <option value="AZ">Arizona</option>
-              <option value="AR">Arkansas</option>
-              <option value="CA">California</option>
-              <option value="CO">Colorado</option>
-              <option value="CT">Connecticut</option>
-              <option value="DE">Delaware</option>
-              <option value="FL">Florida</option>
-              <option value="GA">Georgia</option>
-              <option value="HI">Hawaii</option>
-              <option value="ID">Idaho</option>
-              <option value="IL">Illinois</option>
-              <option value="IN">Indiana</option>
-              <option value="IA">Iowa</option>
-              <option value="KS">Kansas</option>
-              <option value="KY">Kentucky</option>
-              <option value="LA">Louisiana</option>
-              <option value="ME">Maine</option>
-              <option value="MD">Maryland</option>
-              <option value="MA">Massachusetts</option>
-              <option value="MI">Michigan</option>
-              <option value="MN">Minnesota</option>
-              <option value="MS">Mississippi</option>
-              <option value="MO">Missouri</option>
-              <option value="MT">Montana</option>
-              <option value="NE">Nebraska</option>
-              <option value="NV">Nevada</option>
-              <option value="NH">New Hampshire</option>
-              <option value="NJ">New Jersey</option>
-              <option value="NM">New Mexico</option>
-              <option value="NY">New York</option>
-              <option value="NC">North Carolina</option>
-              <option value="ND">North Dakota</option>
-              <option value="OH">Ohio</option>
-              <option value="OK">Oklahoma</option>
-              <option value="OR">Oregon</option>
-              <option value="PA">Pennsylvania</option>
-              <option value="RI">Rhode Island</option>
-              <option value="SC">South Carolina</option>
-              <option value="SD">South Dakota</option>
-              <option value="TN">Tennessee</option>
-              <option value="TX">Texas</option>
-              <option value="UT">Utah</option>
-              <option value="VT">Vermont</option>
-              <option value="VA">Virginia</option>
-              <option value="WA">Washington</option>
-              <option value="WV">West Virginia</option>
-              <option value="WI">Wisconsin</option>
-              <option value="WY">Wyoming</option>
-              <option value="DC">Washington D.C.</option>
+              <option value="all">All States ({filterOptions.states.length})</option>
+              {filterOptions.states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
             </select>
 
             <button
@@ -621,6 +646,18 @@ export default function CarsPage() {
                     <MapPin className="w-4 h-4" />
                     {viewingPhotos.car.city}, {viewingPhotos.car.state}
                   </p>
+                  {viewingPhotos.car.dealer.websiteUrl && (
+                    <a
+                      href={viewingPhotos.car.dealer.websiteUrl}
+                      target="_blank"
+                      rel="noopener"
+                      className="text-sm text-primary hover:text-primary-dark flex items-center gap-1 mt-2 font-medium"
+                    >
+                      <Globe className="w-4 h-4" />
+                      Visit Dealer Website
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
                 </div>
 
                 {/* CTA Buttons */}
@@ -636,7 +673,7 @@ export default function CarsPage() {
                     Check Availability - Schedule Test Drive
                   </button>
                   <Link
-                    href={`/cars/${viewingPhotos.car.id}`}
+                    href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
                     className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
                   >
                     View Full Listing

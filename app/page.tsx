@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { Car, Search, TrendingDown, CheckCircle, Users, DollarSign, Award, Sparkles, ArrowRight, LogIn, UserPlus, MapPin, HelpCircle } from 'lucide-react';
 import FAQSchema from './components/FAQSchema';
 import AIChat from './components/AIChat';
@@ -26,10 +27,43 @@ interface FeaturedCar {
   };
 }
 
+interface FilterOptions {
+  makes: string[];
+  years: number[];
+  states: string[];
+  modelsByMake: Record<string, string[]>;
+  totalCount: number;
+}
+
 export default function Home() {
+  const router = useRouter();
   const [featuredCars, setFeaturedCars] = useState<FeaturedCar[]>([]);
   const [loading, setLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Filter options from database
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    makes: [],
+    years: [],
+    states: [],
+    modelsByMake: {},
+    totalCount: 0,
+  });
+
+  // Search form state
+  const [searchForm, setSearchForm] = useState({
+    condition: '',
+    make: '',
+    model: '',
+    state: '',
+    zipCode: '',
+    radius: '50',
+  });
+
+  // Get models for selected make
+  const availableModels = searchForm.make
+    ? filterOptions.modelsByMake[searchForm.make.toUpperCase()] || []
+    : [];
 
   // Track funnel step: homepage landed
   useEffect(() => {
@@ -37,6 +71,41 @@ export default function Home() {
       step: 'homepage_landed',
     });
   }, []);
+
+  // Fetch filter options from database
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await fetch('/api/filters');
+        const data = await res.json();
+        if (data.makes) {
+          setFilterOptions(data);
+        }
+      } catch (error) {
+        console.error('Failed to load filters:', error);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  // Reset model when make changes
+  useEffect(() => {
+    if (searchForm.make && searchForm.model) {
+      const models = filterOptions.modelsByMake[searchForm.make.toUpperCase()] || [];
+      if (!models.includes(searchForm.model)) {
+        setSearchForm((prev) => ({ ...prev, model: '' }));
+      }
+    }
+  }, [searchForm.make, searchForm.model, filterOptions.modelsByMake]);
+
+  // Handle search submission
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchForm.make) params.append('make', searchForm.make);
+    if (searchForm.model) params.append('model', searchForm.model);
+    if (searchForm.state) params.append('state', searchForm.state);
+    router.push(`/cars?${params.toString()}`);
+  };
 
   useEffect(() => {
     const fetchFeaturedCars = async () => {
@@ -139,48 +208,67 @@ export default function Home() {
 
                 {/* Advanced Filters */}
                 <div className="space-y-2">
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm">
-                    <option value="">New/used</option>
+                  <select
+                    value={searchForm.condition}
+                    onChange={(e) => setSearchForm({ ...searchForm, condition: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                  >
+                    <option value="">New/Used</option>
                     <option value="new">New</option>
                     <option value="used">Used</option>
                   </select>
 
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm">
-                    <option value="">Make</option>
-                    <option value="toyota">Toyota</option>
-                    <option value="honda">Honda</option>
-                    <option value="ford">Ford</option>
-                    <option value="chevrolet">Chevrolet</option>
-                    <option value="nissan">Nissan</option>
+                  <select
+                    value={searchForm.make}
+                    onChange={(e) => setSearchForm({ ...searchForm, make: e.target.value, model: '' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                  >
+                    <option value="">All Makes ({filterOptions.makes.length})</option>
+                    {filterOptions.makes.map((make) => (
+                      <option key={make} value={make}>
+                        {make}
+                      </option>
+                    ))}
                   </select>
 
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm">
-                    <option value="">Model</option>
+                  <select
+                    value={searchForm.model}
+                    onChange={(e) => setSearchForm({ ...searchForm, model: e.target.value })}
+                    disabled={!searchForm.make}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    <option value="">
+                      {searchForm.make ? `All ${searchForm.make} Models (${availableModels.length})` : 'Select Make First'}
+                    </option>
+                    {availableModels.map((model) => (
+                      <option key={model} value={model}>
+                        {model}
+                      </option>
+                    ))}
                   </select>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm">
-                      <option value="50">50 miles</option>
-                      <option value="100">100 miles</option>
-                      <option value="200">200 miles</option>
-                      <option value="nationwide">Nationwide</option>
-                    </select>
-
-                    <input
-                      type="text"
-                      placeholder="ZIP Code"
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-                    />
-                  </div>
+                  <select
+                    value={searchForm.state}
+                    onChange={(e) => setSearchForm({ ...searchForm, state: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                  >
+                    <option value="">All States ({filterOptions.states.length})</option>
+                    {filterOptions.states.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Search Button */}
-                <Link
-                  href="/cars"
+                <button
+                  onClick={handleSearch}
                   className="w-full bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 text-sm"
                 >
-                  Show Matches
-                </Link>
+                  <Search className="w-4 h-4" />
+                  Show {filterOptions.totalCount > 0 ? filterOptions.totalCount.toLocaleString() : ''} Matches
+                </button>
               </div>
 
               {/* Promotional Banner */}
