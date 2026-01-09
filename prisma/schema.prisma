@@ -20,15 +20,31 @@ model User {
   resetToken       String?
   resetTokenExpiry DateTime?
 
+  // Dealer verification status
+  verificationStatus String?  @default("pending") // pending, approved, rejected (for dealers)
+  verificationNote   String?  // Admin note for rejection reason
+
   // Dealer specific fields
-  businessName  String?
-  address       String?
+  businessName        String?
+  websiteUrl          String?   // Dealer's website URL for SEO backlinks
+  showCustomMessage   Boolean   @default(false)  // Toggle for custom availability message
+  availabilityMessage String?   // Custom message shown to customers after availability request
+  address             String?
   city          String?
   state         String?
   zip           String?
   workHoursStart String?  // e.g., "09:00"
   workHoursEnd   String?  // e.g., "18:00"
   workDays       String?  // JSON array of days, e.g., ["Monday", "Tuesday", ...]
+
+  // Inventory sync fields (for dealers)
+  inventoryFeedUrl   String?   // URL to scrape inventory from (e.g., dealer website)
+  inventoryFeedType  String?   // "dealeron", "dealer_com", "xml_feed", "custom"
+  autoSyncEnabled    Boolean   @default(false)
+  syncFrequencyDays  Int       @default(2)  // How often to sync (default every 2 days)
+  lastSyncAt         DateTime?
+  lastSyncStatus     String?   // "success", "failed", "in_progress"
+  lastSyncMessage    String?   // Error message or summary
 
   // Relations
   cars          Car[]
@@ -60,9 +76,19 @@ model Car {
   listingFeePaid  Boolean  @default(false)
   createdAt       DateTime @default(now())
 
+  // SEO fields
+  slug            String?  @unique  // SEO-friendly URL: "2022-toyota-camry-atlanta-ga"
+  bodyType        String?  // SUV, Sedan, Truck, Coupe, etc.
+  trim            String?  // LE, XLE, Limited, etc.
+  drivetrain      String?  // AWD, FWD, RWD, 4WD
+  fuelType        String?  // Gasoline, Diesel, Hybrid, Electric
+  engine          String?  // "2.5L 4-Cylinder", "3.5L V6"
+
   dealer          User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   selectedCars    SelectedCar[]
   acceptedDeals   AcceptedDeal[]
+
+  @@index([slug])
 }
 
 model DealList {
@@ -95,6 +121,7 @@ model Negotiation {
   selectedCarId  String
   dealerId       String
   offeredPrice   Float
+  status         String   @default("pending") // pending, accepted, declined
   createdAt      DateTime @default(now())
 
   selectedCar SelectedCar @relation(fields: [selectedCarId], references: [id], onDelete: Cascade)
@@ -111,6 +138,7 @@ model AcceptedDeal {
   customerShowedUp   Boolean  @default(false)
   sold               Boolean  @default(false) // Manually marked as sold by dealer
   deadDeal           Boolean  @default(false) // Deal marked as dead/cancelled by dealer
+  cancelledByCustomer Boolean @default(false) // Deal cancelled by customer
   createdAt          DateTime @default(now())
 
   customer User @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -132,4 +160,23 @@ model TestDrive {
   customer User @relation("CustomerTestDrives", fields: [customerId], references: [id], onDelete: Cascade)
   dealer   User @relation("DealerTestDrives", fields: [dealerId], references: [id], onDelete: Cascade)
   acceptedDeal AcceptedDeal @relation(fields: [acceptedDealId], references: [id], onDelete: Cascade)
+}
+
+model AvailabilityRequest {
+  id          String   @id @default(uuid())
+  carId       String
+  dealerId    String
+  firstName   String
+  lastName    String
+  email       String
+  phone       String
+  zipCode     String
+  comments    String?
+  userId      String?  // Optional - if user is logged in
+  status      String   @default("pending") // pending, contacted, closed
+  createdAt   DateTime @default(now())
+
+  @@index([carId])
+  @@index([dealerId])
+  @@index([email])
 }
