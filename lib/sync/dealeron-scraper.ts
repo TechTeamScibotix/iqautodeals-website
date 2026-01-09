@@ -297,7 +297,7 @@ function parseDetailPage(
     }
 
     // Extract photos
-    vehicle.photoUrls = extractPhotosFromHtml(html, baseUrl);
+    vehicle.photoUrls = extractPhotosFromHtml(html, baseUrl, vin);
 
     return vehicle;
   } catch (e) {
@@ -521,7 +521,7 @@ async function enrichVehicleDetails(
           const html = await response.text();
 
           // Extract more photos from detail page
-          const morePhotos = extractPhotosFromHtml(html, baseUrl);
+          const morePhotos = extractPhotosFromHtml(html, baseUrl, vehicle.vin);
           const allPhotos = [...new Set([...vehicle.photoUrls, ...morePhotos])];
 
           // Try to get more details
@@ -557,25 +557,72 @@ async function enrichVehicleDetails(
 /**
  * Extract photo URLs from HTML
  */
-function extractPhotosFromHtml(html: string, baseUrl: string): string[] {
+function extractPhotosFromHtml(html: string, baseUrl: string, vin?: string): string[] {
   const photos: string[] = [];
+  const seenUrls = new Set<string>();
 
-  // Look for image URLs in various formats
-  const patterns = [
-    /data-src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-    /src="([^"]+\/(?:photos|images|vehicle|inventory)[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-    /"(?:image|photo|src)"\s*:\s*"([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-  ];
+  // DealerOn specific pattern: /inventoryphotos/{dealerId}/{vin}/ip/{n}.jpg
+  // Extract the base inventory photo path for this VIN
+  const vinLower = vin?.toLowerCase() || '';
 
-  for (const pattern of patterns) {
-    let match;
-    while ((match = pattern.exec(html)) !== null) {
-      const cleanedUrl = cleanPhotoUrl(match[1], baseUrl);
-      if (cleanedUrl && !photos.includes(cleanedUrl)) {
-        photos.push(cleanedUrl);
+  // Look for inventory photo URLs with this VIN
+  const inventoryPhotoPattern = new RegExp(
+    `(/inventoryphotos/\\d+/${vinLower}/ip/\\d+\\.(?:jpg|jpeg|png|webp))`,
+    'gi'
+  );
+
+  let match;
+  while ((match = inventoryPhotoPattern.exec(html)) !== null) {
+    let photoPath = match[1];
+    // Remove query params
+    photoPath = photoPath.split('?')[0];
+    const fullUrl = `${baseUrl}${photoPath}`;
+
+    if (!seenUrls.has(fullUrl)) {
+      seenUrls.add(fullUrl);
+      photos.push(fullUrl);
+    }
+  }
+
+  // Also look for any inventoryphotos URLs as fallback
+  if (photos.length === 0) {
+    const generalPattern = /\/inventoryphotos\/\d+\/[a-z0-9]+\/ip\/(\d+)\.(?:jpg|jpeg|png|webp)/gi;
+    while ((match = generalPattern.exec(html)) !== null) {
+      let photoPath = match[0];
+      photoPath = photoPath.split('?')[0];
+      const fullUrl = `${baseUrl}${photoPath}`;
+
+      if (!seenUrls.has(fullUrl)) {
+        seenUrls.add(fullUrl);
+        photos.push(fullUrl);
       }
     }
   }
+
+  // Fallback: Look for other image URLs
+  if (photos.length === 0) {
+    const patterns = [
+      /data-src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
+      /src="([^"]+\/(?:photos|images|vehicle|inventory)[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
+    ];
+
+    for (const pattern of patterns) {
+      while ((match = pattern.exec(html)) !== null) {
+        const cleanedUrl = cleanPhotoUrl(match[1], baseUrl);
+        if (cleanedUrl && !seenUrls.has(cleanedUrl)) {
+          seenUrls.add(cleanedUrl);
+          photos.push(cleanedUrl);
+        }
+      }
+    }
+  }
+
+  // Sort photos by number to ensure correct order (1.jpg, 2.jpg, ...)
+  photos.sort((a, b) => {
+    const numA = parseInt(a.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i)?.[1] || '0', 10);
+    const numB = parseInt(b.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i)?.[1] || '0', 10);
+    return numA - numB;
+  });
 
   return photos;
 }

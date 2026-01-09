@@ -81,7 +81,7 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
     let scrapedVehicles: ScrapedVehicle[] = [];
 
     if (dealer.inventoryFeedType === 'dealeron' || !dealer.inventoryFeedType) {
-      const result = await scrapeDealerOnInventory(dealer.inventoryFeedUrl, 'used');
+      const result = await scrapeDealerOnInventory(dealer.inventoryFeedUrl, 'all');
       if (!result.success) {
         throw new Error(result.error || 'Failed to scrape inventory');
       }
