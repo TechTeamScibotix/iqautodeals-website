@@ -7,6 +7,19 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+      // Dealer website images
+      {
+        protocol: 'https',
+        hostname: '*.turpindodgeofdubuque.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.turpindodgeofdubuque.net',
+      },
     ],
   },
 };
