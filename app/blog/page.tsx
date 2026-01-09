@@ -35,6 +35,86 @@ const blogPosts = [
   },
 ];
 
+const guides = [
+  {
+    slug: 'how-to-buy-used-car',
+    title: 'How to Buy a Used Car: Complete Step-by-Step Guide',
+    excerpt: 'Follow this proven 10-step process to avoid problems and get the best deal on your next used car purchase.',
+    readTime: '12 min read',
+    category: 'Buying Guide',
+  },
+  {
+    slug: 'car-financing-guide',
+    title: 'Car Financing Guide: Everything You Need to Know',
+    excerpt: 'Understand auto loans, interest rates, and how to get the best financing terms for your next vehicle.',
+    readTime: '10 min read',
+    category: 'Financing',
+  },
+  {
+    slug: 'pre-purchase-inspection',
+    title: 'Pre-Purchase Inspection Checklist',
+    excerpt: 'Complete checklist of what to inspect before buying a used car. Don\'t miss these critical items.',
+    readTime: '8 min read',
+    category: 'Inspection',
+  },
+  {
+    slug: 'vehicle-maintenance',
+    title: 'Complete Vehicle Maintenance Guide & Schedule',
+    excerpt: 'Essential car maintenance schedule: oil changes, tire rotation, brake checks, and more to keep your car running smoothly.',
+    readTime: '10 min read',
+    category: 'Maintenance',
+  },
+  {
+    slug: 'trade-in-value',
+    title: 'How to Maximize Your Car Trade-In Value',
+    excerpt: 'Get the most money for your trade-in with expert tips on preparation, negotiation, and timing.',
+    readTime: '9 min read',
+    category: 'Selling',
+  },
+  {
+    slug: 'vin-decoder',
+    title: 'VIN Decoder Guide: Understanding Vehicle History',
+    excerpt: 'Learn how to decode a VIN number and use vehicle history reports to make informed buying decisions.',
+    readTime: '8 min read',
+    category: 'Research',
+  },
+  {
+    slug: 'warranty-guide',
+    title: 'Car Warranty Guide: CPO vs Extended Warranties',
+    excerpt: 'Understand manufacturer warranties, CPO programs, and extended warranties to protect your investment.',
+    readTime: '11 min read',
+    category: 'Protection',
+  },
+  {
+    slug: 'car-insurance-basics',
+    title: 'Car Insurance Basics: Coverage Types & How to Save',
+    excerpt: 'Understand auto insurance coverage types and learn proven strategies to lower your premium.',
+    readTime: '10 min read',
+    category: 'Insurance',
+  },
+  {
+    slug: 'first-time-buyer-faq',
+    title: 'First-Time Car Buyer FAQ: 25 Questions Answered',
+    excerpt: 'Everything first-time car buyers need to know about financing, negotiation, insurance, and common mistakes.',
+    readTime: '15 min read',
+    category: 'Buying Guide',
+  },
+  {
+    slug: 'lease-vs-buy',
+    title: 'Lease vs Buy: Which Is Right for You?',
+    excerpt: 'Compare the true costs of leasing versus buying a car and find out which option fits your situation.',
+    readTime: '12 min read',
+    category: 'Buying Guide',
+  },
+  {
+    slug: 'credit-score-auto-loans',
+    title: 'Credit Scores & Auto Loans: Get the Best Rate',
+    excerpt: 'Understand how credit scores affect auto loan rates and learn strategies to get approved with any credit.',
+    readTime: '11 min read',
+    category: 'Financing',
+  },
+];
+
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,6 +147,7 @@ export default function BlogPage() {
 
       {/* Blog Posts Grid */}
       <section className="container mx-auto px-4 py-16">
+        <h2 className="text-2xl font-bold text-dark mb-8">Latest Articles</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {blogPosts.map((post) => (
             <Link
@@ -97,6 +178,44 @@ export default function BlogPage() {
 
                 <div className="mt-4 flex items-center text-primary font-semibold group-hover:gap-2 transition-all">
                   Read Article
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Guides Grid */}
+      <section className="container mx-auto px-4 pb-16">
+        <h2 className="text-2xl font-bold text-dark mb-8">In-Depth Guides</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {guides.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={`/guides/${guide.slug}`}
+              className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow group"
+            >
+              <div className="p-6">
+                <div className="flex items-center gap-2 text-sm text-primary font-semibold mb-3">
+                  <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full">{guide.category}</span>
+                </div>
+
+                <h3 className="text-xl font-bold text-dark mb-3 group-hover:text-primary transition-colors">
+                  {guide.title}
+                </h3>
+
+                <p className="text-gray-600 mb-4 leading-relaxed">
+                  {guide.excerpt}
+                </p>
+
+                <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
+                  <span className="text-green-600 font-medium">Guide</span>
+                  <span>{guide.readTime}</span>
+                </div>
+
+                <div className="mt-4 flex items-center text-primary font-semibold group-hover:gap-2 transition-all">
+                  Read Guide
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
