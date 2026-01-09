@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FileText, Search, LogOut, Car, TrendingDown, DollarSign, Phone, Building2, User, CheckCircle, Clock, Award, X } from 'lucide-react';
 
 interface Negotiation {
@@ -10,6 +11,7 @@ interface Negotiation {
   dealerId: string;
   selectedCarId: string;
   offeredPrice: number;
+  status: string;
   createdAt: string;
   dealer: {
     name: string;
@@ -99,7 +101,7 @@ export default function CustomerDeals() {
   };
 
   const handleAcceptOffer = async (negotiationId: string) => {
-    if (!confirm('Accept this offer? You will need to pay a $59 refundable deposit.')) {
+    if (!confirm('Accept this offer?')) {
       return;
     }
 
@@ -115,13 +117,42 @@ export default function CustomerDeals() {
         alert(
           `Offer accepted!\n\n` +
           `Your 6-digit verification code is: ${data.verificationCode}\n\n` +
-          `Show this code at the dealership to complete your purchase.\n` +
-          `$59 deposit payment would be processed here.`
+          `Show this code at the dealership to complete your purchase.`
         );
         loadDeals(user.id);
       }
     } catch (error) {
       console.error('Error accepting offer:', error);
+    }
+  };
+
+  const handleDeclineOffer = async (negotiationId: string) => {
+    if (!confirm('Decline this offer? The dealer will be notified.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/customer/decline-offer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ negotiationId, customerId: user.id }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.dealCancelled) {
+          alert('All 3 offers have been declined. This deal has been automatically cancelled.');
+        } else {
+          alert('Offer declined. The dealer has been notified.');
+        }
+        loadDeals(user.id);
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to decline offer');
+      }
+    } catch (error) {
+      console.error('Error declining offer:', error);
+      alert('Failed to decline offer');
     }
   };
 
@@ -217,29 +248,29 @@ export default function CustomerDeals() {
   const activeDealLists = dealLists.filter(dl => dl.selectedCars.length > 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50">
+    <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary via-purple to-secondary shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+      <header className="bg-dark shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="animate-slide-in">
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          <div>
+            <h1 className="text-3xl font-bold text-primary flex items-center gap-2">
               <Car className="w-8 h-8" />
               IQ Auto Deals
             </h1>
-            <p className="text-sm text-white/80">My Active Deals</p>
+            <p className="text-sm text-gray-400">My Active Deals</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/customer')}
-              className="bg-white text-primary px-5 py-2.5 rounded-lg hover:shadow-xl transition-all duration-300 font-semibold flex items-center gap-2 hover:scale-105"
+              className="bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center gap-2"
             >
               <Search className="w-4 h-4" />
               Search Cars
             </button>
-            <span className="text-white font-medium">{user?.name}</span>
+            <span className="text-gray-300 font-medium">{user?.name}</span>
             <button
               onClick={handleLogout}
-              className="text-white/90 hover:text-white transition flex items-center gap-1"
+              className="text-gray-400 hover:text-white transition flex items-center gap-1"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -249,13 +280,13 @@ export default function CustomerDeals() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <h2 className="text-4xl font-bold mb-8 text-dark flex items-center gap-3 animate-slide-in">
-          <FileText className="w-10 h-10 text-primary" />
+        <h2 className="text-3xl font-bold mb-8 text-dark flex items-center gap-3">
+          <FileText className="w-8 h-8 text-primary" />
           My Deal Requests
         </h2>
 
         {activeDealLists.length === 0 ? (
-          <div className="bg-gradient-to-br from-white to-blue-50 rounded-lg shadow-lg p-8 text-center border border-primary/20">
+          <div className="bg-white rounded-lg shadow-md p-8 text-center border border-gray-200">
             <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <FileText className="w-8 h-8 text-primary" />
             </div>
@@ -265,7 +296,7 @@ export default function CustomerDeals() {
             </p>
             <button
               onClick={() => router.push('/customer')}
-              className="bg-gradient-to-r from-primary to-purple text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all font-semibold text-sm flex items-center gap-2 mx-auto"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all font-semibold text-sm flex items-center gap-2 mx-auto"
             >
               <Search className="w-4 h-4" />
               Search Cars Now
@@ -278,9 +309,9 @@ export default function CustomerDeals() {
               const maxPrice = Math.max(...dealList.selectedCars.map(sc => sc.car.salePrice));
 
               return (
-                <div key={dealList.id} className="bg-white rounded-lg shadow-lg overflow-hidden border border-primary/20">
+                <div key={dealList.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                   {/* Deal Header */}
-                  <div className="bg-gradient-to-r from-primary via-purple to-secondary text-white p-4">
+                  <div className="bg-dark text-white p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
@@ -300,7 +331,7 @@ export default function CustomerDeals() {
                         className={`px-3 py-1.5 rounded-lg font-bold text-xs ${
                           dealList.status === 'pending'
                             ? 'bg-yellow-400 text-yellow-900'
-                            : 'bg-accent text-white'
+                            : 'bg-green-500 text-white'
                         }`}
                       >
                         {dealList.status === 'pending' ? 'ACTIVE' : 'COMPLETED'}
@@ -309,7 +340,7 @@ export default function CustomerDeals() {
                   </div>
 
                   {/* Selected Cars with Offers */}
-                  <div className="p-4 bg-gradient-to-br from-gray-50 to-white">
+                  <div className="p-4 bg-gray-50">
                     <h4 className="font-bold text-lg mb-3 text-dark flex items-center gap-2">
                       <Car className="w-5 h-5 text-primary" />
                       Your Selected Vehicles & Dealer Offers
@@ -317,20 +348,22 @@ export default function CustomerDeals() {
 
                     <div className="space-y-3">
                       {dealList.selectedCars.map((selectedCar, index) => {
-                        const bestOffer = selectedCar.negotiations.length > 0
-                          ? Math.min(...selectedCar.negotiations.map(n => n.offeredPrice))
+                        // Filter out declined offers for best offer calculation
+                        const activeOffers = selectedCar.negotiations.filter(n => n.status !== 'declined');
+                        const bestOffer = activeOffers.length > 0
+                          ? Math.min(...activeOffers.map(n => n.offeredPrice))
                           : null;
 
                         return (
                           <div
                             key={selectedCar.id}
-                            className="border border-primary/20 rounded-lg overflow-hidden hover:shadow-lg transition-all bg-white"
+                            className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all bg-white"
                           >
                             {/* Car Header */}
                             <div className={`p-3 flex gap-3 items-center border-b ${
                               selectedCar.status === 'won'
-                                ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
-                                : 'bg-gradient-to-r from-blue-50 to-purple-50 border-primary/10'
+                                ? 'bg-green-50 border-green-200'
+                                : 'bg-white border-gray-100'
                             }`}>
                               <div className="relative h-20 w-28 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                                 {(() => {
@@ -352,8 +385,8 @@ export default function CustomerDeals() {
                                     console.error('Failed to parse photos:', e);
                                   }
                                   return (
-                                    <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/20 to-purple/20">
-                                      <Car className="w-12 h-12 text-primary/40" />
+                                    <div className="flex items-center justify-center h-full bg-gray-100">
+                                      <Car className="w-12 h-12 text-gray-300" />
                                     </div>
                                   );
                                 })()}
@@ -364,7 +397,12 @@ export default function CustomerDeals() {
                                     {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}
                                   </h5>
                                   {selectedCar.status === 'won' && selectedCar.car.acceptedDeals?.[0] && (
-                                    (selectedCar.car.acceptedDeals[0] as any).deadDeal ? (
+                                    (selectedCar.car.acceptedDeals[0] as any).cancelledByCustomer ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-500 text-white rounded-full text-xs font-bold">
+                                        <X className="w-3 h-3" />
+                                        Cancelled by You
+                                      </span>
+                                    ) : (selectedCar.car.acceptedDeals[0] as any).deadDeal ? (
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-600 text-white rounded-full text-xs font-bold">
                                         <X className="w-3 h-3" />
                                         Cancelled by Dealer
@@ -384,18 +422,18 @@ export default function CustomerDeals() {
                                 {bestOffer ? (
                                   <div className="flex items-center gap-2">
                                     <div className="flex items-center gap-1">
-                                      <Award className="w-4 h-4 text-accent" />
+                                      <Award className="w-4 h-4 text-green-600" />
                                       <span className="text-xs text-gray-600 font-medium">Best:</span>
                                     </div>
-                                    <span className="text-lg font-bold text-accent">
+                                    <span className="text-lg font-bold text-green-600">
                                       ${bestOffer.toLocaleString()}
                                     </span>
-                                    <span className="px-2 py-1 bg-accent text-white rounded-full text-xs font-semibold">
+                                    <span className="px-2 py-1 bg-primary text-white rounded-full text-xs font-semibold">
                                       {selectedCar.negotiations.length} {selectedCar.negotiations.length === 1 ? 'offer' : 'offers'}
                                     </span>
                                   </div>
                                 ) : (
-                                  <div className="flex items-center gap-1 text-yellow-600 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-200">
+                                  <div className="flex items-center gap-1 text-yellow-700 bg-yellow-50 px-2 py-1 rounded-lg border border-yellow-200">
                                     <Clock className="w-4 h-4" />
                                     <p className="text-xs font-semibold">
                                       Waiting for offers...
@@ -419,26 +457,37 @@ export default function CustomerDeals() {
 
                             {/* Dealer Offers for This Car */}
                             {selectedCar.negotiations.length > 0 && (
-                              <div className="p-3 bg-gradient-to-br from-white to-gray-50">
+                              <div className="p-3 bg-gray-50">
                                 <p className="text-sm font-bold text-dark mb-2 flex items-center gap-1">
                                   <TrendingDown className="w-4 h-4 text-primary" />
                                   All Offers:
                                 </p>
                                 <div className="space-y-2">
                                   {selectedCar.negotiations
-                                    .sort((a, b) => a.offeredPrice - b.offeredPrice)
-                                    .map((negotiation, index) => (
+                                    .sort((a, b) => {
+                                      // Put declined offers at the end
+                                      if (a.status === 'declined' && b.status !== 'declined') return 1;
+                                      if (a.status !== 'declined' && b.status === 'declined') return -1;
+                                      // Sort by price for active offers
+                                      return a.offeredPrice - b.offeredPrice;
+                                    })
+                                    .map((negotiation, index) => {
+                                      const isActiveOffer = negotiation.status !== 'declined';
+                                      const isBestActiveOffer = isActiveOffer && index === 0;
+                                      return (
                                       <div
                                         key={negotiation.id}
                                         className={`p-3 rounded-lg border flex justify-between items-center transition-all ${
-                                          index === 0
-                                            ? 'border-accent bg-gradient-to-r from-green-50 to-emerald-50'
-                                            : 'border-gray-200 bg-white hover:border-primary/30'
+                                          !isActiveOffer
+                                            ? 'border-gray-200 bg-gray-100 opacity-60'
+                                            : isBestActiveOffer
+                                              ? 'border-green-300 bg-green-50'
+                                              : 'border-gray-200 bg-white hover:border-gray-300'
                                         }`}
                                       >
                                         <div>
-                                          {index === 0 && (
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-accent text-white text-xs font-bold rounded-full mb-1">
+                                          {isBestActiveOffer && (
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full mb-1">
                                               <Award className="w-3 h-3" />
                                               BEST
                                             </span>
@@ -457,25 +506,69 @@ export default function CustomerDeals() {
                                           </p>
                                         </div>
                                         <div className="text-right">
-                                          <p className="text-xl font-bold text-accent mb-2 flex items-center justify-end gap-1">
+                                          <p className="text-xl font-bold text-green-600 mb-2 flex items-center justify-end gap-1">
                                             <DollarSign className="w-5 h-5" />
                                             {negotiation.offeredPrice.toLocaleString()}
                                           </p>
                                           {selectedCar.status === 'pending' ? (
-                                            <button
-                                              onClick={() => handleAcceptOffer(negotiation.id)}
-                                              className="bg-gradient-to-r from-accent to-green-600 text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all font-semibold text-sm"
-                                            >
-                                              Accept Offer
-                                            </button>
+                                            negotiation.status === 'declined' ? (
+                                              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-200 text-gray-500 rounded-lg font-semibold text-sm">
+                                                <X className="w-4 h-4" />
+                                                Declined
+                                              </span>
+                                            ) : index === 0 ? (
+                                              <div className="flex flex-col gap-2">
+                                                <button
+                                                  onClick={() => handleAcceptOffer(negotiation.id)}
+                                                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all font-semibold text-sm"
+                                                >
+                                                  Accept Offer
+                                                </button>
+                                                <button
+                                                  onClick={() => handleDeclineOffer(negotiation.id)}
+                                                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all font-semibold text-sm"
+                                                >
+                                                  Decline Offer
+                                                </button>
+                                              </div>
+                                            ) : (
+                                              <div className="flex flex-col gap-2">
+                                                <button
+                                                  disabled
+                                                  className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg font-semibold text-sm cursor-not-allowed"
+                                                  title="Accept the best offer first"
+                                                >
+                                                  Accept Offer
+                                                </button>
+                                                <button
+                                                  disabled
+                                                  className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg font-semibold text-sm cursor-not-allowed"
+                                                  title="Respond to the best offer first"
+                                                >
+                                                  Decline Offer
+                                                </button>
+                                              </div>
+                                            )
                                           ) : selectedCar.status === 'won' && selectedCar.car.acceptedDeals?.[0] ? (
-                                            (selectedCar.car.acceptedDeals[0] as any).deadDeal ? (
+                                            (selectedCar.car.acceptedDeals[0] as any).cancelledByCustomer ? (
+                                              <div className="space-y-2">
+                                                <div className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-gray-500 text-white rounded-lg font-semibold text-xs">
+                                                  <X className="w-4 h-4" />
+                                                  Cancelled by You
+                                                </div>
+                                                <div className="bg-gray-50 border border-gray-300 rounded-lg p-3">
+                                                  <p className="text-sm text-gray-700 text-center">
+                                                    You cancelled this deal.
+                                                  </p>
+                                                </div>
+                                              </div>
+                                            ) : (selectedCar.car.acceptedDeals[0] as any).deadDeal ? (
                                               <div className="space-y-2">
                                                 <div className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg font-semibold text-xs">
                                                   <X className="w-4 h-4" />
                                                   Cancelled by Dealer
                                                 </div>
-                                                <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-400 rounded-lg p-3">
+                                                <div className="bg-red-50 border border-red-300 rounded-lg p-3">
                                                   <p className="text-sm text-red-700 text-center">
                                                     This deal was cancelled by the dealership. Please contact them for more information.
                                                   </p>
@@ -483,18 +576,18 @@ export default function CustomerDeals() {
                                               </div>
                                             ) : (
                                               <div className="space-y-2">
-                                                <div className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-accent text-white rounded-lg font-semibold text-xs">
+                                                <div className="w-full flex items-center justify-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded-lg font-semibold text-xs">
                                                   <CheckCircle className="w-4 h-4" />
                                                   Accepted
                                                 </div>
-                                                <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-500 rounded-lg p-3">
+                                                <div className="bg-green-50 border border-green-300 rounded-lg p-3">
                                                   <p className="text-xs font-semibold text-green-700 mb-1">Verification Code:</p>
                                                   <p className="text-2xl font-bold text-green-700 tracking-wider">
                                                     {selectedCar.car.acceptedDeals[0].verificationCode}
                                                   </p>
                                                 </div>
                                                 {selectedCar.car.acceptedDeals[0].testDrive ? (
-                                                  <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-primary rounded-lg px-3 py-2">
+                                                  <div className="w-full bg-blue-50 border border-primary rounded-lg px-3 py-2">
                                                     <p className="text-xs font-semibold text-primary text-center">
                                                       {selectedCar.car.acceptedDeals[0].testDrive.status === 'scheduled'
                                                         ? 'Test Drive Confirmed!'
@@ -511,7 +604,7 @@ export default function CustomerDeals() {
                                                 ) : (
                                                   <button
                                                     onClick={() => handleScheduleTestDrive(selectedCar.car.acceptedDeals[0].id)}
-                                                    className="w-full bg-gradient-to-r from-primary to-purple text-white px-3 py-2 rounded-lg hover:shadow-lg transition-all font-semibold text-xs"
+                                                    className="w-full bg-primary text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-all font-semibold text-xs"
                                                   >
                                                     Request Test Drive Appointment
                                                   </button>
@@ -519,14 +612,15 @@ export default function CustomerDeals() {
                                               </div>
                                             )
                                           ) : (
-                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-accent text-white rounded-lg font-semibold text-xs">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded-lg font-semibold text-xs">
                                               <CheckCircle className="w-4 h-4" />
                                               Accepted
                                             </span>
                                           )}
                                         </div>
                                       </div>
-                                    ))}
+                                      );
+                                    })}
                                 </div>
                               </div>
                             )}

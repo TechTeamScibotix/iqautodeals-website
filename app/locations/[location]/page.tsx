@@ -307,8 +307,8 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { city, state, stateCode } = locationData;
 
   return {
-    title: `Used Cars in ${city}, ${stateCode}`,
-    description: `Shop quality used cars for sale in ${city}, ${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.`,
+    title: `Best Used Cars in ${city}, ${stateCode} (2025) - Compare & Save $5,000`,
+    description: `✓ 500+ quality used cars in ${city}, ${state} ✓ Compare dealer prices instantly ✓ Save up to $5,000 ✓ No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now →`,
     keywords: [
       `used cars ${city}`,
       `used cars for sale ${city}`,

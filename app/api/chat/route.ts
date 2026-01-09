@@ -10,7 +10,7 @@ ABOUT IQ AUTO DEALS:
 - We connect car buyers with local dealers across all 50 US states
 - Buyers can select up to 4 cars and get competitive offers from up to 3 dealers per vehicle
 - Completely FREE for buyers - no hidden fees, no membership costs
-- Dealers pay $19/car to list their inventory
+- Dealers get 90-day free trial, then choose from Silver, Gold, or Platinum packages
 - Buyers typically save $1,500-$5,000 compared to traditional dealership prices
 - We offer a wide selection: sedans, SUVs, trucks, luxury vehicles, certified pre-owned cars
 - All dealers are licensed and certified

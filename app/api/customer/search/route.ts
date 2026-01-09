@@ -6,12 +6,20 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const make = searchParams.get('make');
     const model = searchParams.get('model');
-    const state = searchParams.get('state') || 'GA';
+    const state = searchParams.get('state');
 
     const where: any = {
       status: 'active',
-      state,
+      // Only show cars from approved dealers
+      dealer: {
+        verificationStatus: 'approved',
+      },
     };
+
+    // Only filter by state if a specific state is provided (not 'all' or empty)
+    if (state && state !== 'all') {
+      where.state = state;
+    }
 
     if (make) where.make = { contains: make, mode: 'insensitive' };
     if (model) where.model = { contains: model, mode: 'insensitive' };
@@ -22,14 +30,27 @@ export async function GET(request: NextRequest) {
         dealer: {
           select: {
             businessName: true,
+            websiteUrl: true,
+            verificationStatus: true,
+            email: true,
           },
         },
       },
       orderBy: { createdAt: 'desc' },
-      take: 50,
     });
 
-    return NextResponse.json({ cars });
+    // Add isDemo flag based on dealer email
+    const carsWithDemo = cars.map(car => ({
+      ...car,
+      isDemo: car.dealer.email?.endsWith('@iqautodeals.com') || false,
+      dealer: {
+        businessName: car.dealer.businessName,
+        websiteUrl: car.dealer.websiteUrl,
+        verificationStatus: car.dealer.verificationStatus,
+      },
+    }));
+
+    return NextResponse.json({ cars: carsWithDemo });
   } catch (error) {
     console.error('Error searching cars:', error);
     return NextResponse.json({ error: 'Search failed' }, { status: 500 });

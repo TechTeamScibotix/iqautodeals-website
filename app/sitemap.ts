@@ -16,13 +16,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       select: {
         id: true,
+        slug: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
     })
 
     carPages = activeCars.map((car) => ({
-      url: `${baseUrl}/cars/${car.id}`,
+      url: `${baseUrl}/cars/${car.slug || car.id}`,
       lastModified: car.createdAt,
       changeFrequency: 'daily' as const,
       priority: 0.9,

@@ -49,6 +49,24 @@ export async function scrapeDealerOnInventory(
       // Fetch details for each vehicle
       const vehicles = await fetchVehicleDetails(vehicleUrls, cleanBaseUrl);
 
+      // Fetch mileage and color from DataLayer API
+      const vins = vehicles.map((v) => v.vin);
+      const dataMap = await fetchVehicleDataFromDataLayer(cleanBaseUrl, vins);
+
+      // Update vehicles with mileage and color data
+      for (const vehicle of vehicles) {
+        const data = dataMap.get(vehicle.vin);
+        if (data) {
+          if (data.mileage > 0) {
+            vehicle.mileage = data.mileage;
+          }
+          // Only use valid color values
+          if (data.color && data.color !== 'Unknown' && data.color !== 'Content') {
+            vehicle.color = data.color;
+          }
+        }
+      }
+
       return {
         success: true,
         vehicles,
@@ -220,7 +238,7 @@ async function fetchVehicleDetails(
           const html = await response.text();
 
           // Extract data from detail page
-          const vehicle = parseDetailPage(html, vin, url, baseUrl);
+          const vehicle = await parseDetailPage(html, vin, url, baseUrl);
           return vehicle;
         } catch (e) {
           console.error(`Error fetching ${url}:`, e);
@@ -243,29 +261,15 @@ async function fetchVehicleDetails(
 /**
  * Parse vehicle details from a detail page
  */
-function parseDetailPage(
+async function parseDetailPage(
   html: string,
   vin: string,
   url: string,
   baseUrl: string
-): ScrapedVehicle | null {
+): Promise<ScrapedVehicle | null> {
   try {
-    // Try to get data from JSON-LD first
-    const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i);
-
-    if (jsonLdMatch) {
-      try {
-        const data = JSON.parse(jsonLdMatch[1]);
-        if (data['@type'] === 'Vehicle' || data['@type'] === 'Car' || data['@type'] === 'Product') {
-          return parseJsonLdVehicle(data, baseUrl, vin, url);
-        }
-      } catch (e) {
-        // Continue to HTML parsing
-      }
-    }
-
-    // Parse from HTML
-    const vehicle: ScrapedVehicle = {
+    // Start with default vehicle
+    let vehicle: ScrapedVehicle = {
       vin,
       price: 0,
       mileage: 0,
@@ -274,30 +278,66 @@ function parseDetailPage(
       detailUrl: url,
     };
 
-    // Extract price
-    const priceMatch = html.match(/(?:price|sale)[^$]*\$\s*([0-9,]+)/i) ||
-                       html.match(/\$\s*([0-9,]+)/);
-    if (priceMatch) {
-      const price = parseInt(priceMatch[1].replace(/,/g, ''), 10);
-      if (price > 1000 && price < 500000) {
-        vehicle.price = price;
+    // Try to get base data from JSON-LD first
+    const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i);
+    if (jsonLdMatch) {
+      try {
+        const data = JSON.parse(jsonLdMatch[1]);
+        if (data['@type'] === 'Vehicle' || data['@type'] === 'Car' || data['@type'] === 'Product') {
+          const jsonLdVehicle = parseJsonLdVehicle(data, baseUrl, vin, url);
+          if (jsonLdVehicle) {
+            vehicle = jsonLdVehicle;
+          }
+        }
+      } catch {
+        // Continue to HTML parsing
       }
     }
 
-    // Extract mileage
-    const mileageMatch = html.match(/([0-9,]+)\s*(?:mi|miles)/i);
-    if (mileageMatch) {
-      vehicle.mileage = parseInt(mileageMatch[1].replace(/,/g, ''), 10);
+    // If no price from JSON-LD, try HTML
+    if (!vehicle.price) {
+      const priceMatch = html.match(/(?:price|sale)[^$]*\$\s*([0-9,]+)/i) ||
+                         html.match(/\$\s*([0-9,]+)/);
+      if (priceMatch) {
+        const price = parseInt(priceMatch[1].replace(/,/g, ''), 10);
+        if (price > 1000 && price < 500000) {
+          vehicle.price = price;
+        }
+      }
     }
 
-    // Extract color
-    const colorMatch = html.match(/(?:exterior|ext\.?)\s*(?:color)?[:\s]*([A-Za-z]+(?:\s+[A-Za-z]+)?)/i);
-    if (colorMatch && colorMatch[1].length < 30) {
-      vehicle.color = colorMatch[1].trim();
+    // If no mileage from JSON-LD, try HTML
+    if (!vehicle.mileage || isNaN(vehicle.mileage)) {
+      const mileageMatch = html.match(/([0-9,]+)\s*(?:mi|miles)/i);
+      if (mileageMatch) {
+        vehicle.mileage = parseInt(mileageMatch[1].replace(/,/g, ''), 10) || 0;
+      } else {
+        vehicle.mileage = 0;
+      }
     }
 
-    // Extract photos
-    vehicle.photoUrls = extractPhotosFromHtml(html, baseUrl, vin);
+    // If no color from JSON-LD, try HTML
+    if (vehicle.color === 'Unknown') {
+      const colorMatch = html.match(/(?:exterior|ext\.?)\s*(?:color)?[:\s]*([A-Za-z]+(?:\s+[A-Za-z]+)?)/i);
+      if (colorMatch && colorMatch[1].length < 30) {
+        vehicle.color = colorMatch[1].trim();
+      }
+    }
+
+    // ALWAYS probe for photos (DealerOn specific) - this gets ALL photos
+    const dealerId = extractDealerId(html);
+    if (dealerId) {
+      const probedPhotos = await probeForPhotos(baseUrl, dealerId, vin);
+      if (probedPhotos.length > 0) {
+        vehicle.photoUrls = probedPhotos;
+        return vehicle;
+      }
+    }
+
+    // Fallback: Extract photos from HTML if probing failed
+    if (vehicle.photoUrls.length === 0) {
+      vehicle.photoUrls = extractPhotosFromHtml(html, baseUrl, vin);
+    }
 
     return vehicle;
   } catch (e) {
@@ -555,14 +595,60 @@ async function enrichVehicleDetails(
 }
 
 /**
- * Extract photo URLs from HTML
+ * Extract dealer ID from HTML for photo URL construction
+ */
+function extractDealerId(html: string): string | null {
+  // Look for dealer ID in various patterns
+  const patterns = [
+    /inventoryphotos\/(\d+)\//i,
+    /"dealerId"\s*:\s*"?(\d+)"?/i,
+    /dealer-(\d+)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) return match[1];
+  }
+
+  return null;
+}
+
+/**
+ * Probe for all photos by constructing URLs and testing existence
+ * DealerOn uses pattern: /inventoryphotos/{dealerId}/{vin}/ip/{n}.jpg
+ */
+async function probeForPhotos(baseUrl: string, dealerId: string, vin: string): Promise<string[]> {
+  const photos: string[] = [];
+  const vinLower = vin.toLowerCase();
+  const maxPhotos = 50; // Maximum photos to check
+
+  for (let i = 1; i <= maxPhotos; i++) {
+    const photoUrl = `${baseUrl}/inventoryphotos/${dealerId}/${vinLower}/ip/${i}.jpg`;
+
+    try {
+      const response = await fetch(photoUrl, { method: 'HEAD' });
+      if (response.ok) {
+        photos.push(photoUrl);
+      } else {
+        // Stop probing when we hit a 404
+        break;
+      }
+    } catch {
+      break;
+    }
+  }
+
+  return photos;
+}
+
+/**
+ * Extract photo URLs from HTML (fallback if probing fails)
  */
 function extractPhotosFromHtml(html: string, baseUrl: string, vin?: string): string[] {
   const photos: string[] = [];
   const seenUrls = new Set<string>();
 
   // DealerOn specific pattern: /inventoryphotos/{dealerId}/{vin}/ip/{n}.jpg
-  // Extract the base inventory photo path for this VIN
   const vinLower = vin?.toLowerCase() || '';
 
   // Look for inventory photo URLs with this VIN
@@ -574,7 +660,6 @@ function extractPhotosFromHtml(html: string, baseUrl: string, vin?: string): str
   let match;
   while ((match = inventoryPhotoPattern.exec(html)) !== null) {
     let photoPath = match[1];
-    // Remove query params
     photoPath = photoPath.split('?')[0];
     const fullUrl = `${baseUrl}${photoPath}`;
 
@@ -599,25 +684,7 @@ function extractPhotosFromHtml(html: string, baseUrl: string, vin?: string): str
     }
   }
 
-  // Fallback: Look for other image URLs
-  if (photos.length === 0) {
-    const patterns = [
-      /data-src="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-      /src="([^"]+\/(?:photos|images|vehicle|inventory)[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi,
-    ];
-
-    for (const pattern of patterns) {
-      while ((match = pattern.exec(html)) !== null) {
-        const cleanedUrl = cleanPhotoUrl(match[1], baseUrl);
-        if (cleanedUrl && !seenUrls.has(cleanedUrl)) {
-          seenUrls.add(cleanedUrl);
-          photos.push(cleanedUrl);
-        }
-      }
-    }
-  }
-
-  // Sort photos by number to ensure correct order (1.jpg, 2.jpg, ...)
+  // Sort photos by number
   photos.sort((a, b) => {
     const numA = parseInt(a.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i)?.[1] || '0', 10);
     const numB = parseInt(b.match(/\/(\d+)\.(?:jpg|jpeg|png|webp)/i)?.[1] || '0', 10);
@@ -661,4 +728,130 @@ function extractDetailsFromHtml(html: string): Partial<ScrapedVehicle> {
   }
 
   return details;
+}
+
+/**
+ * Extract the DealerOn dealer ID from the website
+ */
+async function extractDealerOnDealerId(baseUrl: string): Promise<string | null> {
+  try {
+    // Fetch the homepage to extract dealer ID from scripts
+    const response = await fetch(`${baseUrl}/searchused.aspx`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+    });
+    if (!response.ok) return null;
+
+    const html = await response.text();
+
+    // Look for dealer ID patterns in the page
+    const patterns = [
+      /["']dealerId["']\s*:\s*["']?(\d+)["']?/i,
+      /data-dealer-id=["'](\d+)["']/i,
+      /dealer_id\s*[:=]\s*["']?(\d+)["']?/i,
+      /DealerId\s*[:=]\s*(\d+)/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = html.match(pattern);
+      if (match) return match[1];
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+interface VehicleDataLayerInfo {
+  mileage: number;
+  color: string;
+}
+
+/**
+ * Fetch vehicle data (mileage and color) from DealerOn DataLayer API
+ * Makes batched requests to get data for all vehicles
+ */
+async function fetchVehicleDataFromDataLayer(
+  baseUrl: string,
+  vins: string[]
+): Promise<Map<string, VehicleDataLayerInfo>> {
+  const dataMap = new Map<string, VehicleDataLayerInfo>();
+
+  if (vins.length === 0) return dataMap;
+
+  try {
+    // Extract dealer ID dynamically
+    const dealerId = await extractDealerOnDealerId(baseUrl);
+    if (!dealerId) {
+      console.log('Could not extract dealer ID, using default');
+    }
+    const effectiveDealerId = dealerId || '25944';
+
+    // Batch VINs into groups of 50 for API calls
+    const BATCH_SIZE = 50;
+    const batches: string[][] = [];
+    for (let i = 0; i < vins.length; i += BATCH_SIZE) {
+      batches.push(vins.slice(i, i + BATCH_SIZE));
+    }
+
+    console.log(`Fetching vehicle data in ${batches.length} batch(es)...`);
+
+    for (const batch of batches) {
+      const params = new URLSearchParams();
+      params.append('dealerId', effectiveDealerId);
+      params.append('pageType', 'itemlist');
+      params.append('statusCode', '200');
+      params.append('itemCount', batch.length.toString());
+
+      for (const vin of batch) {
+        params.append('item', vin);
+      }
+
+      const response = await fetch(`${baseUrl}/api/taggbaa/DataLayer/Init`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body: params.toString(),
+      });
+
+      if (!response.ok) {
+        console.error('DataLayer API returned:', response.status);
+        continue;
+      }
+
+      const data = await response.json();
+
+      // Parse the comma-separated lists
+      const idList = (data.item_id_list || '').split(',').filter(Boolean);
+      const mileageList = (data.item_mileage_list || '').split(',');
+      const colorList = (data.item_color_list || '').split(',');
+
+      // Map VINs to data
+      for (let i = 0; i < idList.length; i++) {
+        const vin = idList[i]?.toUpperCase();
+        const mileage = parseInt(mileageList[i], 10);
+        const color = colorList[i]?.trim() || 'Unknown';
+
+        if (vin) {
+          dataMap.set(vin, {
+            mileage: !isNaN(mileage) ? mileage : 0,
+            color: color || 'Unknown',
+          });
+        }
+      }
+
+      // Small delay between batches
+      if (batches.length > 1) {
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+
+    console.log(`Fetched data for ${dataMap.size} of ${vins.length} vehicles from DataLayer API`);
+  } catch (error) {
+    console.error('Error fetching vehicle data from DataLayer:', error);
+  }
+
+  return dataMap;
 }

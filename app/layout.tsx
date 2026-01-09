@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import OrganizationSchema from "./components/OrganizationSchema";
 import LocalBusinessSchema from "./components/LocalBusinessSchema";
 import WebsiteSchema from "./components/WebsiteSchema";
 import AutoDealerSchema from "./components/AutoDealerSchema";
 import { Analytics } from "@vercel/analytics/react";
+import { AnalyticsProvider } from "./components/AnalyticsProvider";
+import { PostHogProvider, PostHogPageView } from "./components/PostHogProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
-    default: "Buy Used Cars Online | IQ Auto Deals",
+    default: "Used Cars for Sale Near You - Compare Prices & Save $5,000 | IQ Auto Deals",
     template: "%s | IQ Auto Deals"
   },
-  description: "Shop thousands of quality used cars for sale online. Compare prices from local dealers, get instant offers, and save up to $5,000. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.",
+  description: "🚗 Shop 1000+ quality used cars online. Compare prices from local dealers instantly, get competing offers & save up to $5,000. ✓ No haggling ✓ Free to use ✓ Trusted dealers. Browse now →",
   keywords: [
     // Core Keywords
     'buy used cars online',
@@ -432,8 +435,15 @@ export default function RootLayout({
         <AutoDealerSchema />
       </head>
       <body className="antialiased">
-        {children}
-        <Analytics />
+        <PostHogProvider>
+          <Suspense fallback={null}>
+            <PostHogPageView />
+            <AnalyticsProvider>
+              {children}
+            </AnalyticsProvider>
+          </Suspense>
+          <Analytics debug={true} />
+        </PostHogProvider>
       </body>
     </html>
   );

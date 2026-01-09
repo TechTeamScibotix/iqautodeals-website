@@ -1,9 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart, Phone } from 'lucide-react';
+import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
+import {
+  trackQuoteFormStarted,
+  trackQuoteFormSubmitted,
+  trackQuoteFormError,
+  trackCarGalleryOpened,
+  trackCarPhotoSwiped,
+  trackFunnelStep,
+} from '@/lib/analytics';
 
 interface Car {
   id: string;
@@ -16,6 +26,20 @@ interface Car {
   state: string;
   salePrice: number;
   photos: string;
+  isDemo?: boolean;
+  dealerId: string;
+  dealer: {
+    businessName: string;
+  };
+}
+
+interface DealStatus {
+  hasActiveDeal: boolean;
+  currentCount: number;
+  remainingSlots: number;
+  maxCars: number;
+  carIdsInDeal: string[];
+  carsInDeal: { id: string; make: string; model: string; year: number }[];
 }
 
 export default function CustomerDashboard() {
@@ -27,6 +51,19 @@ export default function CustomerDashboard() {
   const [search, setSearch] = useState({ make: '', model: '', state: 'GA' });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: Car; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [dealStatus, setDealStatus] = useState<DealStatus | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [checkingAvailability, setCheckingAvailability] = useState<Car | null>(null);
+
+  const loadDealStatus = useCallback(async (userId: string) => {
+    try {
+      const res = await fetch(`/api/customer/deal-status?customerId=${userId}`);
+      const data = await res.json();
+      setDealStatus(data);
+    } catch (error) {
+      console.error('Failed to load deal status:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -43,11 +80,17 @@ export default function CustomerDashboard() {
 
     setUser(parsed);
     loadCars();
-  }, [router]);
+    loadDealStatus(parsed.id);
+  }, [router, loadDealStatus]);
 
   const loadCars = async () => {
     try {
-      const res = await fetch('/api/customer/search');
+      const params = new URLSearchParams();
+      if (search.make) params.append('make', search.make);
+      if (search.model) params.append('model', search.model);
+      if (search.state) params.append('state', search.state);
+
+      const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
       setCars(data.cars || []);
     } catch (error) {
@@ -57,16 +100,41 @@ export default function CustomerDashboard() {
     }
   };
 
+  // Calculate total slots used (existing deal + current selection)
+  const existingDealCount = dealStatus?.currentCount || 0;
+  const totalSlotsUsed = existingDealCount + selectedCars.size;
+  const remainingSlots = 4 - totalSlotsUsed;
+
   const toggleCar = (carId: string) => {
+    // Check if car is already in an existing deal
+    if (dealStatus?.carIdsInDeal.includes(carId)) {
+      alert('This car is already in your deal request. Go to My Deals to manage it.');
+      return;
+    }
+
     const newSelected = new Set(selectedCars);
     if (newSelected.has(carId)) {
       newSelected.delete(carId);
     } else {
-      if (newSelected.size >= 4) {
-        alert('You can only select up to 4 cars');
+      // Check if adding would exceed limit
+      if (totalSlotsUsed >= 4) {
+        alert('You already have 4 cars in your deal request. Cancel one from My Deals to add another.');
         return;
       }
       newSelected.add(carId);
+
+      // Track quote form started when first car is selected
+      if (selectedCars.size === 0) {
+        trackQuoteFormStarted({
+          vin: carId,
+          source: 'customer-dashboard',
+        });
+        // Track funnel step: lead initiated
+        trackFunnelStep({
+          step: 'lead_initiated',
+          previousStep: 'car_selected',
+        });
+      }
     }
     setSelectedCars(newSelected);
   };
@@ -77,6 +145,7 @@ export default function CustomerDashboard() {
       return;
     }
 
+    setSubmitting(true);
     try {
       const res = await fetch('/api/customer/deal-request', {
         method: 'POST',
@@ -87,15 +156,51 @@ export default function CustomerDashboard() {
         }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert('Deal request submitted! Dealers will be notified.');
+        // Track successful submission
+        trackQuoteFormSubmitted({
+          vin: Array.from(selectedCars).join(','),
+          source: 'customer-dashboard',
+        });
+
+        // Track funnel step: lead completed
+        trackFunnelStep({
+          step: 'lead_completed',
+          previousStep: 'lead_initiated',
+          metadata: {
+            carsCount: selectedCars.size,
+          },
+        });
+
+        alert(data.message || 'Deal request submitted! Dealers will be notified.');
+        setSelectedCars(new Set());
+        loadDealStatus(user.id);
         router.push('/customer/deals');
       } else {
-        alert('Failed to submit deal request');
+        // Track form error
+        trackQuoteFormError({
+          source: 'customer-dashboard',
+          field: 'submission',
+          errorMessage: data.error || 'Failed to submit deal request',
+        });
+
+        alert(data.error || 'Failed to submit deal request');
       }
     } catch (error) {
       console.error('Error submitting deal:', error);
+
+      // Track form error
+      trackQuoteFormError({
+        source: 'customer-dashboard',
+        field: 'submission',
+        errorMessage: 'Network error submitting deal request',
+      });
+
       alert('Error submitting deal request');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -151,29 +256,29 @@ export default function CustomerDashboard() {
   const maxPrice = selectedCarsList.length > 0 ? Math.max(...selectedCarsList.map(c => c.salePrice)) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50">
+    <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary via-purple to-secondary shadow-lg sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
+      <header className="bg-dark shadow-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="animate-slide-in">
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+          <div>
+            <h1 className="text-3xl font-bold text-primary-light flex items-center gap-2">
               <Car className="w-8 h-8" />
               IQ Auto Deals
             </h1>
-            <p className="text-sm text-white/80">Find Your Perfect Deal</p>
+            <p className="text-sm text-gray-400">Find Your Perfect Deal</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/customer/deals')}
-              className="bg-white text-primary px-5 py-2.5 rounded-lg hover:shadow-xl transition-all duration-300 font-semibold flex items-center gap-2 hover:scale-105"
+              className="bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center gap-2"
             >
               <FileText className="w-4 h-4" />
               My Deals
             </button>
-            <span className="text-white font-medium">{user?.name}</span>
+            <span className="text-gray-300 font-medium">{user?.name}</span>
             <button
               onClick={handleLogout}
-              className="text-white/90 hover:text-white transition flex items-center gap-1"
+              className="text-gray-400 hover:text-white transition flex items-center gap-1"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -183,8 +288,87 @@ export default function CustomerDashboard() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Deal Status Banner */}
+        {dealStatus && (
+          <div className={`rounded-lg shadow-md p-4 mb-4 ${
+            dealStatus.currentCount >= 4
+              ? 'bg-amber-50 border-2 border-amber-400'
+              : dealStatus.currentCount > 0
+                ? 'bg-blue-50 border-2 border-blue-400'
+                : 'bg-gray-50 border border-gray-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${
+                  dealStatus.currentCount >= 4
+                    ? 'bg-amber-100'
+                    : dealStatus.currentCount > 0
+                      ? 'bg-blue-100'
+                      : 'bg-gray-100'
+                }`}>
+                  <ShoppingCart className={`w-5 h-5 ${
+                    dealStatus.currentCount >= 4
+                      ? 'text-amber-600'
+                      : dealStatus.currentCount > 0
+                        ? 'text-blue-600'
+                        : 'text-gray-500'
+                  }`} />
+                </div>
+                <div>
+                  <p className={`font-bold ${
+                    dealStatus.currentCount >= 4
+                      ? 'text-amber-800'
+                      : dealStatus.currentCount > 0
+                        ? 'text-blue-800'
+                        : 'text-gray-700'
+                  }`}>
+                    {dealStatus.currentCount === 0
+                      ? 'No cars in your deal request yet'
+                      : dealStatus.currentCount >= 4
+                        ? 'Deal request full (4/4 cars)'
+                        : `${dealStatus.currentCount} car${dealStatus.currentCount === 1 ? '' : 's'} in your deal request`
+                    }
+                  </p>
+                  <p className={`text-sm ${
+                    dealStatus.currentCount >= 4
+                      ? 'text-amber-700'
+                      : dealStatus.currentCount > 0
+                        ? 'text-blue-700'
+                        : 'text-gray-500'
+                  }`}>
+                    {dealStatus.currentCount >= 4
+                      ? 'Cancel a car from My Deals to add another'
+                      : `You can add ${4 - dealStatus.currentCount} more car${4 - dealStatus.currentCount === 1 ? '' : 's'}`
+                    }
+                  </p>
+                </div>
+              </div>
+              {dealStatus.currentCount > 0 && (
+                <button
+                  onClick={() => router.push('/customer/deals')}
+                  className="bg-primary text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-primary-dark transition"
+                >
+                  View My Deals
+                </button>
+              )}
+            </div>
+            {dealStatus.carsInDeal.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <p className="text-xs text-gray-600 mb-2">Cars awaiting dealer response:</p>
+                <div className="flex flex-wrap gap-2">
+                  {dealStatus.carsInDeal.map(car => (
+                    <span key={car.id} className="bg-white px-2 py-1 rounded text-xs font-medium text-gray-700 border">
+                      {car.year} {car.make} {car.model}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Search Filters */}
-        <div className="bg-gradient-to-r from-white to-blue-50 rounded-lg shadow-lg p-4 mb-4 border border-primary/20">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-border">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2 text-dark">
             <Search className="w-5 h-5 text-primary" />
             Search Available Vehicles
@@ -215,7 +399,7 @@ export default function CustomerDashboard() {
             </select>
             <button
               onClick={loadCars}
-              className="bg-gradient-to-r from-primary to-purple text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all font-semibold flex items-center justify-center gap-2 text-sm"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center justify-center gap-2 text-sm"
             >
               <Search className="w-4 h-4" />
               Search
@@ -225,25 +409,29 @@ export default function CustomerDashboard() {
 
         {/* Selected Cars Summary */}
         {selectedCars.size > 0 && (
-          <div className="bg-gradient-to-r from-accent via-green-500 to-primary text-white rounded-lg shadow-lg p-4 mb-4 border border-white/30">
+          <div className="bg-accent text-white rounded-lg shadow-md p-4 mb-4">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
                   <Check className="w-5 h-5 bg-white text-accent rounded-full p-1" />
-                  {selectedCars.size} Car{selectedCars.size !== 1 ? 's' : ''} Selected
+                  {selectedCars.size} New Car{selectedCars.size !== 1 ? 's' : ''} Selected
                 </h3>
                 <p className="text-sm font-semibold mb-1">
                   Price Range: ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}
                 </p>
                 <p className="text-xs opacity-90">
-                  Up to 4 cars ({4 - selectedCars.size} remaining)
+                  {existingDealCount > 0
+                    ? `Adding to existing deal (${existingDealCount} + ${selectedCars.size} = ${totalSlotsUsed}/4 cars)`
+                    : `${remainingSlots} slot${remainingSlots === 1 ? '' : 's'} remaining after this`
+                  }
                 </p>
               </div>
               <button
                 onClick={handleMakeDeal}
-                className="bg-white text-accent px-6 py-2 rounded-lg font-bold hover:shadow-lg transition-all text-sm"
+                disabled={submitting}
+                className="bg-white text-accent px-6 py-2 rounded-lg font-bold hover:bg-gray-100 transition-all text-sm disabled:opacity-50"
               >
-                Make Me A Deal!
+                {submitting ? 'Submitting...' : existingDealCount > 0 ? 'Add to Deal Request' : 'Make Me A Deal!'}
               </button>
             </div>
           </div>
@@ -258,7 +446,7 @@ export default function CustomerDashboard() {
         </div>
 
         {cars.length === 0 ? (
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-lg p-8 text-center border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md p-8 text-center border border-border">
             <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-primary" />
             </div>
@@ -269,13 +457,22 @@ export default function CustomerDashboard() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {cars.map((car, index) => {
               const isSelected = selectedCars.has(car.id);
+              const isInDeal = dealStatus?.carIdsInDeal.includes(car.id) || false;
+              const canAdd = !isInDeal && totalSlotsUsed < 4;
+
               return (
                 <div
                   key={car.id}
-                  className={`bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-all ${
-                    isSelected ? 'ring-2 ring-accent shadow-lg' : 'hover:shadow-lg'
+                  className={`bg-white rounded-lg shadow-md overflow-hidden transition-all ${
+                    isInDeal
+                      ? 'ring-2 ring-blue-400 opacity-75'
+                      : isSelected
+                        ? 'ring-2 ring-accent shadow-lg cursor-pointer'
+                        : canAdd
+                          ? 'hover:shadow-lg cursor-pointer'
+                          : 'opacity-60'
                   }`}
-                  onClick={() => toggleCar(car.id)}
+                  onClick={() => !isInDeal && toggleCar(car.id)}
                 >
                   <div className="relative h-32 bg-gray-200 overflow-hidden">
                     {(() => {
@@ -297,16 +494,23 @@ export default function CustomerDashboard() {
                         console.error('Failed to parse photos:', e);
                       }
                       return (
-                        <div className="flex items-center justify-center h-full bg-gradient-to-br from-primary/20 to-purple/20">
-                          <Car className="w-16 h-16 text-primary/40" />
+                        <div className="flex items-center justify-center h-full bg-gray-100">
+                          <Car className="w-16 h-16 text-gray-300" />
                         </div>
                       );
                     })()}
                   </div>
                   <div className="p-3">
-                    <h3 className="font-bold text-sm mb-1 text-dark">
-                      {car.year} {car.make} {car.model}
-                    </h3>
+                    <div className="flex items-start justify-between gap-1 mb-1">
+                      <h3 className="font-bold text-sm text-dark">
+                        {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                      </h3>
+                      {car.isDemo && (
+                        <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                          Sample
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
                       <Car className="w-3 h-3" />
                       {car.color} • {car.mileage.toLocaleString()} mi
@@ -315,30 +519,54 @@ export default function CustomerDashboard() {
                       <MapPin className="w-3 h-3" />
                       {car.city}, {car.state}
                     </div>
-                    <div className="flex gap-2 items-center">
+                    <div className="space-y-2">
                       <button
-                        onClick={(e) => openPhotoGallery(car, e)}
-                        className="flex-1 px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-xs bg-gradient-to-r from-gray-600 to-gray-700 text-white hover:from-gray-700 hover:to-gray-800"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCheckingAvailability(car);
+                        }}
+                        className="w-full px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-xs bg-primary text-white hover:bg-primary-dark"
                       >
-                        <Camera className="w-3 h-3" />
-                        View Photos
+                        <Phone className="w-3 h-3" />
+                        Check Availability - Test Drive
                       </button>
-                      <button
-                        className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 text-xs ${
-                          isSelected
-                            ? 'bg-accent text-white'
-                            : 'bg-gradient-to-r from-primary to-purple text-white'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <>
-                            <Check className="w-4 h-4" />
-                            Selected
-                          </>
-                        ) : (
-                          'Select'
-                        )}
-                      </button>
+                      <div className="flex gap-2 items-center">
+                        <button
+                          onClick={(e) => openPhotoGallery(car, e)}
+                          className="flex-1 px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-xs bg-gray-600 text-white hover:bg-gray-700"
+                        >
+                          <Camera className="w-3 h-3" />
+                          View Photos
+                        </button>
+                        <button
+                          disabled={isInDeal || (!isSelected && !canAdd)}
+                          className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 text-xs ${
+                            isInDeal
+                              ? 'bg-blue-500 text-white cursor-not-allowed'
+                              : isSelected
+                                ? 'bg-accent text-white'
+                                : canAdd
+                                  ? 'bg-secondary text-white hover:bg-secondary/90'
+                                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }`}
+                        >
+                          {isInDeal ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              In Deal
+                            </>
+                          ) : isSelected ? (
+                            <>
+                              <Check className="w-4 h-4" />
+                              Selected
+                            </>
+                          ) : canAdd ? (
+                            'Add'
+                          ) : (
+                            'Full'
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -434,6 +662,15 @@ export default function CustomerDashboard() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Check Availability Modal */}
+      {checkingAvailability && (
+        <CheckAvailabilityModal
+          car={checkingAvailability}
+          user={user}
+          onClose={() => setCheckingAvailability(null)}
+        />
       )}
     </div>
   );

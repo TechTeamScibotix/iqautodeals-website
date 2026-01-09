@@ -1,0 +1,4 @@
+NC Email Scraper Progress - Thu Dec 18 21:49:01 EST 2025
+Left off at: ~266/883 dealers
+Emails found: 55 unique
+CSV file: nc-car-dealers-2025-12-19.csv

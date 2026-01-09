@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { trackPasswordResetRequested } from '@/lib/analytics';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,11 @@ export default function ForgotPasswordPage() {
         setLoading(false);
         return;
       }
+
+      // Track successful password reset request
+      trackPasswordResetRequested({
+        source: 'forgot_password_page',
+      });
 
       setSuccess(true);
     } catch (err) {

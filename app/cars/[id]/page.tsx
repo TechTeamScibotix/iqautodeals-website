@@ -1,28 +1,65 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
-import { Car, MapPin, Gauge, Calendar, Palette, Settings, Phone, ArrowLeft, AlertCircle, ArrowRight } from 'lucide-react';
+import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink } from 'lucide-react';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import Footer from '@/app/components/Footer';
+import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+}
+
+// Helper to check if string is UUID format
+function isUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
+// Helper to find car by ID or slug
+async function findCar(idOrSlug: string) {
+  // Try by slug first (more likely for SEO traffic)
+  let car = await prisma.car.findUnique({
+    where: { slug: idOrSlug },
+    include: {
+      dealer: {
+        select: {
+          businessName: true,
+          websiteUrl: true,
+          city: true,
+          state: true,
+        },
+      },
+    },
+  });
+
+  // If not found by slug, try by UUID
+  if (!car && isUUID(idOrSlug)) {
+    car = await prisma.car.findUnique({
+      where: { id: idOrSlug },
+      include: {
+        dealer: {
+          select: {
+            businessName: true,
+            websiteUrl: true,
+            city: true,
+            state: true,
+          },
+        },
+      },
+    });
+  }
+
+  return car;
 }
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
 
-  const car = await prisma.car.findUnique({
-    where: { id },
-    include: {
-      dealer: {
-        select: { businessName: true },
-      },
-    },
-  });
+  const car = await findCar(id);
 
   if (!car) {
     return {
@@ -31,7 +68,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = `${car.year} ${car.make} ${car.model} for Sale | IQ Auto Deals`;
+  const title = `${car.year} ${car.make} ${car.model} for Sale in ${car.city}, ${car.state} | IQ Auto Deals`;
   const description = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
 
@@ -43,6 +80,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Invalid JSON, no image
   }
 
+  // Use slug for canonical URL (SEO-friendly)
+  const canonicalPath = car.slug || car.id;
+
   return {
     title,
     description: description.slice(0, 160),
@@ -53,6 +93,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       `${car.make} for sale ${car.city}`,
       `buy ${car.make} ${car.model} ${car.state}`,
       `pre-owned ${car.make}`,
+      `${car.year} ${car.make} ${car.model} ${car.city}`,
     ],
     openGraph: {
       title,
@@ -67,7 +108,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: imageUrl ? [imageUrl] : [],
     },
     alternates: {
-      canonical: `https://iqautodeals.com/cars/${car.id}`,
+      canonical: `https://iqautodeals.com/cars/${canonicalPath}`,
     },
   };
 }
@@ -75,22 +116,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CarDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const car = await prisma.car.findUnique({
-    where: { id },
-    include: {
-      dealer: {
-        select: {
-          businessName: true,
-          city: true,
-          state: true,
-        },
-      },
-    },
-  });
+  const car = await findCar(id);
 
   // Car not found - hard deleted
   if (!car) {
     notFound();
+  }
+
+  // If accessed by UUID but has a slug, redirect to slug URL (301 for SEO)
+  if (isUUID(id) && car.slug) {
+    redirect(`/cars/${car.slug}`);
   }
 
   // Parse photos
@@ -112,7 +147,17 @@ export default async function CarDetailPage({ params }: PageProps) {
           verificationStatus: 'approved',
         },
       },
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        year: true,
+        make: true,
+        model: true,
+        salePrice: true,
+        mileage: true,
+        city: true,
+        state: true,
+        photos: true,
         dealer: {
           select: { businessName: true },
         },
@@ -130,7 +175,17 @@ export default async function CarDetailPage({ params }: PageProps) {
           verificationStatus: 'approved',
         },
       },
-      include: {
+      select: {
+        id: true,
+        slug: true,
+        year: true,
+        make: true,
+        model: true,
+        salePrice: true,
+        mileage: true,
+        city: true,
+        state: true,
+        photos: true,
         dealer: {
           select: { businessName: true },
         },
@@ -193,7 +248,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                   return (
                     <Link
                       key={similarCar.id}
-                      href={`/cars/${similarCar.id}`}
+                      href={`/cars/${similarCar.slug || similarCar.id}`}
                       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
                     >
                       <div className="relative h-48 bg-gray-200">
@@ -406,16 +461,34 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <MapPin className="w-4 h-4" />
                   {car.city}, {car.state}
                 </p>
+                {car.dealer.websiteUrl && (
+                  <a
+                    href={car.dealer.websiteUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-sm text-primary hover:text-primary-dark flex items-center gap-1 mt-2 font-medium"
+                  >
+                    <Globe className="w-4 h-4" />
+                    Visit Dealer Website
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
               </div>
 
               {/* CTA Button */}
-              <Link
-                href={`/cars?checkAvailability=${car.id}`}
-                className="w-full bg-primary text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition flex items-center justify-center gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                Check Availability
-              </Link>
+              <CheckAvailabilityButton
+                car={{
+                  id: car.id,
+                  make: car.make,
+                  model: car.model,
+                  year: car.year,
+                  salePrice: car.salePrice,
+                  dealerId: car.dealerId,
+                  dealer: {
+                    businessName: car.dealer.businessName || '',
+                  },
+                }}
+              />
               <p className="text-xs text-gray-500 text-center mt-3">
                 Free • No obligation • Get a response within 24 hours
               </p>

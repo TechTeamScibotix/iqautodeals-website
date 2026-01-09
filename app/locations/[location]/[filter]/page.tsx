@@ -61,8 +61,8 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (priceData) {
     const { label, max } = priceData;
     return {
-      title: `Used Cars ${label} - ${city}, ${stateCode}`,
-      description: `Shop quality used cars ${label.toLowerCase()} in ${city}, ${state}. Compare prices from local dealers, get instant offers, and save thousands. Browse certified pre-owned vehicles, SUVs, sedans, and trucks with transparent pricing.`,
+      title: `Best Used Cars ${label} in ${city}, ${stateCode} (2025) - Save Big`,
+      description: `🔥 ${label} used cars in ${city}, ${state}. Compare dealer prices & save up to $5,000! ✓ Quality vehicles ✓ No haggling ✓ Trusted dealers. Browse affordable cars, SUVs & trucks now →`,
       keywords: [
         `used cars ${label.toLowerCase()} ${city}`,
         `cars under $${max} ${city}`,
@@ -87,8 +87,8 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (bodyTypeData) {
     const { label, singular } = bodyTypeData;
     return {
-      title: `Used ${label} - ${city}, ${stateCode}`,
-      description: `Find the best used ${label.toLowerCase()} in ${city}, ${state}. Compare prices from local dealers on quality pre-owned ${label.toLowerCase()}. Get instant offers and save thousands on your next ${singular.toLowerCase()}.`,
+      title: `Best Used ${label} in ${city}, ${stateCode} (2025) - Compare & Save`,
+      description: `🚗 Top used ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices & save up to $5,000! ✓ Certified pre-owned ✓ No haggling ✓ Quality ${singular.toLowerCase()}s. Browse now →`,
       keywords: [
         `used ${label.toLowerCase()} ${city}`,
         `${label.toLowerCase()} for sale ${city}`,
@@ -112,8 +112,8 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   // Model metadata
   const { brand, model, fullName } = modelData;
   return {
-    title: `Used ${fullName} - ${city}, ${stateCode}`,
-    description: `Find the best used ${fullName} in ${city}, ${state}. Compare prices from local ${brand} dealers. Get instant offers on quality pre-owned ${fullName} vehicles and save thousands.`,
+    title: `Used ${fullName} for Sale in ${city}, ${stateCode} (2025) - Best Prices`,
+    description: `🔥 Best deals on used ${fullName} in ${city}, ${state}. Compare ${brand} dealer prices & save up to $5,000! ✓ Certified pre-owned ✓ No haggling. Browse ${fullName} inventory now →`,
     keywords: [
       `used ${fullName.toLowerCase()} ${city}`,
       `${fullName} for sale ${city}`,

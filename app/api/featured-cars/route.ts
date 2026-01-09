@@ -5,8 +5,15 @@ export const revalidate = 3600; // Cache for 1 hour
 
 export async function GET() {
   try {
-    // Get total count of cars
-    const totalCars = await prisma.car.count();
+    // Only count cars from approved dealers
+    const totalCars = await prisma.car.count({
+      where: {
+        status: 'active',
+        dealer: {
+          verificationStatus: 'approved',
+        },
+      },
+    });
 
     if (totalCars === 0) {
       return NextResponse.json({ cars: [] });
@@ -19,14 +26,22 @@ export async function GET() {
     const skip = Math.max(0, Math.floor(Math.random() * (totalCars - limit)));
 
     const cars = await prisma.car.findMany({
+      where: {
+        status: 'active',
+        dealer: {
+          verificationStatus: 'approved',
+        },
+      },
       take: limit,
       skip: skip,
       include: {
         dealer: {
           select: {
             businessName: true,
+            websiteUrl: true,
             city: true,
             state: true,
+            email: true,
           },
         },
       },
@@ -38,7 +53,19 @@ export async function GET() {
     // Shuffle the results for more randomness
     const shuffled = cars.sort(() => Math.random() - 0.5);
 
-    return NextResponse.json({ cars: shuffled });
+    // Add isDemo flag based on dealer email
+    const carsWithDemo = shuffled.map(car => ({
+      ...car,
+      isDemo: car.dealer.email?.endsWith('@iqautodeals.com') || false,
+      dealer: {
+        businessName: car.dealer.businessName,
+        websiteUrl: car.dealer.websiteUrl,
+        city: car.dealer.city,
+        state: car.dealer.state,
+      },
+    }));
+
+    return NextResponse.json({ cars: carsWithDemo });
   } catch (error) {
     console.error('Error fetching featured cars:', error);
     return NextResponse.json(

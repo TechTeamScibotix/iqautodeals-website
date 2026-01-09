@@ -26,6 +26,8 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         userType: user.userType,
+        verificationStatus: user.verificationStatus,
+        businessName: user.businessName,
       },
     });
   } catch (error) {

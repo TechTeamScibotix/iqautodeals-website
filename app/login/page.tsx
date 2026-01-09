@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Car, Mail, Lock, LogIn, UserPlus, User, Briefcase } from 'lucide-react';
+import { Mail, Lock, LogIn, UserPlus } from 'lucide-react';
+import { trackLoginSuccess, trackLoginFailed, trackAuthError } from '@/lib/analytics';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,6 +32,9 @@ export default function LoginPage() {
 
       if (!response.ok) {
         console.error('Login failed:', data);
+        trackLoginFailed({
+          reason: data.error || 'Login failed',
+        });
         setError(data.error || 'Login failed');
         setLoading(false);
         return;
@@ -40,8 +44,19 @@ export default function LoginPage() {
       try {
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('User stored in localStorage successfully');
+
+        // Track successful login
+        trackLoginSuccess({
+          userType: data.user.userType,
+          method: 'email',
+        });
       } catch (storageErr) {
         console.error('localStorage error:', storageErr);
+        trackAuthError({
+          errorType: 'storage_blocked',
+          path: '/login',
+          message: 'Browser storage blocked',
+        });
         setError('Browser storage blocked. Please enable cookies and try again.');
         setLoading(false);
         return;
@@ -61,18 +76,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-dark flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md relative z-10 border-2 border-primary/10 animate-slide-up">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md relative z-10 border-2 border-primary/20 animate-slide-up">
         {/* Logo and Title */}
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-purple to-secondary bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-4 text-primary">
             IQ Auto Deals
           </h1>
           <p className="text-gray-600 text-lg">Sign in to your account</p>
@@ -124,7 +138,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary via-purple to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-105 animate-slide-in"
+            className="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg hover:bg-primary-dark hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 animate-slide-in"
             style={{ animationDelay: '0.3s' }}
           >
             {loading ? (
@@ -149,28 +163,6 @@ export default function LoginPage() {
           </Link>
         </p>
 
-        <div className="mt-8 pt-8 border-t-2 border-gray-100 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-          <p className="text-sm font-bold text-gray-700 text-center mb-4 flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
-            Quick Demo Access
-          </p>
-          <div className="space-y-3 text-sm">
-            <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200 hover:shadow-lg transition-all cursor-pointer group">
-              <div className="flex items-center gap-2 mb-1">
-                <User className="w-4 h-4 text-primary" />
-                <strong className="text-primary">Customer Account</strong>
-              </div>
-              <p className="text-gray-700 font-mono text-xs">customer1@iqautodeals.com / customer123</p>
-            </div>
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl border-2 border-orange-200 hover:shadow-lg transition-all cursor-pointer group">
-              <div className="flex items-center gap-2 mb-1">
-                <Briefcase className="w-4 h-4 text-secondary" />
-                <strong className="text-secondary">Dealer Account</strong>
-              </div>
-              <p className="text-gray-700 font-mono text-xs">dealer1@iqautodeals.com / dealer123</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

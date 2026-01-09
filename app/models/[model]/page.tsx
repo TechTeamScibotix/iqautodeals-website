@@ -125,8 +125,8 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
   const { make, model: modelName } = modelData;
 
   return {
-    title: `Used ${make} ${modelName} for Sale`,
-    description: `Shop quality used ${make} ${modelName} for sale. Compare prices from local dealers, get instant offers, and save thousands on certified pre-owned ${make} ${modelName} vehicles. Browse our inventory with transparent pricing.`,
+    title: `Used ${make} ${modelName} for Sale (2025) - Best Prices Near You`,
+    description: `🔥 Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save up to $5,000. ✓ Certified pre-owned available ✓ No haggling required. Browse ${make} ${modelName} inventory now →`,
     keywords: [
       `used ${make} ${modelName}`,
       `${make} ${modelName} for sale`,

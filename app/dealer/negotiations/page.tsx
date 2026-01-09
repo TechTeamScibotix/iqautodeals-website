@@ -42,6 +42,7 @@ interface DealList {
         createdAt: string;
         sold: boolean;
         deadDeal: boolean;
+        cancelledByCustomer: boolean;
         testDrive?: {
           id: string;
           status: string;
@@ -54,6 +55,7 @@ interface DealList {
       id: string;
       dealerId: string;
       offeredPrice: number;
+      status: string;
     }>;
   }>;
 }
@@ -142,6 +144,37 @@ export default function DealerNegotiations() {
     }
   };
 
+  const handleFirmPrice = async (selectedCarId: string, askingPrice: number) => {
+    if (!confirm(`Submit your firm price of $${askingPrice.toLocaleString()}? This will use one of your 3 offer slots.`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/dealer/submit-offer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedCarId,
+          dealerId: user.id,
+          offerPrice: askingPrice.toString(),
+          isFirmPrice: true,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Firm price submitted! The customer has been notified that this is your best price.');
+        loadDealRequests(user.id);
+      } else {
+        alert(data.error || 'Failed to submit firm price');
+      }
+    } catch (error) {
+      console.error('Error submitting firm price:', error);
+      alert('Error submitting firm price');
+    }
+  };
+
   const handleScheduleAppointment = async () => {
     if (!scheduleForm || !scheduleForm.scheduledDate || !scheduleForm.scheduledTime) {
       alert('Please select both date and time');
@@ -217,7 +250,7 @@ export default function DealerNegotiations() {
       return;
     }
 
-    if (!confirm('Are you sure you want to mark this deal as dead? This will cancel the deal and make the car available again.')) {
+    if (!confirm('Are you sure you want to cancel this deal? The customer will be notified and the car will be available again.')) {
       return;
     }
 
@@ -231,14 +264,40 @@ export default function DealerNegotiations() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Deal marked as dead successfully!');
+        alert('Deal cancelled successfully!');
         loadDealRequests(user.id);
       } else {
-        alert(data.error || 'Failed to mark deal as dead');
+        alert(data.error || 'Failed to cancel deal');
       }
     } catch (error) {
-      console.error('Error marking deal as dead:', error);
-      alert('Error marking deal as dead');
+      console.error('Error cancelling deal:', error);
+      alert('Error cancelling deal');
+    }
+  };
+
+  const handleCancelDeal = async (selectedCarId: string) => {
+    if (!confirm('Are you sure you want to cancel this deal? The customer will be notified.')) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/dealer/cancel-deal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedCarId, dealerId: user.id }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Deal cancelled successfully!');
+        loadDealRequests(user.id);
+      } else {
+        alert(data.error || 'Failed to cancel deal');
+      }
+    } catch (error) {
+      console.error('Error cancelling deal:', error);
+      alert('Error cancelling deal');
     }
   };
 
@@ -290,36 +349,36 @@ export default function DealerNegotiations() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               IQ Auto Deals
             </h1>
-            <p className="text-sm text-gray-600">Deal Requests & Negotiations</p>
+            <p className="text-xs md:text-sm text-gray-600">Deal Requests & Negotiations</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 md:gap-4">
             <button
               onClick={() => router.push('/dealer')}
-              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
+              className="bg-primary text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-700 transition font-semibold text-xs md:text-sm"
             >
               My Inventory
             </button>
             <button
               onClick={() => router.push('/dealer/reporting')}
-              className="bg-purple text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition font-semibold"
+              className="bg-purple text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-purple-700 transition font-semibold text-xs md:text-sm"
             >
               Reporting
             </button>
-            <span className="text-gray-700">{user?.name}</span>
-            <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800">
+            <span className="text-gray-700 text-xs md:text-sm">{user?.name}</span>
+            <button onClick={handleLogout} className="text-gray-600 hover:text-gray-800 text-xs md:text-sm">
               Logout
             </button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold mb-4">
+      <div className="container mx-auto px-4 py-4 md:py-8">
+        <h2 className="text-lg md:text-2xl font-bold mb-4">
           Deal Management Dashboard
         </h2>
 
@@ -359,87 +418,87 @@ export default function DealerNegotiations() {
         })()}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-yellow-500">
-            <div className="text-sm text-gray-600 mb-1">Incoming Requests</div>
-            <div className="text-2xl font-bold text-yellow-600">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-yellow-500">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">Incoming Requests</div>
+            <div className="text-lg md:text-2xl font-bold text-yellow-600">
               {dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled')).length}
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-            <div className="text-sm text-gray-600 mb-1">Pending</div>
-            <div className="text-2xl font-bold text-green-600">
-              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal)).length}
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-green-500">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">Pending</div>
+            <div className="text-lg md:text-2xl font-bold text-green-600">
+              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length}
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-gray-500">
-            <div className="text-sm text-gray-600 mb-1">Dead Deals</div>
-            <div className="text-2xl font-bold text-gray-600">
-              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.car.acceptedDeals?.[0]?.deadDeal)).length}
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-gray-500">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">Cancelled</div>
+            <div className="text-lg md:text-2xl font-bold text-gray-600">
+              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length}
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
-            <div className="text-sm text-gray-600 mb-1">Lost/Expired</div>
-            <div className="text-2xl font-bold text-red-600">
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-red-500">
+            <div className="text-xs md:text-sm text-gray-600 mb-1">Lost/Expired</div>
+            <div className="text-lg md:text-2xl font-bold text-red-600">
               {dealLists.filter(d => d.status === 'lost' || d.status === 'expired').length}
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-lg shadow mb-4">
-          <div className="flex border-b">
+        <div className="bg-white rounded-lg shadow mb-4 overflow-x-auto">
+          <div className="flex border-b min-w-max md:min-w-0">
             <button
               onClick={() => {
                 setActiveTab('incoming');
                 setSelectedCustomerId(null);
               }}
-              className={`flex-1 px-4 py-3 font-semibold text-sm transition ${
+              className={`flex-1 px-2 md:px-4 py-2 md:py-3 font-semibold text-xs md:text-sm transition whitespace-nowrap ${
                 activeTab === 'incoming'
                   ? 'bg-yellow-50 text-yellow-700 border-b-2 border-yellow-500'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Incoming Requests ({dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled')).length})
+              Incoming ({dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled')).length})
             </button>
             <button
               onClick={() => {
                 setActiveTab('pending');
                 setSelectedCustomerId(null);
               }}
-              className={`flex-1 px-4 py-3 font-semibold text-sm transition ${
+              className={`flex-1 px-2 md:px-4 py-2 md:py-3 font-semibold text-xs md:text-sm transition whitespace-nowrap ${
                 activeTab === 'pending'
                   ? 'bg-green-50 text-green-700 border-b-2 border-green-500'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Pending ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal)).length})
+              Pending ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length})
             </button>
             <button
               onClick={() => {
                 setActiveTab('deadDeals');
                 setSelectedCustomerId(null);
               }}
-              className={`flex-1 px-4 py-3 font-semibold text-sm transition ${
+              className={`flex-1 px-2 md:px-4 py-2 md:py-3 font-semibold text-xs md:text-sm transition whitespace-nowrap ${
                 activeTab === 'deadDeals'
                   ? 'bg-gray-50 text-gray-700 border-b-2 border-gray-500'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Dead Deals ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.car.acceptedDeals?.[0]?.deadDeal)).length})
+              Cancelled ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length})
             </button>
             <button
               onClick={() => {
                 setActiveTab('lost');
                 setSelectedCustomerId(null);
               }}
-              className={`flex-1 px-4 py-3 font-semibold text-sm transition ${
+              className={`flex-1 px-2 md:px-4 py-2 md:py-3 font-semibold text-xs md:text-sm transition whitespace-nowrap ${
                 activeTab === 'lost'
                   ? 'bg-red-50 text-red-700 border-b-2 border-red-500'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Lost/Expired ({dealLists.filter(d => d.status === 'lost' || d.status === 'expired').length})
+              Lost ({dealLists.filter(d => d.status === 'lost' || d.status === 'expired').length})
             </button>
           </div>
         </div>
@@ -447,8 +506,8 @@ export default function DealerNegotiations() {
         {(() => {
           const filteredDeals = dealLists.filter(d => {
             if (activeTab === 'incoming') return d.status === 'active' && d.selectedCars.some(sc => sc.status !== 'cancelled');
-            if (activeTab === 'pending') return d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal);
-            if (activeTab === 'deadDeals') return d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.car.acceptedDeals?.[0]?.deadDeal);
+            if (activeTab === 'pending') return d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer);
+            if (activeTab === 'deadDeals') return d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer));
             if (activeTab === 'lost') return d.status === 'lost' || d.status === 'expired' || d.status === 'cancelled';
             return false;
           });
@@ -460,7 +519,8 @@ export default function DealerNegotiations() {
 
             filteredDeals.forEach(dl => {
               const existing = customerMap.get(dl.customerId);
-              const carCount = dl.selectedCars.length;
+              // Only count non-cancelled cars for incoming tab
+              const carCount = dl.selectedCars.filter(sc => sc.status !== 'cancelled').length;
 
               if (existing) {
                 existing.dealLists.push(dl);
@@ -492,8 +552,9 @@ export default function DealerNegotiations() {
                 </div>
 
                 {customers.map(({ customer, dealLists, totalCars }) => {
+                  // Only count non-cancelled cars for incoming tab
                   const yourCars = dealLists.reduce((count, dl) =>
-                    count + dl.selectedCars.filter(sc => sc.car.dealerId === user.id).length, 0
+                    count + dl.selectedCars.filter(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled').length, 0
                   );
 
                   return (
@@ -515,22 +576,22 @@ export default function DealerNegotiations() {
                         </div>
 
                         {/* Stats - Compact */}
-                        <div className="flex items-center gap-6">
+                        <div className="hidden md:flex items-center gap-4 lg:gap-6">
                           <div className="text-center">
                             <div className="text-xs text-gray-500 mb-1">Requests</div>
-                            <div className="text-2xl font-bold text-primary">{dealLists.length}</div>
+                            <div className="text-lg lg:text-2xl font-bold text-primary">{dealLists.length}</div>
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-gray-500 mb-1">Total Cars</div>
-                            <div className="text-2xl font-bold text-gray-700">{totalCars}</div>
+                            <div className="text-lg lg:text-2xl font-bold text-gray-700">{totalCars}</div>
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-gray-500 mb-1">Your Cars</div>
-                            <div className="text-2xl font-bold text-green-600">{yourCars}</div>
+                            <div className="text-lg lg:text-2xl font-bold text-green-600">{yourCars}</div>
                           </div>
                           <div className="text-center">
                             <div className="text-xs text-gray-500 mb-1">Competitors</div>
-                            <div className="text-2xl font-bold text-orange-600">{totalCars - yourCars}</div>
+                            <div className="text-lg lg:text-2xl font-bold text-orange-600">{totalCars - yourCars}</div>
                           </div>
                         </div>
 
@@ -587,7 +648,7 @@ export default function DealerNegotiations() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-lg font-bold mb-1">
-                        Customer Request - {dealList.selectedCars.length} Total Cars ({dealList.selectedCars.filter(sc => sc.car.dealerId === user.id).length} Yours)
+                        Customer Request - {dealList.selectedCars.filter(sc => activeTab === 'incoming' ? sc.status !== 'cancelled' : true).length} Total Cars ({dealList.selectedCars.filter(sc => sc.car.dealerId === user.id && (activeTab === 'incoming' ? sc.status !== 'cancelled' : true)).length} Yours)
                       </h3>
                       <p className="text-sm opacity-90">{dealList.customer.name}</p>
                       <p className="text-xs opacity-75">{dealList.customer.email} • {dealList.customer.phone}</p>
@@ -618,13 +679,17 @@ export default function DealerNegotiations() {
                       if (sc.car.dealerId !== user.id) return false;
 
                       // Additional filtering based on active tab
+                      if (activeTab === 'incoming') {
+                        // Exclude cancelled cars from incoming tab
+                        return sc.status !== 'cancelled';
+                      }
                       if (activeTab === 'pending') {
-                        // Exclude dead deals from pending tab
-                        return !sc.car.acceptedDeals?.[0]?.deadDeal;
+                        // Exclude dead deals and customer-cancelled from pending tab
+                        return !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer;
                       }
                       if (activeTab === 'deadDeals') {
-                        // Only show dead deals in dead deals tab
-                        return sc.car.acceptedDeals?.[0]?.deadDeal === true;
+                        // Show both dealer-cancelled and customer-cancelled deals
+                        return sc.car.acceptedDeals?.[0]?.deadDeal === true || sc.car.acceptedDeals?.[0]?.cancelledByCustomer === true;
                       }
 
                       // For other tabs, just show dealer's cars
@@ -635,6 +700,12 @@ export default function DealerNegotiations() {
                       const isAccepted = selectedCar.status === 'won';
                       const isCancelled = selectedCar.status === 'cancelled';
                       const isDeadDeal = selectedCar.car.acceptedDeals?.[0]?.deadDeal || false;
+                      const isCancelledByCustomer = selectedCar.car.acceptedDeals?.[0]?.cancelledByCustomer || false;
+
+                      // Check if dealer has a pending offer waiting for customer response
+                      const hasPendingOffer = selectedCar.negotiations
+                        .filter(n => n.dealerId === user.id)
+                        .some(n => n.status === 'pending');
 
                       // Check if a competitor won this deal request
                       const competitorWon = dealList.selectedCars.find(sc =>
@@ -648,7 +719,9 @@ export default function DealerNegotiations() {
                         <div
                           key={selectedCar.id}
                           className={`border rounded-lg p-3 transition relative ${
-                            isDeadDeal
+                            isCancelledByCustomer
+                              ? 'border-orange-500 bg-orange-50 shadow-lg opacity-90'
+                              : isDeadDeal
                               ? 'border-red-600 bg-red-50 shadow-lg opacity-90'
                               : isAccepted
                               ? 'border-green-500 bg-green-50 shadow-lg'
@@ -659,22 +732,27 @@ export default function DealerNegotiations() {
                               : 'border-gray-200 hover:border-primary'
                           }`}
                         >
-                          {isDeadDeal && (
-                            <div className="absolute -top-2 -right-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                              ❌ DEAD DEAL
+                          {isCancelledByCustomer && (
+                            <div className="absolute -top-2 -right-2 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                              CANCELLED BY CUSTOMER
                             </div>
                           )}
-                          {isAccepted && !isDeadDeal && (
+                          {isDeadDeal && !isCancelledByCustomer && (
+                            <div className="absolute -top-2 -right-2 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                              CANCELLED BY YOU
+                            </div>
+                          )}
+                          {isAccepted && !isDeadDeal && !isCancelledByCustomer && (
                             <div className="absolute -top-2 -right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
                               ACCEPTED!
                             </div>
                           )}
-                          {isOutbid && !isDeadDeal && (
+                          {isOutbid && !isDeadDeal && !isCancelledByCustomer && (
                             <div className="absolute -top-2 -right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                               OUTBID
                             </div>
                           )}
-                          {isCancelled && !isAccepted && !isOutbid && !isDeadDeal && (
+                          {isCancelled && !isAccepted && !isOutbid && !isDeadDeal && !isCancelledByCustomer && (
                             <div className="absolute -top-2 -right-2 bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                               CANCELLED
                             </div>
@@ -811,7 +889,32 @@ export default function DealerNegotiations() {
                                 </p>
                               )}
 
-                              {dealList.status === 'active' && !isAccepted ? (
+                              {/* Show dealer's submitted offers with status */}
+                              {selectedCar.negotiations.filter(n => n.dealerId === user.id).length > 0 && (
+                                <div className="mb-2 space-y-1">
+                                  {selectedCar.negotiations
+                                    .filter(n => n.dealerId === user.id)
+                                    .map((offer) => (
+                                      <div
+                                        key={offer.id}
+                                        className={`flex items-center justify-between text-xs px-2 py-1 rounded ${
+                                          offer.status === 'declined'
+                                            ? 'bg-red-100 text-red-700'
+                                            : 'bg-green-100 text-green-700'
+                                        }`}
+                                      >
+                                        <span>Your offer: ${offer.offeredPrice.toLocaleString()}</span>
+                                        {offer.status === 'declined' ? (
+                                          <span className="font-bold uppercase">Declined</span>
+                                        ) : (
+                                          <span className="font-semibold">Pending</span>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+
+                              {dealList.status === 'active' && !isAccepted && !isCancelled ? (
                                 canSubmitMore ? (
                                   offerForm?.selectedCarId === selectedCar.id ? (
                                     <div className="flex gap-2 items-center">
@@ -838,23 +941,58 @@ export default function DealerNegotiations() {
                                       </button>
                                     </div>
                                   ) : (
-                                    <button
-                                      onClick={() =>
-                                        setOfferForm({
-                                          selectedCarId: selectedCar.id,
-                                          offerPrice: selectedCar.car.salePrice.toString(),
-                                        })
-                                      }
-                                      className="bg-accent text-white px-4 py-1.5 rounded-lg hover:bg-green-600 transition font-semibold text-sm"
-                                    >
-                                      Make Offer ({3 - offerCount} left)
-                                    </button>
+                                    <div className="flex gap-2 flex-wrap">
+                                      {hasPendingOffer ? (
+                                        <span className="inline-block px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg font-semibold text-xs border border-yellow-300">
+                                          Waiting for customer response...
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <button
+                                            onClick={() =>
+                                              setOfferForm({
+                                                selectedCarId: selectedCar.id,
+                                                offerPrice: selectedCar.car.salePrice.toString(),
+                                              })
+                                            }
+                                            className="bg-accent text-white px-4 py-1.5 rounded-lg hover:bg-green-600 transition font-semibold text-sm"
+                                          >
+                                            Make Offer ({3 - offerCount} left)
+                                          </button>
+                                          <button
+                                            onClick={() => handleFirmPrice(selectedCar.id, selectedCar.car.salePrice)}
+                                            className="bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition font-semibold text-sm flex items-center gap-1"
+                                            title="Send asking price as your firm offer - no negotiation"
+                                          >
+                                            Firm Price
+                                          </button>
+                                        </>
+                                      )}
+                                      <button
+                                        onClick={() => handleCancelDeal(selectedCar.id)}
+                                        className="bg-gray-500 text-white px-4 py-1.5 rounded-lg hover:bg-gray-600 transition font-semibold text-sm"
+                                      >
+                                        Cancel Deal
+                                      </button>
+                                    </div>
                                   )
                                 ) : (
-                                  <span className="inline-block px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg font-semibold text-xs">
-                                    Max offers (3/3)
-                                  </span>
+                                  <div className="flex gap-2 flex-wrap">
+                                    <span className="inline-block px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg font-semibold text-xs">
+                                      Max offers (3/3)
+                                    </span>
+                                    <button
+                                      onClick={() => handleCancelDeal(selectedCar.id)}
+                                      className="bg-gray-500 text-white px-4 py-1.5 rounded-lg hover:bg-gray-600 transition font-semibold text-sm"
+                                    >
+                                      Cancel Deal
+                                    </button>
+                                  </div>
                                 )
+                              ) : isCancelled && !isAccepted ? (
+                                <span className="inline-block px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg font-semibold text-xs">
+                                  Deal Cancelled
+                                </span>
                               ) : isAccepted ? (
                                 <>
                                   {soldForm && soldForm.acceptedDealId === selectedCar.car.acceptedDeals?.[0]?.id ? (
@@ -936,7 +1074,7 @@ export default function DealerNegotiations() {
                                             onClick={() => handleDeadDeal(selectedCar.car.acceptedDeals?.[0]?.id)}
                                             className="bg-red-600 text-white px-4 py-1.5 rounded-lg hover:bg-red-700 transition font-semibold text-sm"
                                           >
-                                            Dead Deal
+                                            Cancel Deal
                                           </button>
                                         </>
                                       )}
@@ -948,7 +1086,7 @@ export default function DealerNegotiations() {
                                       </button>
                                       {isDeadDeal && (
                                         <span className="inline-block px-3 py-1.5 bg-red-100 text-red-700 rounded-lg font-semibold text-xs border border-red-300">
-                                          ❌ Dead Deal
+                                          ❌ Cancelled
                                         </span>
                                       )}
                                     </div>

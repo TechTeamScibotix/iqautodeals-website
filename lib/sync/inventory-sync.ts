@@ -96,7 +96,7 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
     // Get existing cars for this dealer
     const existingCars = await prisma.car.findMany({
       where: { dealerId, status: { not: 'sold' } },
-      select: { id: true, vin: true, salePrice: true, mileage: true },
+      select: { id: true, vin: true, salePrice: true, mileage: true, photos: true, color: true },
     });
 
     const existingVinMap = new Map(existingCars.map((c) => [c.vin, c]));
@@ -108,20 +108,40 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
         const existing = existingVinMap.get(scrapedVehicle.vin);
 
         if (existing) {
-          // Update existing car if price or mileage changed
+          // Check what needs updating
           const priceChanged = Math.abs(existing.salePrice - scrapedVehicle.price) > 1;
-          const mileageChanged = Math.abs(existing.mileage - scrapedVehicle.mileage) > 100;
+          const mileageChanged = scrapedVehicle.mileage > 0 && Math.abs(existing.mileage - scrapedVehicle.mileage) > 100;
+          const isValidColor = scrapedVehicle.color && scrapedVehicle.color !== 'Unknown' && scrapedVehicle.color !== 'Content';
+          const colorChanged = isValidColor && (existing.color === 'Unknown' || existing.color === 'Content');
 
-          if (priceChanged || mileageChanged) {
-            await prisma.car.update({
-              where: { id: existing.id },
-              data: {
-                salePrice: scrapedVehicle.price || existing.salePrice,
-                mileage: scrapedVehicle.mileage || existing.mileage,
-              },
-            });
-            summary.stats.updated++;
-            console.log(`Updated car ${scrapedVehicle.vin}: price=${scrapedVehicle.price}, mileage=${scrapedVehicle.mileage}`);
+          // Check if scraped vehicle has more photos
+          const existingPhotos: string[] = JSON.parse(existing.photos as string || '[]');
+          const photosImproved = scrapedVehicle.photoUrls.length > existingPhotos.length;
+
+          if (priceChanged || mileageChanged || photosImproved || colorChanged) {
+            const updateData: Record<string, unknown> = {};
+
+            if (priceChanged && scrapedVehicle.price > 0) {
+              updateData.salePrice = scrapedVehicle.price;
+            }
+            if (mileageChanged) {
+              updateData.mileage = scrapedVehicle.mileage;
+            }
+            if (photosImproved) {
+              updateData.photos = JSON.stringify(scrapedVehicle.photoUrls);
+            }
+            if (colorChanged) {
+              updateData.color = scrapedVehicle.color;
+            }
+
+            if (Object.keys(updateData).length > 0) {
+              await prisma.car.update({
+                where: { id: existing.id },
+                data: updateData,
+              });
+              summary.stats.updated++;
+              console.log(`Updated car ${scrapedVehicle.vin}: price=${priceChanged}, mileage=${mileageChanged}, photos=${photosImproved ? scrapedVehicle.photoUrls.length : 'same'}, color=${colorChanged ? scrapedVehicle.color : 'same'}`);
+            }
           }
         } else {
           // Add new car

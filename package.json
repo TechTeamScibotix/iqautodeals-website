@@ -10,7 +10,11 @@
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "demo:record": "npx playwright test scripts/youtube-demo.ts --headed --project=chromium",
+    "demo:test": "npx playwright test scripts/youtube-demo.ts --project=chromium-fast",
+    "demo:deal": "npx playwright test scripts/youtube-deal-request.ts --headed --project=chromium",
+    "demo:deal:test": "npx playwright test scripts/youtube-deal-request.ts --project=chromium-fast"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -22,9 +26,10 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.468.0",
-    "next": "^15.1.6",
+    "next": "^15.5.7",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
+    "posthog-js": "^1.309.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.2.2",
@@ -32,15 +37,19 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axios": "^1.13.2",
     "eslint": "^8",
-    "eslint-config-next": "^15.1.6",
+    "eslint-config-next": "^15.5.7",
+    "playwright": "^1.57.0",
     "postcss": "^8",
     "prisma": "^6.2.0",
+    "puppeteer": "^24.33.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
