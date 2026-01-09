@@ -1,10 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Car, Mail, Lock, User, Phone, Building2, MapPin, Hash, LogIn, UserPlus, Briefcase } from 'lucide-react';
+import { Car, Mail, Lock, User, Phone, Building2, MapPin, Hash, LogIn, UserPlus, Briefcase, Globe } from 'lucide-react';
 import { Suspense } from 'react';
+import {
+  trackSignupStarted,
+  trackSignupCompleted,
+  trackSignupAbandoned,
+} from '@/lib/analytics';
 
 function RegisterForm() {
   const router = useRouter();
@@ -18,9 +23,10 @@ function RegisterForm() {
     phone: '',
     userType: defaultType,
     businessName: '',
+    websiteUrl: '',
     address: '',
     city: '',
-    state: 'GA',
+    state: '',
     zip: '',
     workHoursStart: '09:00',
     workHoursEnd: '18:00',
@@ -28,6 +34,35 @@ function RegisterForm() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const startTimeRef = useRef<number>(Date.now());
+  const lastFieldRef = useRef<string>('');
+  const hasCompletedRef = useRef<boolean>(false);
+
+  // Track signup started on mount
+  useEffect(() => {
+    trackSignupStarted({
+      source: searchParams.get('redirect') || 'direct',
+      userType: defaultType as 'customer' | 'dealer',
+    });
+
+    // Track abandonment on unmount
+    return () => {
+      if (!hasCompletedRef.current) {
+        const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
+        trackSignupAbandoned({
+          userType: formData.userType as 'customer' | 'dealer',
+          lastFieldCompleted: lastFieldRef.current || undefined,
+          timeSpentSeconds: timeSpent,
+        });
+      }
+    };
+  }, []);
+
+  // Track field changes
+  const handleFieldChange = (field: string, value: string) => {
+    lastFieldRef.current = field;
+    setFormData({ ...formData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +86,15 @@ function RegisterForm() {
 
       // Auto login after registration
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Mark as completed to prevent abandonment tracking
+      hasCompletedRef.current = true;
+
+      // Track successful signup
+      trackSignupCompleted({
+        userType: data.user.userType,
+        method: 'email',
+      });
 
       if (data.user.userType === 'dealer') {
         router.push('/dealer');
@@ -129,7 +173,7 @@ function RegisterForm() {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => handleFieldChange('name', e.target.value)}
                 placeholder="John Smith"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-gray-50 hover:bg-white"
                 required
@@ -144,7 +188,7 @@ function RegisterForm() {
               <input
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => handleFieldChange('phone', e.target.value)}
                 placeholder="(555) 123-4567"
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-gray-50 hover:bg-white"
               />
@@ -159,7 +203,7 @@ function RegisterForm() {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => handleFieldChange('email', e.target.value)}
               placeholder="your.email@example.com"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-gray-50 hover:bg-white"
               required
@@ -174,7 +218,7 @@ function RegisterForm() {
             <input
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) => handleFieldChange('password', e.target.value)}
               placeholder="Create a secure password"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-gray-50 hover:bg-white"
               required
@@ -199,10 +243,24 @@ function RegisterForm() {
                 <input
                   type="text"
                   value={formData.businessName}
-                  onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                  onChange={(e) => handleFieldChange('businessName', e.target.value)}
                   placeholder="Premium Auto Sales"
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                   required={isDealer}
+                />
+              </div>
+
+              <div className="animate-slide-in" style={{ animationDelay: '0.75s' }}>
+                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-secondary" />
+                  Website URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.websiteUrl}
+                  onChange={(e) => handleFieldChange('websiteUrl', e.target.value)}
+                  placeholder="https://www.yourdealership.com"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                 />
               </div>
 
@@ -214,7 +272,7 @@ function RegisterForm() {
                 <input
                   type="text"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e) => handleFieldChange('address', e.target.value)}
                   placeholder="123 Main Street"
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                   required={isDealer}
@@ -229,7 +287,7 @@ function RegisterForm() {
                   <input
                     type="text"
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    onChange={(e) => handleFieldChange('city', e.target.value)}
                     placeholder="Atlanta"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                     required={isDealer}
@@ -241,15 +299,62 @@ function RegisterForm() {
                   </label>
                   <select
                     value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    onChange={(e) => handleFieldChange('state', e.target.value)}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                     required={isDealer}
                   >
-                    <option value="GA">GA</option>
-                    <option value="FL">FL</option>
+                    <option value="">Select State</option>
                     <option value="AL">AL</option>
-                    <option value="SC">SC</option>
+                    <option value="AK">AK</option>
+                    <option value="AZ">AZ</option>
+                    <option value="AR">AR</option>
+                    <option value="CA">CA</option>
+                    <option value="CO">CO</option>
+                    <option value="CT">CT</option>
+                    <option value="DE">DE</option>
+                    <option value="FL">FL</option>
+                    <option value="GA">GA</option>
+                    <option value="HI">HI</option>
+                    <option value="ID">ID</option>
+                    <option value="IL">IL</option>
+                    <option value="IN">IN</option>
+                    <option value="IA">IA</option>
+                    <option value="KS">KS</option>
+                    <option value="KY">KY</option>
+                    <option value="LA">LA</option>
+                    <option value="ME">ME</option>
+                    <option value="MD">MD</option>
+                    <option value="MA">MA</option>
+                    <option value="MI">MI</option>
+                    <option value="MN">MN</option>
+                    <option value="MS">MS</option>
+                    <option value="MO">MO</option>
+                    <option value="MT">MT</option>
+                    <option value="NE">NE</option>
+                    <option value="NV">NV</option>
+                    <option value="NH">NH</option>
+                    <option value="NJ">NJ</option>
+                    <option value="NM">NM</option>
+                    <option value="NY">NY</option>
                     <option value="NC">NC</option>
+                    <option value="ND">ND</option>
+                    <option value="OH">OH</option>
+                    <option value="OK">OK</option>
+                    <option value="OR">OR</option>
+                    <option value="PA">PA</option>
+                    <option value="RI">RI</option>
+                    <option value="SC">SC</option>
+                    <option value="SD">SD</option>
+                    <option value="TN">TN</option>
+                    <option value="TX">TX</option>
+                    <option value="UT">UT</option>
+                    <option value="VT">VT</option>
+                    <option value="VA">VA</option>
+                    <option value="WA">WA</option>
+                    <option value="WV">WV</option>
+                    <option value="WI">WI</option>
+                    <option value="WY">WY</option>
+                    <option value="DC">DC</option>
                   </select>
                 </div>
                 <div>
@@ -260,7 +365,7 @@ function RegisterForm() {
                   <input
                     type="text"
                     value={formData.zip}
-                    onChange={(e) => setFormData({ ...formData, zip: e.target.value })}
+                    onChange={(e) => handleFieldChange('zip', e.target.value)}
                     placeholder="30301"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                     required={isDealer}
@@ -284,7 +389,7 @@ function RegisterForm() {
                   <input
                     type="time"
                     value={formData.workHoursStart}
-                    onChange={(e) => setFormData({ ...formData, workHoursStart: e.target.value })}
+                    onChange={(e) => handleFieldChange('workHoursStart', e.target.value)}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                     required={isDealer}
                   />
@@ -296,7 +401,7 @@ function RegisterForm() {
                   <input
                     type="time"
                     value={formData.workHoursEnd}
-                    onChange={(e) => setFormData({ ...formData, workHoursEnd: e.target.value })}
+                    onChange={(e) => handleFieldChange('workHoursEnd', e.target.value)}
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-secondary focus:border-secondary transition-all bg-gray-50 hover:bg-white"
                     required={isDealer}
                   />
