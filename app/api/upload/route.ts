@@ -31,16 +31,24 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(file.name, file, {
+    // Generate unique filename to avoid conflicts
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const extension = file.name.split('.').pop() || 'jpg';
+    const uniqueFilename = `car-${timestamp}-${randomStr}.${extension}`;
+
+    // Upload to Vercel Blob with unique filename
+    const blob = await put(uniqueFilename, file, {
       access: 'public',
+      addRandomSuffix: false, // We already added randomness
     });
 
     return NextResponse.json({ url: blob.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
+    const errorMessage = error?.message || 'Failed to upload image';
     return NextResponse.json(
-      { error: 'Failed to upload image' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

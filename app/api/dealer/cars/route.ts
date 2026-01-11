@@ -44,14 +44,50 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Helper to generate SEO-friendly slug
+function generateSlug(data: { year: number; make: string; model: string; city: string; state: string; vin: string }): string {
+  return [
+    data.year,
+    data.make.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    data.model.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    data.city.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    data.state.toLowerCase(),
+    data.vin.toLowerCase()
+  ].join('-').replace(/-+/g, '-');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
+    // Handle photos - avoid double-stringifying
+    // Frontend may send already-stringified JSON or an array
+    let photos = data.photos;
+    if (typeof photos === 'string') {
+      // Already stringified, use as-is
+      photos = photos;
+    } else if (Array.isArray(photos)) {
+      // Array needs to be stringified
+      photos = JSON.stringify(photos);
+    } else {
+      photos = '[]';
+    }
+
+    // Generate SEO-friendly slug: 2024-toyota-camry-atlanta-ga-vin123
+    const slug = generateSlug({
+      year: data.year,
+      make: data.make,
+      model: data.model,
+      city: data.city,
+      state: data.state,
+      vin: data.vin,
+    });
+
     const car = await prisma.car.create({
       data: {
         ...data,
-        photos: JSON.stringify(data.photos || []),
+        photos,
+        slug,
         listingFeePaid: true, // Simulated for demo
       },
     });

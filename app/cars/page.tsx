@@ -520,11 +520,11 @@ export default function CarsPage() {
       {/* Vehicle Details Modal */}
       {viewingPhotos && (
         <div
-          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          className="fixed inset-0 bg-black/80 z-50 lg:flex lg:items-center lg:justify-center lg:p-4"
           onClick={closePhotoGallery}
         >
           <div
-            className="relative w-full max-w-7xl bg-white rounded-xl overflow-hidden my-8"
+            className="relative w-full h-full lg:h-auto lg:max-h-[90vh] lg:max-w-7xl bg-white lg:rounded-xl overflow-hidden flex flex-col lg:block"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -535,7 +535,7 @@ export default function CarsPage() {
               <X className="w-6 h-6" />
             </button>
 
-            <div className="grid lg:grid-cols-5">
+            <div className="flex-1 overflow-y-auto lg:overflow-visible lg:grid lg:grid-cols-5">
               {/* Left: Photo Gallery - takes 3 columns */}
               <div className="relative bg-gray-900 lg:col-span-3">
                 <div className="relative aspect-[16/10]">
@@ -597,7 +597,7 @@ export default function CarsPage() {
               </div>
 
               {/* Right: Vehicle Details - takes 2 columns */}
-              <div className="p-6 lg:p-8 overflow-y-auto max-h-[80vh] lg:col-span-2">
+              <div className="p-4 pb-24 lg:pb-8 lg:p-8 lg:overflow-y-auto lg:max-h-[80vh] lg:col-span-2">
                 {/* Title & Price */}
                 <div className="mb-6">
                   <h2 className="text-2xl lg:text-3xl font-bold text-dark mb-2">
@@ -660,8 +660,8 @@ export default function CarsPage() {
                   )}
                 </div>
 
-                {/* CTA Buttons */}
-                <div className="space-y-3">
+                {/* CTA Buttons - Desktop only (mobile has fixed bottom bar) */}
+                <div className="hidden lg:block space-y-3">
                   <button
                     onClick={(e) => {
                       closePhotoGallery();
@@ -673,7 +673,7 @@ export default function CarsPage() {
                     Check Availability - Schedule Test Drive
                   </button>
                   <Link
-                    href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
+                    href={`/cars/${viewingPhotos.car.slug}`}
                     className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
                   >
                     View Full Listing
@@ -687,6 +687,26 @@ export default function CarsPage() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Mobile Fixed Bottom CTA */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-2 safe-area-bottom">
+              <button
+                onClick={(e) => {
+                  closePhotoGallery();
+                  handleCheckAvailability(viewingPhotos.car, e);
+                }}
+                className="w-full bg-primary text-white px-4 py-3 rounded-lg font-bold text-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+              >
+                <Phone className="w-5 h-5" />
+                Check Availability - Test Drive
+              </button>
+              <Link
+                href={`/cars/${viewingPhotos.car.slug}`}
+                className="w-full border-2 border-primary text-primary px-4 py-2.5 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
+              >
+                View Full Listing
+              </Link>
             </div>
           </div>
         </div>

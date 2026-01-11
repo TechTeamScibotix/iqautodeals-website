@@ -253,7 +253,11 @@ export default function DealerDashboard() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {cars.map((car) => (
-              <div key={car.id} className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition">
+              <div
+                key={car.id}
+                className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer group"
+                onClick={() => router.push(`/dealer/edit-car/${car.id}`)}
+              >
                 <div className="relative h-32 bg-gray-200 overflow-hidden">
                   {(() => {
                     try {
@@ -265,7 +269,7 @@ export default function DealerDashboard() {
                             src={firstPhoto}
                             alt={`${car.year} ${car.make} ${car.model}`}
                             fill
-                            className="object-cover"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           />
                         );
@@ -275,6 +279,12 @@ export default function DealerDashboard() {
                     }
                     return <div className="flex items-center justify-center h-full text-6xl">🚗</div>;
                   })()}
+                  {/* Tap hint overlay on mobile */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white px-3 py-1 rounded text-xs font-medium">
+                      Tap to edit
+                    </span>
+                  </div>
                 </div>
                 <div className="p-2 md:p-3">
                   <h3 className="font-bold text-xs md:text-sm mb-1 truncate">
@@ -300,14 +310,14 @@ export default function DealerDashboard() {
                   <p className="text-xs text-gray-500 mb-2">VIN: {car.vin}</p>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => router.push(`/dealer/edit-car/${car.id}`)}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/dealer/edit-car/${car.id}`); }}
                       className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition flex items-center justify-center gap-2 text-xs font-semibold"
                     >
                       <Pencil className="w-3 h-3" />
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(car.id, `${car.year} ${car.make} ${car.model}`)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(car.id, `${car.year} ${car.make} ${car.model}`); }}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition flex items-center justify-center gap-2 text-xs font-semibold"
                     >
                       <Trash2 className="w-3 h-3" />

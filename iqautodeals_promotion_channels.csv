@@ -1,0 +1,49 @@
+Category,Platform/Channel,URL,Type,Cost,Notes,Priority
+STARTUP DIRECTORIES,Product Hunt,https://www.producthunt.com,Launch Platform,Free,Best for SaaS launches - schedule for Tuesday/Wednesday,HIGH
+STARTUP DIRECTORIES,Peerlist,https://peerlist.io,Launch Platform,Free,Week-long showcase - less pressure than PH - gives DR63 dofollow backlink,HIGH
+STARTUP DIRECTORIES,BetaList,https://betalist.com,Startup Directory,Free/Paid,Good for beta launches and early traction,HIGH
+STARTUP DIRECTORIES,NextGen Tools,https://www.nxgntools.com,Weekly Launch,Free,Weekly launchpad for software - good for SEO backlinks,MEDIUM
+STARTUP DIRECTORIES,Microlaunch,https://microlaunch.net,Micro-SaaS,Free,Built for smaller SaaS and side projects,MEDIUM
+STARTUP DIRECTORIES,LaunchingNext,https://launchingnext.com,Startup Directory,Free,Features newest tech startups and projects,MEDIUM
+STARTUP DIRECTORIES,TinyStartups,https://tinystartups.com,Indie Maker,Free,Celebrates small-scale innovation,LOW
+STARTUP DIRECTORIES,Product Burst,https://productburst.com,Launch Directory,Free,Lightweight submission process,LOW
+AUTOMOTIVE DIRECTORIES,Cars.com,https://www.cars.com,Major Marketplace,Paid,25M monthly shoppers - industry authority,HIGH
+AUTOMOTIVE DIRECTORIES,Autotrader,https://www.autotrader.com,Major Marketplace,Paid,Largest vehicle marketplace,HIGH
+AUTOMOTIVE DIRECTORIES,CarGurus,https://www.cargurus.com,Major Marketplace,Paid,Price transparency focused,HIGH
+AUTOMOTIVE DIRECTORIES,Automotive Directory,https://automotive-directory.com,Business Directory,Free,General automotive business listings,MEDIUM
+AUTOMOTIVE DIRECTORIES,DealerRater,https://www.dealerrater.com,Review Platform,Free,Dealer reviews and ratings,MEDIUM
+AUTOMOTIVE DIRECTORIES,Edmunds,https://www.edmunds.com,Research/Marketplace,Paid,Pays up to $30 per lead for affiliates,HIGH
+BUSINESS DIRECTORIES,Google Business Profile,https://business.google.com,Local SEO,Free,Essential for local search visibility,HIGH
+BUSINESS DIRECTORIES,Yelp,https://biz.yelp.com,Review Platform,Free,Important for local trust signals,HIGH
+BUSINESS DIRECTORIES,BBB,https://www.bbb.org,Trust Platform,Paid,Better Business Bureau accreditation,MEDIUM
+BUSINESS DIRECTORIES,Crunchbase,https://www.crunchbase.com,Startup Database,Free/Paid,Good for B2B credibility,MEDIUM
+BUSINESS DIRECTORIES,AngelList/Wellfound,https://wellfound.com,Startup Platform,Free,Good for hiring and visibility,LOW
+AFFILIATE PARTNERSHIPS,CarsDirect Affiliate,https://affiliate.carsdirect.com,Lead Gen Affiliate,Revenue Share,Pays $8-10 per qualified lead,HIGH
+AFFILIATE PARTNERSHIPS,DealerPromoter,https://www.dealerpromoter.ai/affliates,Dealer SaaS Affiliate,10% recurring,Lifetime commissions on referrals,MEDIUM
+AFFILIATE PARTNERSHIPS,FlexOffers,https://www.flexoffers.com,Affiliate Network,Revenue Share,Multiple car buying/selling programs,MEDIUM
+AFFILIATE PARTNERSHIPS,PartnerCentric,https://partnercentric.com,Affiliate Agency,Revenue Share,Auto industry affiliate management,LOW
+INDUSTRY FORUMS,DealerRefresh,https://www.dealerrefresh.com,Dealer Forum,Free,Active dealer community - be helpful not salesy,HIGH
+INDUSTRY FORUMS,Automotive News,https://www.autonews.com,Industry News,Paid PR,Press releases and news coverage,MEDIUM
+INDUSTRY FORUMS,CBT News,https://www.cbtnews.com,Dealer News,Free/Paid,Car Biz Today - dealer focused news,MEDIUM
+INDUSTRY FORUMS,Digital Dealer,https://www.digitaldealer.com,Conference/Community,Paid,Events and dealer education,MEDIUM
+SOCIAL MEDIA,LinkedIn,https://www.linkedin.com,Professional Network,Free,Target dealer principals and GMs,HIGH
+SOCIAL MEDIA,Reddit r/askcarsales,https://www.reddit.com/r/askcarsales,Community,Free,Be helpful - no direct promotion,MEDIUM
+SOCIAL MEDIA,Reddit r/carbuying,https://www.reddit.com/r/carbuying,Community,Free,Consumer focused - answer questions,MEDIUM
+SOCIAL MEDIA,Facebook Dealer Groups,https://www.facebook.com/groups,Private Groups,Free,Join dealer owner groups,MEDIUM
+SOCIAL MEDIA,X/Twitter,https://twitter.com,Social Platform,Free,Engage with auto industry accounts,LOW
+LOCAL PARTNERSHIPS,Auto Repair Shops,N/A,Local Partner,Free/Barter,Cross-promotion opportunities,MEDIUM
+LOCAL PARTNERSHIPS,Driving Schools,N/A,Local Partner,Free/Barter,New driver referrals,LOW
+LOCAL PARTNERSHIPS,Auto Parts Stores,N/A,Local Partner,Free/Barter,Many have partner directories,LOW
+LOCAL PARTNERSHIPS,Local News Sites,N/A,PR/Backlinks,Free/Paid,Press releases and features,MEDIUM
+CONTENT MARKETING,Medium,https://medium.com,Blogging Platform,Free,Automotive and startup topics,MEDIUM
+CONTENT MARKETING,Dev.to,https://dev.to,Developer Blog,Free,Technical content about your platform,LOW
+CONTENT MARKETING,Substack,https://substack.com,Newsletter,Free,Build email audience,MEDIUM
+CONTENT MARKETING,YouTube,https://youtube.com,Video Platform,Free,Dealer tutorials and demos,MEDIUM
+PODCAST OUTREACH,Car Dealership Guy,https://www.youtube.com/@CarDealershipGuy,Podcast/YouTube,Free Pitch,Popular dealer-focused content creator,HIGH
+PODCAST OUTREACH,Dealer Talk,N/A,Industry Podcast,Free Pitch,Guest appearance opportunities,MEDIUM
+PODCAST OUTREACH,Auto Remarketing Podcast,https://www.autoremarketing.com,Industry Podcast,Free Pitch,Used car industry focused,MEDIUM
+PAID ADVERTISING,Google Ads,https://ads.google.com,PPC,Paid,Target dealer-related keywords,HIGH
+PAID ADVERTISING,Facebook/Meta Ads,https://business.facebook.com,Social Ads,Paid,Target by job title and interests,MEDIUM
+PAID ADVERTISING,LinkedIn Ads,https://business.linkedin.com,B2B Ads,Paid,Target dealer principals directly,HIGH
+PAID ADVERTISING,Capterra,https://www.capterra.com,Software Directory,Paid PPC,B2B software comparison site,MEDIUM
+PAID ADVERTISING,G2,https://www.g2.com,Software Reviews,Free/Paid,Get listed and collect reviews,MEDIUM

@@ -1,10 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Upload, ImageIcon, Sparkles } from 'lucide-react';
+import { X, Upload, ImageIcon, Sparkles, GripVertical, ChevronUp, ChevronDown } from 'lucide-react';
+
+// All 50 US states
+const US_STATES = [
+  { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }, { code: 'AZ', name: 'Arizona' },
+  { code: 'AR', name: 'Arkansas' }, { code: 'CA', name: 'California' }, { code: 'CO', name: 'Colorado' },
+  { code: 'CT', name: 'Connecticut' }, { code: 'DE', name: 'Delaware' }, { code: 'FL', name: 'Florida' },
+  { code: 'GA', name: 'Georgia' }, { code: 'HI', name: 'Hawaii' }, { code: 'ID', name: 'Idaho' },
+  { code: 'IL', name: 'Illinois' }, { code: 'IN', name: 'Indiana' }, { code: 'IA', name: 'Iowa' },
+  { code: 'KS', name: 'Kansas' }, { code: 'KY', name: 'Kentucky' }, { code: 'LA', name: 'Louisiana' },
+  { code: 'ME', name: 'Maine' }, { code: 'MD', name: 'Maryland' }, { code: 'MA', name: 'Massachusetts' },
+  { code: 'MI', name: 'Michigan' }, { code: 'MN', name: 'Minnesota' }, { code: 'MS', name: 'Mississippi' },
+  { code: 'MO', name: 'Missouri' }, { code: 'MT', name: 'Montana' }, { code: 'NE', name: 'Nebraska' },
+  { code: 'NV', name: 'Nevada' }, { code: 'NH', name: 'New Hampshire' }, { code: 'NJ', name: 'New Jersey' },
+  { code: 'NM', name: 'New Mexico' }, { code: 'NY', name: 'New York' }, { code: 'NC', name: 'North Carolina' },
+  { code: 'ND', name: 'North Dakota' }, { code: 'OH', name: 'Ohio' }, { code: 'OK', name: 'Oklahoma' },
+  { code: 'OR', name: 'Oregon' }, { code: 'PA', name: 'Pennsylvania' }, { code: 'RI', name: 'Rhode Island' },
+  { code: 'SC', name: 'South Carolina' }, { code: 'SD', name: 'South Dakota' }, { code: 'TN', name: 'Tennessee' },
+  { code: 'TX', name: 'Texas' }, { code: 'UT', name: 'Utah' }, { code: 'VT', name: 'Vermont' },
+  { code: 'VA', name: 'Virginia' }, { code: 'WA', name: 'Washington' }, { code: 'WV', name: 'West Virginia' },
+  { code: 'WI', name: 'Wisconsin' }, { code: 'WY', name: 'Wyoming' },
+];
 
 export default function EditCarPage() {
   const router = useRouter();
@@ -15,8 +36,11 @@ export default function EditCarPage() {
   const [loading, setLoading] = useState(false);
   const [fetchingCar, setFetchingCar] = useState(true);
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [generatingSEO, setGeneratingSEO] = useState(false);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const dragOverIndex = useRef<number | null>(null);
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -97,39 +121,127 @@ export default function EditCarPage() {
     const remainingSlots = maxImages - photoUrls.length;
 
     if (remainingSlots === 0) {
-      alert(`Maximum ${maxImages} images allowed`);
+      setUploadError(`Maximum ${maxImages} images allowed`);
       return;
     }
 
     const filesToUpload = Array.from(files).slice(0, remainingSlots);
     setUploadingImages(true);
+    setUploadError(null);
 
-    try {
-      const uploadPromises = filesToUpload.map(async (file) => {
-        const formData = new FormData();
-        formData.append('file', file);
+    const successfulUrls: string[] = [];
+    const errors: string[] = [];
+
+    // Upload one at a time for better error handling
+    for (const file of filesToUpload) {
+      try {
+        // Validate file size client-side first
+        if (file.size > 10 * 1024 * 1024) {
+          errors.push(`${file.name}: File too large (max 10MB)`);
+          continue;
+        }
+
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', file);
 
         const response = await fetch('/api/upload', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         });
 
-        if (!response.ok) throw new Error('Upload failed');
-        const data = await response.json();
-        return data.url;
-      });
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          errors.push(`${file.name}: ${errorData.error || 'Upload failed'}`);
+          continue;
+        }
 
-      const uploadedUrls = await Promise.all(uploadPromises);
-      setPhotoUrls((prev) => [...prev, ...uploadedUrls]);
-    } catch (error) {
-      alert('Failed to upload images. Please try again.');
-    } finally {
-      setUploadingImages(false);
+        const data = await response.json();
+        if (data.url) {
+          successfulUrls.push(data.url);
+        }
+      } catch (error) {
+        errors.push(`${file.name}: Network error - please check your connection`);
+      }
     }
+
+    // Add successful uploads
+    if (successfulUrls.length > 0) {
+      setPhotoUrls((prev) => [...prev, ...successfulUrls]);
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+      setUploadError(`Some uploads failed:\n${errors.join('\n')}`);
+    }
+
+    setUploadingImages(false);
   };
 
   const removeImage = (index: number) => {
     setPhotoUrls((prev) => prev.filter((_, i) => i !== index));
+    setUploadError(null);
+  };
+
+  // Move image up in the list
+  const moveImageUp = (index: number) => {
+    if (index === 0) return;
+    setPhotoUrls((prev) => {
+      const newUrls = [...prev];
+      [newUrls[index - 1], newUrls[index]] = [newUrls[index], newUrls[index - 1]];
+      return newUrls;
+    });
+  };
+
+  // Move image down in the list
+  const moveImageDown = (index: number) => {
+    if (index === photoUrls.length - 1) return;
+    setPhotoUrls((prev) => {
+      const newUrls = [...prev];
+      [newUrls[index], newUrls[index + 1]] = [newUrls[index + 1], newUrls[index]];
+      return newUrls;
+    });
+  };
+
+  // Set image as main (move to first position)
+  const setAsMainImage = (index: number) => {
+    if (index === 0) return;
+    setPhotoUrls((prev) => {
+      const newUrls = [...prev];
+      const [movedUrl] = newUrls.splice(index, 1);
+      newUrls.unshift(movedUrl);
+      return newUrls;
+    });
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    dragOverIndex.current = index;
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      return;
+    }
+
+    setPhotoUrls((prev) => {
+      const newUrls = [...prev];
+      const [draggedUrl] = newUrls.splice(draggedIndex, 1);
+      newUrls.splice(dropIndex, 0, draggedUrl);
+      return newUrls;
+    });
+    setDraggedIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    dragOverIndex.current = null;
   };
 
   const handleGenerateSEO = async () => {
@@ -321,7 +433,7 @@ export default function EditCarPage() {
               onChange={(e) => setFormData({ ...formData, salePrice: parseFloat(e.target.value) })}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
               min="0"
-              step="100"
+              step="1"
               required
             />
             <p className="text-sm text-gray-500 mt-1">This price will be hidden from customers until they make a deal</p>
@@ -356,6 +468,9 @@ export default function EditCarPage() {
             <label className="block text-sm font-medium mb-2">
               Vehicle Photos * (Max 15 images)
             </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Drag images to reorder. The first image will be the main photo shown in listings.
+            </p>
             <div className="space-y-4">
               {/* Upload Button */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition">
@@ -384,30 +499,92 @@ export default function EditCarPage() {
                 </label>
               </div>
 
-              {/* Image Previews */}
+              {/* Upload Error Message */}
+              {uploadError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm whitespace-pre-line">
+                  {uploadError}
+                </div>
+              )}
+
+              {/* Image Previews with Drag & Drop */}
               {photoUrls.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {photoUrls.map((url, index) => (
-                    <div key={url} className="relative group aspect-square">
+                    <div
+                      key={url}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`relative group aspect-square cursor-grab active:cursor-grabbing ${
+                        draggedIndex === index ? 'opacity-50 ring-2 ring-primary' : ''
+                      }`}
+                    >
                       <Image
                         src={url}
                         alt={`Car photo ${index + 1}`}
                         fill
                         className="object-cover rounded-lg"
-                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      {index === 0 && (
-                        <div className="absolute bottom-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded">
+
+                      {/* Drag handle indicator */}
+                      <div className="absolute top-2 left-2 bg-black/50 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition">
+                        <GripVertical className="w-4 h-4" />
+                      </div>
+
+                      {/* Control buttons */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition">
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          title="Remove image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImageUp(index)}
+                            className="bg-gray-700 text-white p-1 rounded-full hover:bg-gray-800"
+                            title="Move up"
+                          >
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                        )}
+                        {index < photoUrls.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImageDown(index)}
+                            className="bg-gray-700 text-white p-1 rounded-full hover:bg-gray-800"
+                            title="Move down"
+                          >
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Main photo badge and Set as Main button */}
+                      {index === 0 ? (
+                        <div className="absolute bottom-2 left-2 bg-primary text-white text-xs px-2 py-1 rounded font-medium">
                           Main Photo
                         </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setAsMainImage(index)}
+                          className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition hover:bg-black"
+                        >
+                          Set as Main
+                        </button>
                       )}
+
+                      {/* Position indicator */}
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                        {index + 1}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -433,9 +610,11 @@ export default function EditCarPage() {
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
               >
-                <option value="GA">GA</option>
-                <option value="FL">FL</option>
-                <option value="AL">AL</option>
+                {US_STATES.map((state) => (
+                  <option key={state.code} value={state.code}>
+                    {state.code} - {state.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

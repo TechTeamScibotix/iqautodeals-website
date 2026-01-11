@@ -8,6 +8,8 @@ export default function OrganizationSchema() {
     name: 'IQ Auto Deals',
     legalName: 'IQ Auto Deals LLC',
     alternateName: ['IQ Auto Deals', 'IQAutoDeals', 'IQ AutoDeals'],
+    // CRITICAL: Clarify business type for search engines and AI
+    disambiguatingDescription: 'IQ Auto Deals is a nationwide ONLINE car marketplace platform (iqautodeals.com) - NOT a physical dealership. We connect buyers with certified dealers across all 50 US states through our digital platform.',
     url: 'https://iqautodeals.com',
     logo: {
       '@type': 'ImageObject',
@@ -16,7 +18,7 @@ export default function OrganizationSchema() {
       height: 512,
     },
     image: 'https://iqautodeals.com/og-image.jpg',
-    description: 'IQ Auto Deals is an online used car marketplace connecting buyers with certified dealers nationwide. Customers browse thousands of quality pre-owned vehicles, select up to 4 cars, and receive competitive offers from dealers who compete for their business. The platform helps buyers save up to $5,000 compared to traditional dealership prices.',
+    description: 'IQ Auto Deals is a nationwide ONLINE car marketplace connecting buyers with certified dealers across all 50 US states. Unlike traditional dealerships, IQ Auto Deals is a digital platform where customers browse thousands of quality pre-owned vehicles, select up to 4 cars, and receive competitive offers from multiple dealers who compete for their business. Save up to $5,000 compared to traditional dealership prices.',
     slogan: 'Smart Car Buying Made Simple',
     foundingDate: '2024',
     foundingLocation: {
@@ -28,10 +30,17 @@ export default function OrganizationSchema() {
         addressCountry: 'US',
       },
     },
-    areaServed: {
-      '@type': 'Country',
-      name: 'United States',
-    },
+    // Emphasize NATIONWIDE coverage - not a local business
+    areaServed: [
+      {
+        '@type': 'Country',
+        name: 'United States',
+      },
+      {
+        '@type': 'State',
+        name: 'All 50 US States',
+      },
+    ],
     serviceArea: {
       '@type': 'GeoCircle',
       geoMidpoint: {
@@ -41,28 +50,31 @@ export default function OrganizationSchema() {
       },
       geoRadius: '3000 miles',
     },
-    numberOfEmployees: {
-      '@type': 'QuantitativeValue',
-      minValue: 1,
-      maxValue: 10,
-    },
-    naics: '441120',
-    isicV4: '4510',
+    // Industry codes for ONLINE automotive marketplace
+    naics: '454110', // Electronic Shopping and Mail-Order Houses
+    isicV4: '4791', // Retail sale via mail order houses or via Internet
+    // Official social profiles - helps search engines identify the real brand
     sameAs: [
       'https://www.facebook.com/iqautodeals',
       'https://twitter.com/iqautodeals',
       'https://www.instagram.com/iqautodeals',
       'https://www.linkedin.com/company/iqautodeals',
       'https://www.youtube.com/@iqautodeals',
-      'https://www.crunchbase.com/organization/iq-auto-deals',
     ],
     contactPoint: [
       {
         '@type': 'ContactPoint',
         contactType: 'customer service',
+        telephone: '+1-800-IQ-DEALS',
         email: 'support@iqautodeals.com',
         availableLanguage: ['English', 'Spanish'],
         areaServed: 'US',
+        hoursAvailable: {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '09:00',
+          closes: '18:00',
+        },
       },
       {
         '@type': 'ContactPoint',
@@ -80,31 +92,38 @@ export default function OrganizationSchema() {
       worstRating: '1',
     },
     knowsAbout: [
-      'Used cars',
-      'Car buying',
-      'Auto dealerships',
-      'Vehicle marketplace',
-      'Car pricing',
-      'Pre-owned vehicles',
+      'Online car marketplace',
+      'Used car comparison shopping',
+      'Dealer competition platform',
+      'Nationwide vehicle marketplace',
+      'Digital car buying',
+      'Pre-owned vehicle marketplace',
       'Certified pre-owned cars',
-      'Auto financing',
-      'Car shopping online',
-      'Dealer competition',
+      'Car price comparison',
+      'Online auto shopping',
+      'Multi-dealer quotes',
     ],
+    // Explicitly define what we offer as a PLATFORM/SERVICE
     makesOffer: {
       '@type': 'Offer',
       itemOffered: {
         '@type': 'Service',
-        name: 'Online Car Marketplace',
-        description: 'Connect with certified dealers and receive competitive offers on quality used cars',
+        '@id': 'https://iqautodeals.com/#marketplace-service',
+        name: 'Online Car Marketplace Platform',
+        serviceType: 'Online Marketplace',
+        description: 'Digital platform connecting car buyers with certified dealers nationwide. Compare vehicles, receive competing offers, and save thousands.',
         provider: {
           '@id': 'https://iqautodeals.com/#organization',
+        },
+        areaServed: {
+          '@type': 'Country',
+          name: 'United States',
         },
       },
     },
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
-      name: 'Used Car Inventory',
+      name: 'Nationwide Used Car Inventory',
       itemListElement: [
         {
           '@type': 'OfferCatalog',
@@ -124,24 +143,49 @@ export default function OrganizationSchema() {
         },
       ],
     },
+    // Additional structured data for brand recognition
+    brand: {
+      '@type': 'Brand',
+      name: 'IQ Auto Deals',
+      logo: 'https://iqautodeals.com/logo.png',
+      slogan: 'Smart Car Buying Made Simple',
+    },
   };
 
   const softwareApplicationSchema = {
     '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
+    '@type': 'WebApplication',
+    '@id': 'https://iqautodeals.com/#webapp',
     name: 'IQ Auto Deals',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
+    alternateName: 'IQAutoDeals',
+    applicationCategory: 'ShoppingApplication',
+    applicationSubCategory: 'Automotive Marketplace',
+    operatingSystem: 'Web Browser',
+    browserRequirements: 'Requires JavaScript. Works on all modern browsers.',
+    description: 'Online car marketplace platform for comparing used cars from certified dealers nationwide. NOT a physical dealership.',
+    url: 'https://iqautodeals.com',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'USD',
+      description: 'Free to use for car buyers',
     },
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.8',
       reviewCount: '1250',
     },
+    creator: {
+      '@id': 'https://iqautodeals.com/#organization',
+    },
+    featureList: [
+      'Compare up to 4 vehicles at once',
+      'Receive competing dealer offers',
+      'Browse nationwide inventory',
+      'Save up to $5,000',
+      'No haggling required',
+      'Free to use',
+    ],
   };
 
   return (

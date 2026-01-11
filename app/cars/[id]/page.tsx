@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
@@ -7,6 +7,10 @@ import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle
 import VehicleSchema from '@/app/components/VehicleSchema';
 import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
+import CarPhotoGallery from '@/app/components/CarPhotoGallery';
+
+// Force dynamic rendering to ensure redirects work on every request
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -80,8 +84,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Invalid JSON, no image
   }
 
-  // Use slug for canonical URL (SEO-friendly)
-  const canonicalPath = car.slug || car.id;
+  // Use slug for canonical URL (SEO-friendly) - slug is required
+  const canonicalPath = car.slug!;
 
   return {
     title,
@@ -123,10 +127,7 @@ export default async function CarDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // If accessed by UUID but has a slug, redirect to slug URL (301 for SEO)
-  if (isUUID(id) && car.slug) {
-    redirect(`/cars/${car.slug}`);
-  }
+  // Note: UUID to slug redirects are handled by middleware for better SEO
 
   // Parse photos
   let photos: string[] = [];
@@ -360,45 +361,11 @@ export default async function CarDetailPage({ params }: PageProps) {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left: Photos & Details */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Main Photo */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="relative aspect-[16/10] bg-gray-200">
-                {photos[0] ? (
-                  <Image
-                    src={photos[0]}
-                    alt={`${car.year} ${car.make} ${car.model}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                    priority
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <Car className="w-24 h-24 text-gray-300" />
-                  </div>
-                )}
-              </div>
-
-              {/* Thumbnail Strip */}
-              {photos.length > 1 && (
-                <div className="flex gap-2 p-4 overflow-x-auto bg-gray-100">
-                  {photos.map((photo, index) => (
-                    <div
-                      key={index}
-                      className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden"
-                    >
-                      <Image
-                        src={photo}
-                        alt={`${car.year} ${car.make} ${car.model} - Photo ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Photo Gallery */}
+            <CarPhotoGallery
+              photos={photos}
+              carName={`${car.year} ${car.make} ${car.model}`}
+            />
 
             {/* Vehicle Info */}
             <div className="bg-white rounded-xl shadow-lg p-6">

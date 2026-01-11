@@ -28,9 +28,13 @@ export default function AIChat() {
   const [leadCaptured, setLeadCaptured] = useState(false);
   const [userInfo, setUserInfo] = useState<{name: string; email: string; phone: string} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Use setTimeout to ensure DOM has updated before scrolling (helps with mobile keyboards)
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
   };
 
   useEffect(() => {
@@ -104,6 +108,8 @@ export default function AIChat() {
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      // Refocus input after response (helps on mobile)
+      setTimeout(() => inputRef.current?.focus(), 200);
     }
   };
 
@@ -149,11 +155,22 @@ export default function AIChat() {
         </button>
       )}
 
-      {/* Chat Window */}
+      {/* Chat Window - Full screen on mobile, floating on desktop */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200">
+        <div
+          className="fixed z-[100] bg-white flex flex-col overflow-hidden"
+          style={{
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        >
           {/* Header */}
-          <div className="bg-primary text-white p-4 rounded-t-lg flex justify-between items-center">
+          <div
+            className="bg-primary text-white p-4 flex justify-between items-center shrink-0"
+            style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+          >
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5" />
               <div>
@@ -171,22 +188,22 @@ export default function AIChat() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-4">
             {messages.map((message, index) => (
-              <div key={index}>
+              <div key={index} className="w-full overflow-hidden">
                 <div
                   className={`flex ${
                     message.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
+                    className={`max-w-[85%] rounded-lg p-3 ${
                       message.role === 'user'
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 text-gray-800'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                     <p className="text-xs mt-1 opacity-70">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: '2-digit',
@@ -206,7 +223,7 @@ export default function AIChat() {
                 )}
                 {/* Show Financing Calculator */}
                 {message.showCalculator && message.role === 'assistant' && (
-                  <div className="mt-3">
+                  <div className="mt-3 w-full overflow-hidden">
                     <FinancingCalculator />
                   </div>
                 )}
@@ -223,21 +240,24 @@ export default function AIChat() {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 bg-white shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
             <div className="flex gap-2">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me anything..."
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
                 disabled={isLoading}
+                autoComplete="off"
+                style={{ fontSize: '16px' }}
               />
               <button
                 onClick={sendMessage}
                 disabled={isLoading || !input.trim()}
-                className="bg-primary text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                 aria-label="Send message"
               >
                 <Send className="w-5 h-5" />

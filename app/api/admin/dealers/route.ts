@@ -1,10 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerApprovalEmail, sendDealerRejectionEmail } from '@/lib/email';
+import { isAdminEmail } from '@/lib/admin-auth';
+
+// Verify admin authentication
+async function verifyAdmin(request: NextRequest): Promise<{ isAdmin: boolean; error?: string }> {
+  // Get user email from authorization header (set by client)
+  const userEmail = request.headers.get('x-user-email');
+
+  if (!userEmail) {
+    return { isAdmin: false, error: 'Authentication required' };
+  }
+
+  // Verify user exists and is an admin
+  const user = await prisma.user.findUnique({
+    where: { email: userEmail.toLowerCase() },
+    select: { email: true },
+  });
+
+  if (!user) {
+    return { isAdmin: false, error: 'User not found' };
+  }
+
+  if (!isAdminEmail(user.email)) {
+    return { isAdmin: false, error: 'Admin access required' };
+  }
+
+  return { isAdmin: true };
+}
 
 // Get all dealers (for admin dashboard)
 export async function GET(request: NextRequest) {
   try {
+    // Verify admin access
+    const auth = await verifyAdmin(request);
+    if (!auth.isAdmin) {
+      return NextResponse.json({ error: auth.error }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status'); // pending, approved, rejected, all
 
@@ -59,6 +92,12 @@ export async function GET(request: NextRequest) {
 // Update dealer sync settings (PATCH for partial updates)
 export async function PATCH(request: NextRequest) {
   try {
+    // Verify admin access
+    const auth = await verifyAdmin(request);
+    if (!auth.isAdmin) {
+      return NextResponse.json({ error: auth.error }, { status: 403 });
+    }
+
     const body = await request.json();
     const { dealerId, ...syncSettings } = body;
 
@@ -122,6 +161,12 @@ export async function PATCH(request: NextRequest) {
 // Update dealer verification status
 export async function PUT(request: NextRequest) {
   try {
+    // Verify admin access
+    const auth = await verifyAdmin(request);
+    if (!auth.isAdmin) {
+      return NextResponse.json({ error: auth.error }, { status: 403 });
+    }
+
     const { dealerId, verificationStatus, verificationNote } = await request.json();
 
     if (!dealerId || !verificationStatus) {

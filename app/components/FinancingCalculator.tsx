@@ -44,13 +44,13 @@ export default function FinancingCalculator() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-4 border border-blue-200">
+    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-3 border border-blue-200 w-full max-w-full overflow-hidden">
       <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
         <DollarSign className="w-5 h-5 text-primary" />
         Financing Calculator
       </h3>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Car Price */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -113,19 +113,19 @@ export default function FinancingCalculator() {
         </div>
 
         {/* Results */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200 space-y-3 mt-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 flex items-center gap-2">
+        <div className="bg-white rounded-lg p-3 border border-gray-200 space-y-2 mt-3">
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-sm text-gray-600 flex items-center gap-1 shrink-0">
               <Calendar className="w-4 h-4" />
               Monthly Payment
             </span>
-            <span className="text-2xl font-bold text-primary">
+            <span className="text-xl font-bold text-primary">
               {formatCurrency(results.monthly)}
             </span>
           </div>
 
-          <div className="border-t border-gray-100 pt-2 space-y-2">
-            <div className="flex justify-between items-center">
+          <div className="border-t border-gray-100 pt-2 space-y-1">
+            <div className="flex justify-between items-center gap-2">
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />
                 Total Amount
@@ -135,7 +135,7 @@ export default function FinancingCalculator() {
               </span>
             </div>
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center gap-2">
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <Percent className="w-3 h-3" />
                 Total Interest

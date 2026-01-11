@@ -1,0 +1,44 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// UUID regex pattern
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Check if this is a car detail page with UUID
+  if (pathname.startsWith('/cars/')) {
+    const carIdOrSlug = pathname.replace('/cars/', '');
+
+    // If it's a UUID, we need to redirect to the slug
+    if (UUID_REGEX.test(carIdOrSlug)) {
+      try {
+        // Fetch the car's slug from the API
+        const apiUrl = new URL('/api/car-slug', request.url);
+        apiUrl.searchParams.set('id', carIdOrSlug);
+
+        const response = await fetch(apiUrl.toString());
+        if (response.ok) {
+          const data = await response.json();
+          if (data.slug) {
+            // Permanent redirect (301) to the slug URL
+            return NextResponse.redirect(
+              new URL(`/cars/${data.slug}`, request.url),
+              { status: 301 }
+            );
+          }
+        }
+      } catch (error) {
+        // If error, let the page handle it
+        console.error('Middleware redirect error:', error);
+      }
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: '/cars/:path*',
+};

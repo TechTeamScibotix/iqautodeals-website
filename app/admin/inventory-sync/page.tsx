@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   RefreshCw,
@@ -15,6 +15,16 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+
+// Helper to get auth headers for admin API calls
+function getAuthHeaders(): HeadersInit {
+  const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+  const email = user ? JSON.parse(user).email : '';
+  return {
+    'Content-Type': 'application/json',
+    'x-user-email': email,
+  };
+}
 
 interface Dealer {
   id: string;
@@ -68,13 +78,14 @@ export default function InventorySyncAdmin() {
   });
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  useEffect(() => {
-    loadDealers();
-  }, []);
-
-  const loadDealers = async () => {
+  const loadDealers = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/dealers?status=approved');
+      const res = await fetch('/api/admin/dealers?status=approved', {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) {
+        throw new Error('Unauthorized');
+      }
       const data = await res.json();
       setDealers(data.dealers || []);
     } catch (error) {
@@ -82,13 +93,17 @@ export default function InventorySyncAdmin() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadDealers();
+  }, [loadDealers]);
 
   const handleToggleSync = async (dealer: Dealer) => {
     try {
       const res = await fetch('/api/admin/dealers', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           dealerId: dealer.id,
           autoSyncEnabled: !dealer.autoSyncEnabled,
@@ -118,7 +133,7 @@ export default function InventorySyncAdmin() {
     try {
       const res = await fetch('/api/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ dealerId }),
       });
 
@@ -159,7 +174,7 @@ export default function InventorySyncAdmin() {
     try {
       const res = await fetch('/api/admin/dealers', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           dealerId,
           ...editForm,
