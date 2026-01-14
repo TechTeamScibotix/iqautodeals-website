@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart, Phone } from 'lucide-react';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 import {
   trackQuoteFormStarted,
   trackQuoteFormSubmitted,
@@ -258,15 +259,11 @@ export default function CustomerDashboard() {
   return (
     <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-primary-light flex items-center gap-2">
-              <Car className="w-8 h-8" />
-              IQ Auto Deals
-            </h1>
-            <p className="text-sm text-gray-400">Find Your Perfect Deal</p>
-          </div>
+      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+        <div className="container mx-auto px-4 h-full flex justify-between items-center">
+          <Link href="/" className="flex items-center h-full py-1">
+            <LogoWithBeam className="h-full" />
+          </Link>
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/customer/deals')}

@@ -2,20 +2,21 @@
 
 import Link from 'next/link';
 import { ArrowLeft, Code, Database, Zap, Shield, BookOpen, Download, Terminal, FileCode, UserPlus } from 'lucide-react';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 export default function DealerIntegration() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
+        <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span className="font-semibold">Back to Home</span>
           </Link>
-          <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            IQ Auto Deals
-          </div>
+          <Link href="/" className="flex items-center h-full py-1">
+            <LogoWithBeam className="h-full" variant="dark" />
+          </Link>
           <div className="w-32"></div> {/* Spacer for centering */}
         </div>
       </header>

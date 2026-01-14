@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { TrendingUp, DollarSign, Calendar, Filter, FileText, Car, User, Phone, Mail } from 'lucide-react';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 interface Sale {
   id: string;
@@ -382,12 +384,12 @@ export default function DealerReporting() {
         }
       `}</style>
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              IQ Auto Deals
-            </h1>
+      <header className="bg-white shadow-sm h-20">
+        <div className="container mx-auto px-4 h-full flex justify-between items-center">
+          <div className="flex items-center gap-3 h-full py-1">
+            <Link href="/" className="flex items-center h-full">
+              <LogoWithBeam className="h-full" variant="dark" />
+            </Link>
             <p className="text-sm text-gray-600">Sales Reporting</p>
           </div>
           <div className="flex items-center gap-4 no-print">

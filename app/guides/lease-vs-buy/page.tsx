@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, XCircle, DollarSign, Calculator } from 'lucide-react';
 import type { Metadata } from 'next';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 export const metadata: Metadata = {
   title: 'Lease vs Buy a Car: Complete Comparison Guide 2025',
@@ -11,10 +12,10 @@ export const metadata: Metadata = {
 export default function LeaseVsBuyGuide() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            IQ Auto Deals
+      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
+        <div className="container mx-auto px-4 h-full flex justify-between items-center">
+          <Link href="/" className="flex items-center h-full py-1">
+            <LogoWithBeam className="h-full" variant="dark" />
           </Link>
           <Link href="/cars" className="text-primary hover:underline font-semibold flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />

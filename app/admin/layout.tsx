@@ -4,6 +4,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Loader2, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 // Admin emails - in production, use environment variable
 const ADMIN_EMAILS = [
@@ -77,16 +78,13 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Admin Header */}
-      <header className="bg-gray-900 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <Link href="/admin" className="text-lg font-bold">IQ Auto Deals</Link>
-              <span className="block text-xs text-gray-400">Admin Portal</span>
-            </div>
+      <header className="bg-gray-900 text-white shadow-lg h-20">
+        <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
+          <div className="flex items-center gap-3 h-full">
+            <Link href="/admin" className="flex items-center h-full py-1">
+              <LogoWithBeam className="h-full" />
+            </Link>
+            <span className="text-xs text-gray-400 ml-2">Admin Portal</span>
           </div>
 
           <div className="flex items-center gap-4">

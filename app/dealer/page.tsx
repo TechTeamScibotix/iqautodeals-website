@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings } from 'lucide-react';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 interface Car {
   id: string;
@@ -96,12 +97,12 @@ export default function DealerDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              IQ Auto Deals
-            </h1>
+      <header className="bg-white shadow-sm h-20">
+        <div className="container mx-auto px-4 h-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-3 h-full py-1">
+            <Link href="/" className="flex items-center h-full">
+              <LogoWithBeam className="h-full" variant="dark" />
+            </Link>
             <p className="text-xs md:text-sm text-gray-600">Dealer Dashboard</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-4">

@@ -10,6 +10,7 @@ import AIChat from './components/AIChat';
 import FinancingCalculator from './components/FinancingCalculator';
 import Footer from './components/Footer';
 import { BorderBeam } from '@/components/AnimatedBorder';
+import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { trackFunnelStep } from '@/lib/analytics';
 
 interface FeaturedCar {
@@ -129,13 +130,11 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <AIChat />
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center gap-3">
-              <BorderBeam className="text-3xl">
-                <span className="font-bold text-primary-light">IQ Auto Deals</span>
-              </BorderBeam>
+      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+        <div className="container mx-auto px-4 h-full">
+          <div className="flex justify-between items-center h-full">
+            <Link href="/" className="flex items-center h-full py-1">
+              <LogoWithBeam className="h-full" />
             </Link>
 
             {/* Navigation Menu - cars.com style */}
