@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Image from 'next/image';
 
 // Popular locations for footer - organized by region
 const popularLocations = {
@@ -492,7 +492,13 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-700">
             <div className="mb-4 md:mb-0">
               <div className="h-14">
-                <LogoWithBeam className="h-full" />
+                <Image
+                  src="/logo-header.png"
+                  alt="IQ Auto Deals - Intelligent Quality Deals"
+                  width={500}
+                  height={80}
+                  className="h-full w-auto"
+                />
               </div>
               <p className="text-gray-400 text-sm mt-1">Your trusted marketplace for quality used cars online</p>
             </div>
