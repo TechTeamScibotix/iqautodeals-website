@@ -15,6 +15,7 @@ import { trackFunnelStep } from '@/lib/analytics';
 
 interface FeaturedCar {
   id: string;
+  slug: string | null;
   make: string;
   model: string;
   year: number;
@@ -368,7 +369,7 @@ export default function Home() {
 
                   return (
                     <Link
-                      href={`/cars/${car.id}`}
+                      href={`/cars/${car.slug || car.id}`}
                       key={`${car.id}-${index}`}
                       className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary transition-all cursor-pointer"
                     >

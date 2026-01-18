@@ -128,7 +128,7 @@ The schema files are crucial for search engine and AI differentiation:
 |-------|---------|
 | `/` | Homepage - hero, search, featured cars |
 | `/cars` | Car search/listings |
-| `/cars/[id]` | Individual car details |
+| `/cars/[slug]` | Individual car details (SEO-friendly URL) |
 | `/about` | About IQ Auto Deals |
 | `/blog` | Blog articles |
 | `/guides/*` | SEO guide content |
@@ -153,6 +153,32 @@ The schema files are crucial for search engine and AI differentiation:
 | Route | Purpose |
 |-------|---------|
 | `/admin` | Admin dashboard |
+
+---
+
+## Car URL Slug Format
+
+Car detail pages use SEO-friendly URLs with the following format:
+
+```
+/cars/{vin}-{year}-{make}-{model}-{city}-{state}
+```
+
+**Example:**
+```
+/cars/1ftew1cf1gfa15978-2016-ford-f-150-tampa-fl
+```
+
+**Key Points:**
+- VIN comes first for uniqueness
+- All lowercase, special characters replaced with hyphens
+- Old UUID URLs (e.g., `/cars/d4d0d49c-...`) automatically 301 redirect to slug URLs
+- Middleware in `middleware.ts` handles the redirect by looking up the slug via `/api/car-slug`
+- Slug is generated when car is created (dealer portal or inventory sync)
+
+**Slug Generation Files:**
+- `app/api/dealer/cars/route.ts` - Manual car creation
+- `lib/sync/inventory-sync.ts` - Automated inventory sync
 
 ---
 
@@ -256,10 +282,11 @@ Integration endpoints:
 | File | Purpose |
 |------|---------|
 | `app/layout.tsx` | Root layout with all schema components |
-| `app/page.tsx` | Homepage (41K lines - complex) |
+| `app/page.tsx` | Homepage |
 | `app/sitemap.ts` | Dynamic sitemap generation |
 | `prisma/schema.prisma` | Database schema |
-| `middleware.ts` | Auth middleware |
+| `middleware.ts` | URL redirect middleware (UUID → slug for car pages) |
+| `scripts/update-slugs.ts` | Script to batch update car slugs in database |
 
 ---
 

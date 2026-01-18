@@ -228,8 +228,9 @@ async function addNewCar(
       console.log(`Uploaded ${photoUrls.length} photos for ${scrapedVehicle.vin}`);
     }
 
-    // Generate slug
+    // Generate slug: vin-year-make-model-city-state
     const slug = generateSlug(
+      scrapedVehicle.vin,
       vinData.year,
       vinData.make,
       vinData.model,
@@ -283,16 +284,17 @@ async function addNewCar(
 }
 
 /**
- * Generate SEO-friendly slug
+ * Generate SEO-friendly slug: vin-year-make-model-city-state
  */
 function generateSlug(
+  vin: string,
   year: number,
   make: string,
   model: string,
   city: string,
   state: string
 ): string {
-  return [year.toString(), make, model, city, state]
+  return [vin, year.toString(), make, model, city, state]
     .join('-')
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '-')

@@ -44,15 +44,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper to generate SEO-friendly slug
+// Helper to generate SEO-friendly slug: vin-year-make-model-city-state
 function generateSlug(data: { year: number; make: string; model: string; city: string; state: string; vin: string }): string {
   return [
+    data.vin.toLowerCase(),
     data.year,
     data.make.toLowerCase().replace(/[^a-z0-9]/g, '-'),
     data.model.toLowerCase().replace(/[^a-z0-9]/g, '-'),
     data.city.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-    data.state.toLowerCase(),
-    data.vin.toLowerCase()
+    data.state.toLowerCase()
   ].join('-').replace(/-+/g, '-');
 }
 
