@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import LeadCaptureForm from './LeadCaptureForm';
 import FinancingCalculator from './FinancingCalculator';
 
@@ -158,7 +159,7 @@ export default function AIChat() {
       {/* Chat Window - Full screen on mobile, floating on desktop */}
       {isOpen && (
         <div
-          className="fixed z-[100] bg-white flex flex-col overflow-hidden
+          className="fixed z-[100] bg-[#1a1a2e] flex flex-col overflow-hidden
             inset-0
             md:inset-auto md:bottom-6 md:right-6 md:w-[400px] md:h-[600px] md:rounded-xl md:shadow-2xl"
         >
@@ -167,10 +168,10 @@ export default function AIChat() {
             className="bg-primary text-white p-4 flex justify-between items-center shrink-0 md:rounded-t-xl"
             style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
           >
-            <div className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5" />
+            <div className="flex items-center gap-3">
+              <MessageCircle className="w-6 h-6" />
               <div>
-                <h3 className="font-bold">IQ Auto Deals Assistant</h3>
+                <h3 className="font-bold text-lg">IQ Auto Deals Assistant</h3>
                 <p className="text-xs text-blue-100">Powered by AI</p>
               </div>
             </div>
@@ -179,38 +180,55 @@ export default function AIChat() {
               className="hover:bg-blue-700 rounded p-1 transition-colors"
               aria-label="Close chat"
             >
-              <X className="w-5 h-5" />
+              <X className="w-6 h-6" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-4">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 space-y-6">
             {messages.map((message, index) => (
               <div key={index} className="w-full overflow-hidden">
-                <div
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-lg p-3 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                    <p className="text-xs mt-1 opacity-70">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                {message.role === 'assistant' ? (
+                  // Assistant message with avatar
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0">
+                      <Image
+                        src="/chat-avatar.png"
+                        alt="AI Assistant"
+                        width={48}
+                        height={48}
+                        className="rounded-full border-2 border-blue-400"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-200 text-sm whitespace-pre-wrap break-words leading-relaxed">
+                        {message.content}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  // User message
+                  <div className="flex justify-end">
+                    <div className="max-w-[85%] bg-primary text-white rounded-2xl px-4 py-3">
+                      <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className="text-xs mt-1 opacity-70 text-right">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {/* Show Lead Capture Form */}
                 {message.showLeadForm && showLeadCapture && !leadCaptured && (
-                  <div className="mt-3">
+                  <div className="mt-3 ml-14">
                     <LeadCaptureForm
                       onSubmit={handleLeadCapture}
                       onCancel={handleLeadCancel}
@@ -219,16 +237,25 @@ export default function AIChat() {
                 )}
                 {/* Show Financing Calculator */}
                 {message.showCalculator && message.role === 'assistant' && (
-                  <div className="mt-3 w-full overflow-hidden">
+                  <div className="mt-3 ml-14 w-full overflow-hidden">
                     <FinancingCalculator />
                   </div>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-lg p-3">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <div className="flex items-start gap-3">
+                <div className="shrink-0">
+                  <Image
+                    src="/chat-avatar.png"
+                    alt="AI Assistant"
+                    width={48}
+                    height={48}
+                    className="rounded-full border-2 border-blue-400"
+                  />
+                </div>
+                <div className="bg-[#2a2a4a] rounded-lg p-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-blue-400" />
                 </div>
               </div>
             )}
@@ -236,8 +263,11 @@ export default function AIChat() {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200 bg-white shrink-0" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-            <div className="flex gap-2">
+          <div
+            className="p-4 bg-[#1a1a2e] shrink-0 border-t border-gray-700"
+            style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+          >
+            <div className="flex gap-3">
               <input
                 ref={inputRef}
                 type="text"
@@ -245,7 +275,7 @@ export default function AIChat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask me anything..."
-                className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary text-base"
+                className="flex-1 min-w-0 bg-white border border-gray-300 rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 text-base"
                 disabled={isLoading}
                 autoComplete="off"
                 style={{ fontSize: '16px' }}
@@ -253,13 +283,13 @@ export default function AIChat() {
               <button
                 onClick={sendMessage}
                 disabled={isLoading || !input.trim()}
-                className="bg-primary text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-4 py-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                 aria-label="Send message"
               >
                 <Send className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-gray-500 mt-3 text-center">
               AI-powered assistance for your car search
             </p>
           </div>
