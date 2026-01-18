@@ -338,7 +338,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           </nav>
           <Link
             href="/register"
-            className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
+            className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
           >
             Sign Up
           </Link>
@@ -411,7 +411,7 @@ export default async function CarDetailPage({ params }: PageProps) {
 
               {/* VIN */}
               <div className="border-t pt-4">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 break-all">
                   <span className="font-semibold">VIN:</span> {car.vin}
                 </p>
               </div>
