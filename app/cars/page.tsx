@@ -672,7 +672,7 @@ export default function CarsPage() {
                     Check Availability - Schedule Test Drive
                   </button>
                   <Link
-                    href={`/cars/${viewingPhotos.car.slug}`}
+                    href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
                     className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
                   >
                     View Full Listing
@@ -701,7 +701,7 @@ export default function CarsPage() {
                 Check Availability - Test Drive
               </button>
               <Link
-                href={`/cars/${viewingPhotos.car.slug}`}
+                href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
                 className="w-full border-2 border-primary text-primary px-4 py-2.5 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
               >
                 View Full Listing
