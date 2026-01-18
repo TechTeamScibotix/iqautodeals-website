@@ -172,8 +172,16 @@ export default function Home() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative bg-light py-16">
-        <div className="container mx-auto px-4">
+      <section className="relative py-16 min-h-[600px]">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/car-lot-bg.png)' }}
+        />
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-5 gap-8 items-start">
             {/* Left: Search Panel */}
             <div className="lg:col-span-2 bg-white rounded-xl shadow-xl p-6">
@@ -279,29 +287,29 @@ export default function Home() {
             </div>
 
             {/* Right: Value Proposition */}
-            <div className="lg:col-span-3 text-dark space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+            <div className="lg:col-span-3 text-white space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">
                 Buy Used Cars Online<br />
                 Compare Prices from<br />
                 Nationwide Dealers
               </h2>
-              <p className="text-xl text-gray-700 leading-relaxed">
+              <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md">
                 Shop thousands of certified pre-owned vehicles from trusted dealers. Get competitive quotes. Compare prices. Save up to $5,000 on your next car.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
-                <div className="bg-white rounded-lg p-4 shadow-md">
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                   <div className="text-3xl font-bold text-primary mb-1">Free</div>
                   <div className="text-sm text-gray-600">No fees to browse or request deals</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                   <div className="text-3xl font-bold text-primary mb-1">Up to 3</div>
                   <div className="text-sm text-gray-600">Competitive offers per vehicle</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                   <div className="text-3xl font-bold text-primary mb-1">$5,000</div>
                   <div className="text-sm text-gray-600">Average savings vs dealership</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow-md">
+                <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                   <div className="text-3xl font-bold text-primary mb-1">50mi</div>
                   <div className="text-sm text-gray-600">Search radius from your location</div>
                 </div>
@@ -359,9 +367,10 @@ export default function Home() {
                   }
 
                   return (
-                    <div
+                    <Link
+                      href={`/cars/${car.id}`}
                       key={`${car.id}-${index}`}
-                      className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+                      className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary transition-all cursor-pointer"
                     >
                       <div className="relative h-48 bg-gray-200">
                         {photoUrl ? (
@@ -398,7 +407,7 @@ export default function Home() {
                         </p>
                         <p className="text-xs text-gray-500">{car.dealer.businessName}</p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

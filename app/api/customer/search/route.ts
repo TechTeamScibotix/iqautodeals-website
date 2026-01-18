@@ -51,8 +51,12 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json({ cars: carsWithDemo });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error searching cars:', error);
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Search failed',
+      details: error?.message || 'Unknown error',
+      code: error?.code
+    }, { status: 500 });
   }
 }

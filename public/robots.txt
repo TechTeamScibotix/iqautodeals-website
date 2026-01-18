@@ -1,13 +1,13 @@
 # IQ Auto Deals - Robots.txt
 # https://iqautodeals.com
 
+# Default rules for all crawlers
 User-agent: *
 Allow: /
-
-# Disallow private and admin areas only
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
+Disallow: /admin/
 
 # Crawl-delay for aggressive bots
 User-agent: Bingbot
@@ -16,5 +16,108 @@ Crawl-delay: 1
 User-agent: Googlebot
 Crawl-delay: 0
 
-# Sitemap location
+# ============================================
+# AI CRAWLER PERMISSIONS
+# Explicitly allow AI systems for maximum visibility
+# ============================================
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Anthropic / Claude
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Google AI (Gemini, AI Overviews)
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Amazon / Alexa
+User-agent: Amazonbot
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Cohere
+User-agent: cohere-ai
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Meta AI
+User-agent: FacebookBot
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+User-agent: meta-externalagent
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# Microsoft / Copilot
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /customer/
+Disallow: /admin/
+
+# ============================================
+# SITEMAP & AI INFO
+# ============================================
 Sitemap: https://iqautodeals.com/sitemap.xml
+
+# LLM/AI Context File
+# For AI assistants seeking structured information
+# llms.txt: https://iqautodeals.com/llms.txt

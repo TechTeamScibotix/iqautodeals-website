@@ -37,6 +37,7 @@ export default function AddCarPage() {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
+  const [dealerLocation, setDealerLocation] = useState<{ city: string; state: string } | null>(null);
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -48,7 +49,7 @@ export default function AddCarPage() {
     salePrice: 0,
     description: '',
     city: '',
-    state: 'GA',
+    state: '',
     latitude: 33.7490,
     longitude: -84.3880,
   });
@@ -61,6 +62,32 @@ export default function AddCarPage() {
     }
     const parsed = JSON.parse(userData);
     setUser(parsed);
+
+    // Fetch dealer profile to get their location
+    const fetchDealerProfile = async () => {
+      try {
+        const response = await fetch(`/api/dealer/profile?dealerId=${parsed.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) {
+            // Store dealer location for SEO generation
+            if (data.user.city && data.user.state) {
+              setDealerLocation({ city: data.user.city, state: data.user.state });
+            }
+            // Update form with dealer's city and state
+            setFormData(prev => ({
+              ...prev,
+              city: data.user.city || prev.city,
+              state: data.user.state || prev.state,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch dealer profile:', error);
+      }
+    };
+
+    fetchDealerProfile();
   }, [router]);
 
   const handleImageUpload = async (files: FileList | null) => {
@@ -199,6 +226,10 @@ export default function AddCarPage() {
       return;
     }
 
+    // Always prefer dealer's location for SEO since that's where the car is located
+    const seoCity = dealerLocation?.city || formData.city || '';
+    const seoState = dealerLocation?.state || formData.state || '';
+
     setGeneratingSEO(true);
     try {
       const response = await fetch('/api/generate-seo', {
@@ -212,8 +243,8 @@ export default function AddCarPage() {
           color: formData.color,
           transmission: formData.transmission,
           salePrice: formData.salePrice,
-          city: formData.city,
-          state: formData.state,
+          city: seoCity,
+          state: seoState,
           vin: formData.vin,
         }),
       });

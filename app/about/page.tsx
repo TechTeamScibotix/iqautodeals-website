@@ -243,6 +243,102 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Content Team Section - E-E-A-T Signals */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-dark mb-4 text-center">Our Content Standards</h2>
+            <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+              All content on IQ Auto Deals is created and reviewed by automotive industry professionals to ensure accuracy and helpfulness.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Award className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-dark">Expert Research</h3>
+                    <p className="text-gray-600 text-sm">
+                      Our team researches vehicle valuations, market trends, and financing options using industry-standard sources and real market data.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-dark">Fact-Checked Content</h3>
+                    <p className="text-gray-600 text-sm">
+                      All articles and guides are reviewed for accuracy before publication. We cite reputable sources and update content regularly.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-dark">Consumer-First Approach</h3>
+                    <p className="text-gray-600 text-sm">
+                      We write for car buyers, not dealers. Our guides focus on helping you save money, avoid scams, and make informed decisions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Car className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-dark">Industry Experience</h3>
+                    <p className="text-gray-600 text-sm">
+                      Our editorial team includes professionals with backgrounds in automotive retail, finance, and consumer advocacy.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Signals */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div className="p-4">
+                <div className="text-3xl font-bold text-primary mb-1">4.8/5</div>
+                <div className="text-sm text-gray-600">Average Rating</div>
+              </div>
+              <div className="p-4">
+                <div className="text-3xl font-bold text-primary mb-1">1,250+</div>
+                <div className="text-sm text-gray-600">Customer Reviews</div>
+              </div>
+              <div className="p-4">
+                <div className="text-3xl font-bold text-primary mb-1">16,000+</div>
+                <div className="text-sm text-gray-600">Vehicles Listed</div>
+              </div>
+              <div className="p-4">
+                <div className="text-3xl font-bold text-primary mb-1">182</div>
+                <div className="text-sm text-gray-600">Cities Covered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 bg-primary">
         <div className="container mx-auto px-4 text-center">

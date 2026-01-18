@@ -41,6 +41,7 @@ export default function EditCarPage() {
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
+  const [dealerLocation, setDealerLocation] = useState<{ city: string; state: string } | null>(null);
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -66,22 +67,39 @@ export default function EditCarPage() {
     const parsed = JSON.parse(userData);
     setUser(parsed);
 
-    // Fetch car data
+    // Fetch car data (also fetches dealer profile for location fallback)
     fetchCarData(parsed.id);
   }, [router, carId]);
 
   const fetchCarData = async (dealerId: string) => {
     try {
-      const response = await fetch(`/api/dealer/cars/${carId}?dealerId=${dealerId}`);
-      if (!response.ok) {
+      // Fetch car data and dealer profile in parallel
+      const [carResponse, profileResponse] = await Promise.all([
+        fetch(`/api/dealer/cars/${carId}?dealerId=${dealerId}`),
+        fetch(`/api/dealer/profile?dealerId=${dealerId}`)
+      ]);
+
+      if (!carResponse.ok) {
         alert('Failed to load car data');
         router.push('/dealer');
         return;
       }
 
-      const car = await response.json();
+      const car = await carResponse.json();
 
-      // Pre-fill form data
+      // Get dealer location for fallback
+      let dealerCity = '';
+      let dealerState = '';
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        if (profileData.user) {
+          dealerCity = profileData.user.city || '';
+          dealerState = profileData.user.state || '';
+          setDealerLocation({ city: dealerCity, state: dealerState });
+        }
+      }
+
+      // Pre-fill form data - use dealer location as fallback if car location is empty
       setFormData({
         make: car.make,
         model: car.model,
@@ -92,8 +110,8 @@ export default function EditCarPage() {
         transmission: car.transmission,
         salePrice: car.salePrice,
         description: car.description,
-        city: car.city,
-        state: car.state,
+        city: car.city || dealerCity,
+        state: car.state || dealerState,
         latitude: car.latitude,
         longitude: car.longitude,
       });
@@ -250,6 +268,10 @@ export default function EditCarPage() {
       return;
     }
 
+    // Always prefer dealer's location for SEO since that's where the car is located
+    const seoCity = dealerLocation?.city || formData.city || '';
+    const seoState = dealerLocation?.state || formData.state || '';
+
     setGeneratingSEO(true);
     try {
       const response = await fetch('/api/generate-seo', {
@@ -263,8 +285,8 @@ export default function EditCarPage() {
           color: formData.color,
           transmission: formData.transmission,
           salePrice: formData.salePrice,
-          city: formData.city,
-          state: formData.state,
+          city: seoCity,
+          state: seoState,
           vin: formData.vin,
         }),
       });

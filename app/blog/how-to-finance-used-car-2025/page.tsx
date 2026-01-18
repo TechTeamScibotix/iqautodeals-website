@@ -1,18 +1,65 @@
 import Link from 'next/link';
-import { Calendar, ArrowLeft, CheckCircle, DollarSign } from 'lucide-react';
+import { Calendar, ArrowLeft, CheckCircle, User } from 'lucide-react';
 import type { Metadata } from 'next';
 import FinancingCalculator from '@/app/components/FinancingCalculator';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import BlogPostingSchema from '@/app/components/BlogPostingSchema';
+import BreadcrumbSchema from '@/app/components/BreadcrumbSchema';
+import { authors } from '@/lib/authors';
+
+// Article metadata
+const article = {
+  title: 'How to Finance a Used Car in 2025: Complete Guide',
+  description: 'Learn everything about used car financing: credit scores, interest rates, loan terms, and how to get approved. Expert tips to save thousands on your auto loan.',
+  datePublished: '2025-10-15',
+  dateModified: '2025-12-20',
+  author: authors['editorial-team'],
+  category: 'Financing',
+  readTime: '8 min read',
+  wordCount: 2100,
+  keywords: ['used car financing', 'auto loan', 'car loan rates', 'how to finance a car', 'used car loan', 'bad credit car loan', 'car financing tips', 'credit score auto loan'],
+  url: 'https://iqautodeals.com/blog/how-to-finance-used-car-2025',
+};
 
 export const metadata: Metadata = {
-  title: 'How to Finance a Used Car in 2025',
-  description: 'Learn everything about used car financing: credit scores, interest rates, loan terms, and how to get approved. Expert tips to save thousands on your auto loan.',
-  keywords: 'used car financing, auto loan, car loan rates, how to finance a car, used car loan, bad credit car loan, car financing tips',
+  title: article.title,
+  description: article.description,
+  keywords: article.keywords.join(', '),
+  authors: [{ name: article.author.name }],
+  openGraph: {
+    title: article.title,
+    description: article.description,
+    type: 'article',
+    publishedTime: article.datePublished,
+    modifiedTime: article.dateModified,
+    authors: [article.author.name],
+    section: article.category,
+  },
 };
 
 export default function FinanceGuideArticle() {
+  const breadcrumbs = [
+    { name: 'Home', url: 'https://iqautodeals.com' },
+    { name: 'Blog', url: 'https://iqautodeals.com/blog' },
+    { name: article.title, url: article.url },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Schema Markup */}
+      <BlogPostingSchema
+        title={article.title}
+        description={article.description}
+        datePublished={article.datePublished}
+        dateModified={article.dateModified}
+        author={article.author}
+        url={article.url}
+        wordCount={article.wordCount}
+        keywords={article.keywords}
+        category={article.category}
+      />
+      <BreadcrumbSchema items={breadcrumbs} />
+
       {/* Header */}
       <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
@@ -26,26 +73,62 @@ export default function FinanceGuideArticle() {
         </div>
       </header>
 
+      {/* Breadcrumb Navigation */}
+      <nav className="container mx-auto px-4 py-4 max-w-4xl">
+        <ol className="flex items-center gap-2 text-sm text-gray-600">
+          {breadcrumbs.map((crumb, index) => (
+            <li key={crumb.url} className="flex items-center gap-2">
+              {index > 0 && <span>/</span>}
+              {index === breadcrumbs.length - 1 ? (
+                <span className="text-gray-900 font-medium truncate max-w-[200px]">{crumb.name}</span>
+              ) : (
+                <Link href={crumb.url} className="hover:text-primary">
+                  {crumb.name}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+
       {/* Article Header */}
-      <article className="container mx-auto px-4 py-12 max-w-4xl">
+      <article className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
           <div className="mb-6">
             <span className="bg-blue-50 text-primary px-4 py-2 rounded-full text-sm font-semibold">
-              Financing Guide
+              {article.category}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-6">
-            How to Finance a Used Car in 2025: Complete Guide
+            {article.title}
           </h1>
 
-          <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>November 1, 2025</span>
+          {/* Author Attribution */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600 mb-8 pb-8 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-dark">{article.author.name}</p>
+                <p className="text-sm text-gray-500">{article.author.jobTitle}</p>
+              </div>
             </div>
-            <span>•</span>
-            <span>8 min read</span>
+            <div className="sm:ml-auto flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <time dateTime={article.datePublished}>
+                  {new Date(article.datePublished).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+              </div>
+              <span>•</span>
+              <span>{article.readTime}</span>
+            </div>
           </div>
 
           {/* Article Content */}
@@ -69,13 +152,13 @@ export default function FinanceGuideArticle() {
               </li>
               <li className="flex gap-3 items-start">
                 <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                <span><strong>Age restrictions</strong> (some lenders won't finance cars over 10 years old)</span>
+                <span><strong>Age restrictions</strong> (some lenders won&apos;t finance cars over 10 years old)</span>
               </li>
             </ul>
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Credit Score Requirements</h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              Your credit score is the biggest factor in determining your interest rate and loan approval. Here's what to expect in 2025:
+              Your credit score is the biggest factor in determining your interest rate and loan approval. Here&apos;s what to expect in 2025:
             </p>
 
             <div className="bg-blue-50 rounded-lg p-6 mb-8">
@@ -102,6 +185,9 @@ export default function FinanceGuideArticle() {
                   <span className="text-red-600 font-bold">20%+ or declined</span>
                 </div>
               </div>
+              <p className="text-sm text-gray-600 mt-4">
+                Source: Experian State of the Automotive Finance Market Q3 2025
+              </p>
             </div>
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Steps to Get the Best Financing</h2>
@@ -113,7 +199,7 @@ export default function FinanceGuideArticle() {
 
             <h3 className="text-2xl font-bold text-dark mt-8 mb-4">2. Get Pre-Approved</h3>
             <p className="text-gray-700 leading-relaxed mb-6">
-              Pre-approval gives you negotiating power and shows dealers you're a serious buyer. Apply with 3-5 lenders within a 14-day window - credit bureaus count multiple auto loan inquiries as a single hit to your score.
+              Pre-approval gives you negotiating power and shows dealers you&apos;re a serious buyer. Apply with 3-5 lenders within a 14-day window - credit bureaus count multiple auto loan inquiries as a single hit to your score.
             </p>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8">
@@ -139,7 +225,7 @@ export default function FinanceGuideArticle() {
             <ul className="space-y-2 mb-6 ml-6">
               <li className="text-gray-700">• Lower your interest rate by 0.5-1%</li>
               <li className="text-gray-700">• Reduce monthly payments significantly</li>
-              <li className="text-gray-700">• Prevent being "upside down" on your loan</li>
+              <li className="text-gray-700">• Prevent being &quot;upside down&quot; on your loan</li>
               <li className="text-gray-700">• Save thousands in total interest</li>
             </ul>
 
@@ -197,7 +283,7 @@ export default function FinanceGuideArticle() {
 
             <h3 className="text-2xl font-bold text-dark mt-8 mb-4">Co-Signer</h3>
             <p className="text-gray-700 leading-relaxed mb-6">
-              A co-signer with good credit can help you qualify for better rates, but they're equally responsible for the loan if you default.
+              A co-signer with good credit can help you qualify for better rates, but they&apos;re equally responsible for the loan if you default.
             </p>
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Final Tips</h2>
@@ -231,6 +317,21 @@ export default function FinanceGuideArticle() {
               >
                 Start Shopping Now
               </Link>
+            </div>
+          </div>
+
+          {/* Author Bio */}
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <h3 className="text-lg font-bold text-dark mb-4">About the Author</h3>
+            <div className="flex gap-4 items-start">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-dark">{article.author.name}</p>
+                <p className="text-sm text-primary mb-2">{article.author.jobTitle}</p>
+                <p className="text-gray-600 text-sm">{article.author.description}</p>
+              </div>
             </div>
           </div>
         </div>
