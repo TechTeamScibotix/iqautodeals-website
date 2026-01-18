@@ -158,17 +158,13 @@ export default function AIChat() {
       {/* Chat Window - Full screen on mobile, floating on desktop */}
       {isOpen && (
         <div
-          className="fixed z-[100] bg-white flex flex-col overflow-hidden"
-          style={{
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-          }}
+          className="fixed z-[100] bg-white flex flex-col overflow-hidden
+            inset-0
+            md:inset-auto md:bottom-6 md:right-6 md:w-[400px] md:h-[600px] md:rounded-xl md:shadow-2xl"
         >
           {/* Header */}
           <div
-            className="bg-primary text-white p-4 flex justify-between items-center shrink-0"
+            className="bg-primary text-white p-4 flex justify-between items-center shrink-0 md:rounded-t-xl"
             style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
           >
             <div className="flex items-center gap-2">
