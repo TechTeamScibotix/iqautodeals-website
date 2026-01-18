@@ -345,7 +345,7 @@ export default async function CarDetailPage({ params }: PageProps) {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-full">
+      <div className="container mx-auto px-4 py-8 max-w-7xl overflow-x-hidden">
         {/* Breadcrumb */}
         <nav className="mb-6 text-sm overflow-x-auto">
           <ol className="flex items-center gap-2 text-gray-600 whitespace-nowrap">
@@ -378,26 +378,26 @@ export default async function CarDetailPage({ params }: PageProps) {
               </p>
 
               {/* Quick Specs Grid */}
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-8">
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
-                  <Gauge className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-                  <p className="text-xs text-gray-500 uppercase">Mileage</p>
-                  <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{car.mileage.toLocaleString()} mi</p>
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-8">
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
+                  <Gauge className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Mileage</p>
+                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.mileage.toLocaleString()} mi</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
-                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-                  <p className="text-xs text-gray-500 uppercase">Transmission</p>
-                  <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{car.transmission}</p>
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Trans.</p>
+                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.transmission}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
-                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-                  <p className="text-xs text-gray-500 uppercase">Color</p>
-                  <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{car.color}</p>
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
+                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Color</p>
+                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.color}</p>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4 text-center">
-                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-2" />
-                  <p className="text-xs text-gray-500 uppercase">Location</p>
-                  <p className="font-bold text-gray-900 text-sm sm:text-base truncate">{car.city}, {car.state}</p>
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
+                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Location</p>
+                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.city}, {car.state}</p>
                 </div>
               </div>
 
