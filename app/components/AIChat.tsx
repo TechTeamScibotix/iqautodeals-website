@@ -195,8 +195,8 @@ export default function AIChat() {
                       <Image
                         src="/chat-avatar.png"
                         alt="AI Assistant"
-                        width={56}
-                        height={56}
+                        width={112}
+                        height={112}
                         className="rounded-full"
                       />
                     </div>
@@ -249,8 +249,8 @@ export default function AIChat() {
                   <Image
                     src="/chat-avatar.png"
                     alt="AI Assistant"
-                    width={56}
-                    height={56}
+                    width={112}
+                    height={112}
                     className="rounded-full"
                   />
                 </div>
