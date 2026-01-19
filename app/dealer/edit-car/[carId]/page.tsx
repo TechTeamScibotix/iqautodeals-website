@@ -51,6 +51,7 @@ export default function EditCarPage() {
     mileage: 0,
     color: '',
     transmission: 'Automatic',
+    fuelType: 'Gasoline',
     salePrice: 0,
     description: '',
     city: '',
@@ -112,6 +113,7 @@ export default function EditCarPage() {
         mileage: car.mileage,
         color: car.color,
         transmission: car.transmission,
+        fuelType: car.fuelType || 'Gasoline',
         salePrice: car.salePrice || 0,
         description: car.description,
         city: car.city || dealerCity,
@@ -447,6 +449,20 @@ export default function EditCarPage() {
               >
                 <option>Automatic</option>
                 <option>Manual</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Fuel Type *</label>
+              <select
+                value={formData.fuelType}
+                onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
+              >
+                <option>Gasoline</option>
+                <option>Diesel</option>
+                <option>Electric</option>
+                <option>Hybrid</option>
+                <option>Flex Fuel</option>
               </select>
             </div>
           </div>

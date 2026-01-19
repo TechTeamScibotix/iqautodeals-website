@@ -16,6 +16,7 @@ interface Car {
   vin: string;
   mileage: number;
   color: string;
+  fuelType?: string;
   salePrice: number;
   status: string;
   photos: string;
@@ -581,7 +582,7 @@ export default function DealerDashboard() {
                   <h3 className="font-bold text-xs md:text-sm mb-1 truncate">
                     {car.year} {car.make} {car.model}
                   </h3>
-                  <p className="text-[10px] md:text-xs text-gray-600 mb-2 truncate">{car.color} • {car.mileage.toLocaleString()} mi</p>
+                  <p className="text-[10px] md:text-xs text-gray-600 mb-2 truncate">{car.color} • {car.mileage.toLocaleString()} mi{car.fuelType && ` • ${car.fuelType}`}</p>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1">
                     <span className="text-sm md:text-lg font-bold text-primary">
                       {formatPrice(car.salePrice)}

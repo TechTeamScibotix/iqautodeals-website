@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
-import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink } from 'lucide-react';
+import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import Footer from '@/app/components/Footer';
@@ -379,7 +379,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               </p>
 
               {/* Quick Specs Grid */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-8">
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
                   <Gauge className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
                   <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Mileage</p>
@@ -389,6 +389,11 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
                   <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Trans.</p>
                   <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.transmission}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
+                  <Fuel className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
+                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Fuel Type</p>
+                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.fuelType || 'Gasoline'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
                   <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
