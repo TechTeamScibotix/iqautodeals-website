@@ -34,6 +34,7 @@ interface FilterOptions {
   makes: string[];
   years: number[];
   states: string[];
+  fuelTypes: string[];
   modelsByMake: Record<string, string[]>;
   totalCount: number;
 }
@@ -49,6 +50,7 @@ export default function Home() {
     makes: [],
     years: [],
     states: [],
+    fuelTypes: [],
     modelsByMake: {},
     totalCount: 0,
   });
@@ -59,6 +61,7 @@ export default function Home() {
     make: '',
     model: '',
     state: '',
+    fuelType: '',
     zipCode: '',
     radius: '50',
   });
@@ -107,6 +110,7 @@ export default function Home() {
     if (searchForm.make) params.append('make', searchForm.make);
     if (searchForm.model) params.append('model', searchForm.model);
     if (searchForm.state) params.append('state', searchForm.state);
+    if (searchForm.fuelType) params.append('fuelType', searchForm.fuelType);
     router.push(`/cars?${params.toString()}`);
   };
 
@@ -267,6 +271,33 @@ export default function Home() {
                         {state}
                       </option>
                     ))}
+                  </select>
+                </div>
+
+                {/* Fuel Type */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Fuel Type</label>
+                  <select
+                    value={searchForm.fuelType}
+                    onChange={(e) => setSearchForm({ ...searchForm, fuelType: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                  >
+                    <option value="">All Fuel Types</option>
+                    {filterOptions.fuelTypes.length > 0 ? (
+                      filterOptions.fuelTypes.map((fuelType) => (
+                        <option key={fuelType} value={fuelType}>
+                          {fuelType}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="Gasoline">Gasoline</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Flex Fuel">Flex Fuel</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

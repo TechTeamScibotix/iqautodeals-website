@@ -32,6 +32,7 @@ interface CarListing {
   photos: string;
   description: string;
   transmission: string;
+  fuelType?: string;
   vin: string;
   isDemo?: boolean;
   dealerId: string;
@@ -45,6 +46,7 @@ interface FilterOptions {
   makes: string[];
   years: number[];
   states: string[];
+  fuelTypes: string[];
   modelsByMake: Record<string, string[]>;
   totalCount: number;
 }
@@ -57,7 +59,8 @@ export default function CarsPage() {
     make: '',
     model: '',
     state: 'all',  // Default to all states
-    condition: 'all' // new, used, or all
+    condition: 'all', // new, used, or all
+    fuelType: 'all', // Gasoline, Diesel, Electric, Hybrid, Flex Fuel, or all
   });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -69,6 +72,7 @@ export default function CarsPage() {
     makes: [],
     years: [],
     states: [],
+    fuelTypes: [],
     modelsByMake: {},
     totalCount: 0,
   });
@@ -268,7 +272,8 @@ export default function CarsPage() {
     const makeMatch = !search.make || car.make.toLowerCase().includes(search.make.toLowerCase());
     const modelMatch = !search.model || car.model.toLowerCase().includes(search.model.toLowerCase());
     const stateMatch = search.state === 'all' || car.state === search.state;
-    return makeMatch && modelMatch && stateMatch;
+    const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
+    return makeMatch && modelMatch && stateMatch && fuelTypeMatch;
   });
 
   return (
@@ -392,6 +397,29 @@ export default function CarsPage() {
                   {state}
                 </option>
               ))}
+            </select>
+
+            <select
+              value={search.fuelType}
+              onChange={(e) => handleFilterChange('fuelType', e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
+            >
+              <option value="all">All Fuel Types</option>
+              {filterOptions.fuelTypes.length > 0 ? (
+                filterOptions.fuelTypes.map((fuelType) => (
+                  <option key={fuelType} value={fuelType}>
+                    {fuelType}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="Gasoline">Gasoline</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Electric">Electric</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Flex Fuel">Flex Fuel</option>
+                </>
+              )}
             </select>
 
             <button

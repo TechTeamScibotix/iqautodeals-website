@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET() {
   try {
     // Get distinct values from active cars with approved dealers
-    const [makes, years, states] = await Promise.all([
+    const [makes, years, states, fuelTypes] = await Promise.all([
       // Get unique makes
       prisma.car.findMany({
         where: {
@@ -37,6 +37,17 @@ export async function GET() {
         select: { state: true },
         distinct: ['state'],
         orderBy: { state: 'asc' },
+      }),
+
+      // Get unique fuel types
+      prisma.car.findMany({
+        where: {
+          status: 'active',
+          dealer: { verificationStatus: 'approved' },
+        },
+        select: { fuelType: true },
+        distinct: ['fuelType'],
+        orderBy: { fuelType: 'asc' },
       }),
     ]);
 
@@ -74,10 +85,14 @@ export async function GET() {
     // Normalize makes to uppercase and remove duplicates
     const uniqueMakes = [...new Set(makes.map((m) => m.make.toUpperCase()))].sort();
 
+    // Get unique fuel types, filter out null/empty and sort
+    const uniqueFuelTypes = [...new Set(fuelTypes.map((f) => f.fuelType).filter(Boolean))].sort() as string[];
+
     return NextResponse.json({
       makes: uniqueMakes,
       years: years.map((y) => y.year),
       states: states.map((s) => s.state).filter(Boolean),
+      fuelTypes: uniqueFuelTypes,
       modelsByMake,
       totalCount,
     });
