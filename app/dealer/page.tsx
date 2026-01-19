@@ -41,6 +41,20 @@ export default function DealerDashboard() {
   const [seoProgress, setSeoProgress] = useState({ current: 0, total: 0, currentCar: '' });
   const [seoResults, setSeoResults] = useState<{ success: number; failed: number } | null>(null);
 
+  // Warn user if they try to leave during SEO update
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (updatingSEO) {
+        e.preventDefault();
+        e.returnValue = 'SEO update is in progress. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [updatingSEO]);
+
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) {
