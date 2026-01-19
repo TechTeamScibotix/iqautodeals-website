@@ -2,6 +2,27 @@
 
 ---
 
+## CRITICAL: Deployment & Git Info
+
+### Git Repository
+- **GitHub:** `https://github.com/TechTeamScibotix/iqautodeals-website.git`
+- **Branch:** `main`
+- **Always commit and push before deploying**
+
+### Vercel Deployment
+- **Project:** `priceyourauto`
+- **URL:** https://iqautodeals.com
+- **Deploy:** `vercel --prod` (from project root)
+
+### SHARED DATABASE WARNING
+This project shares a PostgreSQL database with Scibotix Solutions (`/Users/joeduran/scibotix-solutions`).
+- **NEVER run `prisma db push --accept-data-loss`** without checking both schemas
+- Schema changes in one project can break the other
+- Both projects must have compatible schemas for shared tables (User, Car, etc.)
+- Key shared tables: `User`, `Car`, `AcceptedDeal`, `DealList`, `SelectedCar`
+
+---
+
 ## CRITICAL: Brand Identity - READ THIS FIRST
 
 ### IQ Auto Deals (iqautodeals.com) - THIS PROJECT
@@ -27,6 +48,7 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 **Live URL:** https://iqautodeals.com
 **Local Dev Port:** 5050
 **Deployment:** Vercel
+**Database:** Neon PostgreSQL (cloud-hosted) - SHARED with Scibotix Solutions
 
 ---
 
@@ -38,7 +60,7 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 | Language | TypeScript | 5 |
 | Frontend | React | 18+ |
 | Styling | Tailwind CSS | - |
-| Database | PostgreSQL (Prisma) | 6.2.0 |
+| Database | PostgreSQL (Prisma) | 6.17.1 |
 | Auth | NextAuth.js | 4.24.11 |
 | AI | Google Gemini | 0.24.1 |
 | Analytics | PostHog + Vercel Analytics | - |
@@ -53,6 +75,11 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 /Users/joeduran/priceyourauto/
 ├── app/
 │   ├── api/                 # API routes
+│   │   ├── auth/           # Authentication endpoints
+│   │   ├── cars/           # Car listing APIs
+│   │   ├── dealer/         # Dealer portal APIs
+│   │   ├── customer/       # Customer APIs
+│   │   └── admin/          # Admin APIs
 │   ├── about/               # About page
 │   ├── admin/               # Admin dashboard
 │   ├── blog/                # Blog pages
@@ -73,6 +100,9 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 │   └── sitemap.ts           # Dynamic sitemap
 ├── components/              # Shared components
 ├── lib/                     # Utilities
+│   ├── prisma.ts           # Prisma client
+│   ├── auth.ts             # Auth helpers
+│   └── sync/               # Inventory sync
 ├── prisma/                  # Database schema
 ├── public/                  # Static assets
 ├── scripts/                 # Utility scripts
@@ -94,7 +124,60 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 - Access to qualified buyer leads
 - Compete for customer business
 - Dealer portal for managing inventory
+- Submit offers on deal requests
+- Mark vehicles as sold
 - Integration with Scibotix Solutions platform
+
+---
+
+## Database Models (Key Tables)
+
+### Shared with Scibotix Solutions
+- `User` - User accounts (customers & dealers)
+  - Fields: `inventoryFeedUrl`, `inventoryFeedType`, `autoSyncEnabled`, `syncFrequencyDays`, `lastSyncAt`, `lastSyncStatus`, `lastSyncMessage`
+- `Car` - Vehicle listings
+  - Fields: `slug`, `bodyType`, `trim`, `drivetrain`, `fuelType`, `engine`, `statusChangedAt`
+
+### IQ Auto Deals Specific
+- `DealList` - Customer's list of selected cars
+- `SelectedCar` - Cars in a deal list with offer prices
+- `AcceptedDeal` - Accepted offers (tracks `sold`, `deadDeal`)
+- `Blog` - Blog articles
+- `ContactSubmission` - Contact form submissions
+
+---
+
+## API Routes
+
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/forgot-password` - Password reset request
+- `POST /api/auth/reset-password` - Reset password
+
+### Cars
+- `GET /api/cars` - List cars with filters
+- `GET /api/cars/[id]` - Get single car
+- `GET /api/car-slug/[id]` - Get car by slug
+
+### Dealer Portal
+- `GET /api/dealer/cars` - Get dealer's inventory
+- `POST /api/dealer/cars` - Add new car
+- `GET /api/dealer/deal-requests` - Get deal requests
+- `POST /api/dealer/submit-offer` - Submit offer on deal
+- `POST /api/dealer/mark-as-sold` - Mark car as sold
+- `POST /api/dealer/cancel-deal` - Cancel a deal
+- `POST /api/dealer/dead-deal` - Mark deal as dead
+- `GET /api/dealer/profile` - Get dealer profile
+- `GET /api/dealer/reports` - Get dealer reports
+
+### Customer Portal
+- `GET /api/customer/deal-lists` - Get customer's deal lists
+- `POST /api/customer/deal-lists` - Create deal list
+- `GET /api/customer/accepted-deals` - Get accepted deals
+
+### Cron Jobs
+- `GET /api/cron/auto-sold` - Auto-mark cars as sold after 3 days (daily 4 AM UTC)
 
 ---
 
@@ -127,7 +210,7 @@ The schema files are crucial for search engine and AI differentiation:
 | Route | Purpose |
 |-------|---------|
 | `/` | Homepage - hero, search, featured cars |
-| `/cars` | Car search/listings |
+| `/cars` | Car search/listings with filters |
 | `/cars/[slug]` | Individual car details (SEO-friendly URL) |
 | `/about` | About IQ Auto Deals |
 | `/blog` | Blog articles |
@@ -141,13 +224,17 @@ The schema files are crucial for search engine and AI differentiation:
 | Route | Purpose |
 |-------|---------|
 | `/customer` | Customer dashboard |
-| `/customer/*` | Customer features |
+| `/customer/deals` | Active deals |
+| `/customer/history` | Deal history |
 
 ### Dealer Portal
 | Route | Purpose |
 |-------|---------|
-| `/dealer` | Dealer dashboard |
-| `/dealer/*` | Dealer management features |
+| `/dealer` | Dealer dashboard with inventory |
+| `/dealer/add-car` | Add new vehicle |
+| `/dealer/deals` | Deal requests |
+| `/dealer/reports` | Sales reports |
+| `/dealer/profile` | Dealer profile |
 
 ### Admin
 | Route | Purpose |
@@ -185,7 +272,7 @@ Car detail pages use SEO-friendly URLs with the following format:
 ## Environment Variables
 
 ```bash
-# Database
+# Database (SHARED with Scibotix Solutions)
 DATABASE_URL=postgresql://...
 
 # Auth
@@ -206,6 +293,9 @@ SMTP_PASS=...
 
 # Storage
 BLOB_READ_WRITE_TOKEN=...
+
+# Cron
+CRON_SECRET=...
 ```
 
 ---
@@ -223,9 +313,13 @@ npm run build
 npm run start
 
 # Database
-npm run db:push      # Push Prisma schema
-npm run db:studio    # Open Prisma Studio
-npm run db:seed      # Seed database
+npx prisma generate   # Generate Prisma client
+npx prisma db push    # Push schema (CAREFUL - shared DB!)
+npx prisma studio     # Open Prisma Studio
+
+# Deploy (ALWAYS commit first!)
+git add -A && git commit -m "message" && git push
+vercel --prod
 
 # Demo recordings
 npm run demo:record  # Record demo video
@@ -261,19 +355,19 @@ IQ Auto Deals integrates with the Scibotix Solutions dealer platform:
 - Deal requests
 - Analytics data
 
-Integration endpoints:
-- `/api/iqautodeals/leads` (in Scibotix)
-- `/api/webhooks/iqautodeals/*` (in Scibotix)
+Integration endpoints (in Scibotix):
+- `/api/iqautodeals/leads`
+- `/api/webhooks/iqautodeals/*`
 
 ---
 
 ## Related Projects
 
-| Project | Path | Purpose |
-|---------|------|---------|
-| Scibotix Solutions | `/Users/joeduran/scibotix-solutions` | Dealer platform (CRM, Showroom AI, etc.) |
-| IQ Auto Deals Analytics | `/Users/joeduran/iqautodeals-analytics` | Geographic analytics dashboard |
-| Scibotix Mobile | `/Users/joeduran/scibotix-mobile` | Mobile app |
+| Project | Path | GitHub Repo | Purpose |
+|---------|------|-------------|---------|
+| Scibotix Solutions | `/Users/joeduran/scibotix-solutions` | `TechTeamScibotix/iqautodeals` | Dealer platform (CRM, Showroom AI, etc.) |
+| IQ Auto Deals Analytics | `/Users/joeduran/iqautodeals-analytics` | - | Geographic analytics dashboard |
+| Scibotix Mobile | `/Users/joeduran/scibotix-mobile` | - | Mobile app |
 
 ---
 
@@ -287,14 +381,19 @@ Integration endpoints:
 | `prisma/schema.prisma` | Database schema |
 | `middleware.ts` | URL redirect middleware (UUID → slug for car pages) |
 | `scripts/update-slugs.ts` | Script to batch update car slugs in database |
+| `lib/auth.ts` | Password hashing/verification |
 
 ---
 
 ## Notes
 
-1. **Project folder name:** `priceyourauto` (historical) but site is `iqautodeals.com`
-2. **Dev port:** 5050 (not default 3000)
-3. **Schema markup is critical** for SEO differentiation from IQautos.com
-4. **Nationwide focus** - emphasize in all content and metadata
-5. **PostHog analytics** - tracks user behavior for insights
-6. **Dealer outreach files** - CSV files in root for sales outreach
+1. **SHARED DATABASE:** This project shares a database with Scibotix Solutions - be careful with schema changes
+2. **Project folder name:** `priceyourauto` (historical) but site is `iqautodeals.com`
+3. **Dev port:** 5050 (not default 3000)
+4. **Schema markup is critical** for SEO differentiation from IQautos.com
+5. **Nationwide focus** - emphasize in all content and metadata
+6. **PostHog analytics** - tracks user behavior for insights
+7. **Dealer outreach files** - CSV files in root for sales outreach
+8. **Always commit before deploy:** `vercel --prod` deploys working directory, not just committed code
+9. **User table fields:** Inventory sync fields (`inventoryFeedUrl`, `autoSyncEnabled`, etc.) must exist
+10. **Car table fields:** SEO fields (`slug`, `bodyType`, `statusChangedAt`, etc.) must exist
