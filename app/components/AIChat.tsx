@@ -195,9 +195,9 @@ export default function AIChat() {
                       <Image
                         src="/chat-avatar.png"
                         alt="AI Assistant"
-                        width={48}
-                        height={48}
-                        className="rounded-full border-2 border-blue-400"
+                        width={56}
+                        height={56}
+                        className="rounded-full"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -249,9 +249,9 @@ export default function AIChat() {
                   <Image
                     src="/chat-avatar.png"
                     alt="AI Assistant"
-                    width={48}
-                    height={48}
-                    className="rounded-full border-2 border-blue-400"
+                    width={56}
+                    height={56}
+                    className="rounded-full"
                   />
                 </div>
                 <div className="bg-[#2a2a4a] rounded-lg p-3">
