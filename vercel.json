@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/sync",
-      "schedule": "0 3 * * *"
+      "path": "/api/cron/auto-sold",
+      "schedule": "0 4 * * *"
     }
   ]
 }

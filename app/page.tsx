@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import { BorderBeam } from '@/components/AnimatedBorder';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { trackFunnelStep } from '@/lib/analytics';
+import { formatPrice } from '@/lib/format';
 
 interface FeaturedCar {
   id: string;
@@ -404,7 +405,7 @@ export default function Home() {
                           {car.dealer.city}, {car.dealer.state}
                         </p>
                         <p className="text-2xl font-bold text-primary mb-2">
-                          ${car.salePrice.toLocaleString()}
+                          {formatPrice(car.salePrice)}
                         </p>
                         <p className="text-xs text-gray-500">{car.dealer.businessName}</p>
                       </div>

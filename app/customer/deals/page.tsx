@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { FileText, Search, LogOut, Car, TrendingDown, DollarSign, Phone, Building2, User, CheckCircle, Clock, Award, X } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { formatPrice } from '@/lib/format';
 
 interface Negotiation {
   id: string;
@@ -302,8 +303,10 @@ export default function CustomerDeals() {
         ) : (
           <div className="space-y-4">
             {activeDealLists.map((dealList) => {
-              const minPrice = Math.min(...dealList.selectedCars.map(sc => sc.car.salePrice));
-              const maxPrice = Math.max(...dealList.selectedCars.map(sc => sc.car.salePrice));
+              const pricedCars = dealList.selectedCars.filter(sc => sc.car.salePrice > 0);
+              const minPrice = pricedCars.length > 0 ? Math.min(...pricedCars.map(sc => sc.car.salePrice)) : 0;
+              const maxPrice = pricedCars.length > 0 ? Math.max(...pricedCars.map(sc => sc.car.salePrice)) : 0;
+              const hasCallForPrice = dealList.selectedCars.some(sc => !sc.car.salePrice || sc.car.salePrice <= 0);
 
               return (
                 <div key={dealList.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
@@ -317,7 +320,11 @@ export default function CustomerDeals() {
                         </h3>
                         <p className="text-sm font-semibold mb-1 flex items-center gap-1">
                           <DollarSign className="w-4 h-4" />
-                          ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}
+                          {pricedCars.length === 0
+                            ? 'Call For Price'
+                            : hasCallForPrice
+                            ? `${formatPrice(minPrice)} - ${formatPrice(maxPrice)} + Call For Price`
+                            : `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`}
                         </p>
                         <p className="text-xs opacity-90 flex items-center gap-1">
                           <Clock className="w-3 h-3" />

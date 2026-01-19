@@ -73,6 +73,7 @@ model Car {
   city            String
   state           String
   status          String   @default("active") // active, sold, pending
+  statusChangedAt DateTime?  // Track when status changed (for auto-sold after 3 days)
   listingFeePaid  Boolean  @default(false)
   createdAt       DateTime @default(now())
 

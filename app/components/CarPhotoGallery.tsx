@@ -39,7 +39,7 @@ export default function CarPhotoGallery({ photos, carName }: CarPhotoGalleryProp
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden w-full max-w-full">
         {/* Main Photo */}
         <div
           className="relative aspect-[16/10] bg-gray-200 cursor-pointer group"
@@ -90,7 +90,7 @@ export default function CarPhotoGallery({ photos, carName }: CarPhotoGalleryProp
 
         {/* Thumbnail Strip */}
         {photos.length > 1 && (
-          <div className="flex gap-2 p-4 overflow-x-auto bg-gray-100">
+          <div className="flex gap-2 p-4 overflow-x-auto bg-gray-100 w-full max-w-full">
             {photos.map((photo, index) => (
               <button
                 key={index}

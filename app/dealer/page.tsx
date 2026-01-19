@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings } from 'lucide-react';
+import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings, Search, X, Sparkles, Loader2 } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { formatPrice } from '@/lib/format';
 
 interface Car {
   id: string;
@@ -28,6 +29,17 @@ export default function DealerDashboard() {
   const [soldCount, setSoldCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showAddCar, setShowAddCar] = useState(false);
+
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+  const [filterMake, setFilterMake] = useState('');
+  const [filterModel, setFilterModel] = useState('');
+
+  // Bulk SEO update state
+  const [updatingSEO, setUpdatingSEO] = useState(false);
+  const [seoProgress, setSeoProgress] = useState({ current: 0, total: 0, currentCar: '' });
+  const [seoResults, setSeoResults] = useState<{ success: number; failed: number } | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -86,6 +98,123 @@ export default function DealerDashboard() {
     }
   };
 
+  // Bulk update all car descriptions with AI-generated SEO content
+  const handleBulkSEOUpdate = async () => {
+    if (!user || cars.length === 0) return;
+
+    const activeCars = cars.filter(c => c.status === 'active');
+    if (activeCars.length === 0) {
+      alert('No active listings to update');
+      return;
+    }
+
+    if (!confirm(`This will update descriptions for ${activeCars.length} active listing(s) using AI. This may take a few minutes. Continue?`)) {
+      return;
+    }
+
+    setUpdatingSEO(true);
+    setSeoProgress({ current: 0, total: activeCars.length, currentCar: '' });
+    setSeoResults(null);
+
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (let i = 0; i < activeCars.length; i++) {
+      const car = activeCars[i];
+      const carName = `${car.year} ${car.make} ${car.model}`;
+      setSeoProgress({ current: i + 1, total: activeCars.length, currentCar: carName });
+
+      try {
+        // First, get the full car details
+        const carResponse = await fetch(`/api/dealer/cars/${car.id}?dealerId=${user.id}`);
+        if (!carResponse.ok) {
+          failedCount++;
+          continue;
+        }
+        const carDetails = await carResponse.json();
+
+        // Generate new SEO description
+        const seoResponse = await fetch('/api/generate-seo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            make: carDetails.make,
+            model: carDetails.model,
+            year: carDetails.year,
+            mileage: carDetails.mileage,
+            color: carDetails.color,
+            transmission: carDetails.transmission,
+            salePrice: carDetails.salePrice,
+            city: carDetails.city,
+            state: carDetails.state,
+            vin: carDetails.vin,
+          }),
+        });
+
+        if (!seoResponse.ok) {
+          failedCount++;
+          continue;
+        }
+
+        const seoData = await seoResponse.json();
+
+        // Update the car with the new description
+        const updateResponse = await fetch(`/api/dealer/cars/${car.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...carDetails,
+            description: seoData.description,
+          }),
+        });
+
+        if (updateResponse.ok) {
+          successCount++;
+        } else {
+          failedCount++;
+        }
+
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(`Error updating ${carName}:`, error);
+        failedCount++;
+      }
+    }
+
+    setUpdatingSEO(false);
+    setSeoResults({ success: successCount, failed: failedCount });
+
+    // Reload cars to show updated descriptions
+    loadCars(user.id);
+  };
+
+  // Compute unique filter options from cars
+  const uniqueYears = [...new Set(cars.map(c => c.year))].sort((a, b) => b - a);
+  const uniqueMakes = [...new Set(cars.map(c => c.make.toUpperCase()))].sort();
+  const uniqueModels = filterMake
+    ? [...new Set(cars.filter(c => c.make.toUpperCase() === filterMake).map(c => c.model))].sort()
+    : [...new Set(cars.map(c => c.model))].sort();
+
+  // Filter cars based on search and filters
+  const filteredCars = cars.filter(car => {
+    const matchesSearch = !searchQuery ||
+      `${car.year} ${car.make} ${car.model} ${car.vin} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesYear = !filterYear || car.year === parseInt(filterYear);
+    const matchesMake = !filterMake || car.make.toUpperCase() === filterMake;
+    const matchesModel = !filterModel || car.model === filterModel;
+    return matchesSearch && matchesYear && matchesMake && matchesModel;
+  });
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setFilterYear('');
+    setFilterMake('');
+    setFilterModel('');
+  };
+
+  const hasActiveFilters = searchQuery || filterYear || filterMake || filterModel;
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -114,7 +243,7 @@ export default function DealerDashboard() {
             </button>
             <button
               onClick={() => router.push('/dealer/reporting')}
-              className="bg-purple text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-purple-700 transition font-semibold text-xs md:text-sm"
+              className="bg-purple-600 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-purple-700 transition font-semibold text-xs md:text-sm"
             >
               Reporting
             </button>
@@ -227,16 +356,151 @@ export default function DealerDashboard() {
           </div>
         </div>
 
-        {/* Add Car Button */}
+        {/* Inventory Header */}
         <div className="mb-4 md:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <h2 className="text-lg md:text-2xl font-bold">My Inventory</h2>
-          <Link
-            href="/dealer/add-car"
-            className="bg-primary text-white px-4 md:px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm md:text-base"
-          >
-            + Add New Car
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Agentix SEO Button */}
+            <button
+              onClick={handleBulkSEOUpdate}
+              disabled={updatingSEO || cars.filter(c => c.status === 'active').length === 0}
+              className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 md:px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {updatingSEO ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="hidden sm:inline">Updating {seoProgress.current}/{seoProgress.total}</span>
+                  <span className="sm:hidden">{seoProgress.current}/{seoProgress.total}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span className="hidden sm:inline">Agentix SEO</span>
+                  <span className="sm:hidden">SEO</span>
+                </>
+              )}
+            </button>
+            <Link
+              href="/dealer/add-car"
+              className="bg-primary text-white px-4 md:px-6 py-2 rounded-lg hover:bg-blue-700 transition text-sm md:text-base"
+            >
+              + Add New Car
+            </Link>
+          </div>
         </div>
+
+        {/* SEO Update Progress/Results */}
+        {(updatingSEO || seoResults) && (
+          <div className="mb-4 p-4 bg-white rounded-lg shadow border-l-4 border-purple-600">
+            {updatingSEO ? (
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                <div>
+                  <p className="font-medium text-gray-800">
+                    Updating descriptions with AI ({seoProgress.current} of {seoProgress.total})
+                  </p>
+                  <p className="text-sm text-gray-600">Currently processing: {seoProgress.currentCar}</p>
+                </div>
+              </div>
+            ) : seoResults && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <div>
+                    <p className="font-medium text-gray-800">SEO Update Complete</p>
+                    <p className="text-sm text-gray-600">
+                      {seoResults.success} updated successfully
+                      {seoResults.failed > 0 && `, ${seoResults.failed} failed`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSeoResults(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Search and Filters */}
+        {cars.length > 0 && (
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Search Input */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by year, make, model, VIN, or color..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                />
+              </div>
+
+              {/* Year Filter */}
+              <select
+                value={filterYear}
+                onChange={(e) => setFilterYear(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white min-w-[100px]"
+              >
+                <option value="">All Years</option>
+                {uniqueYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+
+              {/* Make Filter */}
+              <select
+                value={filterMake}
+                onChange={(e) => {
+                  setFilterMake(e.target.value);
+                  setFilterModel(''); // Reset model when make changes
+                }}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white min-w-[120px]"
+              >
+                <option value="">All Makes</option>
+                {uniqueMakes.map(make => (
+                  <option key={make} value={make}>{make}</option>
+                ))}
+              </select>
+
+              {/* Model Filter */}
+              <select
+                value={filterModel}
+                onChange={(e) => setFilterModel(e.target.value)}
+                disabled={!filterMake}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white min-w-[120px] disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                <option value="">{filterMake ? 'All Models' : 'Select Make'}</option>
+                {uniqueModels.map(model => (
+                  <option key={model} value={model}>{model}</option>
+                ))}
+              </select>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearFilters}
+                  className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition"
+                >
+                  <X className="w-4 h-4" />
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {/* Results Count */}
+            {hasActiveFilters && (
+              <div className="mt-3 text-sm text-gray-600">
+                Showing {filteredCars.length} of {cars.length} vehicles
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Cars List */}
         {cars.length === 0 ? (
@@ -251,9 +515,21 @@ export default function DealerDashboard() {
               List Your First Car
             </Link>
           </div>
+        ) : filteredCars.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-6 md:p-8 text-center">
+            <div className="text-3xl md:text-4xl mb-3">🔍</div>
+            <h3 className="text-base md:text-lg font-semibold mb-2">No vehicles match your search</h3>
+            <p className="text-gray-600 mb-3 text-xs md:text-sm">Try adjusting your filters or search terms</p>
+            <button
+              onClick={clearFilters}
+              className="inline-block bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-xs md:text-sm"
+            >
+              Clear All Filters
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {cars.map((car) => (
+            {filteredCars.map((car) => (
               <div
                 key={car.id}
                 className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition cursor-pointer group"
@@ -294,7 +570,7 @@ export default function DealerDashboard() {
                   <p className="text-[10px] md:text-xs text-gray-600 mb-2 truncate">{car.color} • {car.mileage.toLocaleString()} mi</p>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1">
                     <span className="text-sm md:text-lg font-bold text-primary">
-                      ${car.salePrice.toLocaleString()}
+                      {formatPrice(car.salePrice)}
                     </span>
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
                       car.acceptedDeals?.[0]?.sold

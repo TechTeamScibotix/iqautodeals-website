@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { formatPrice } from '@/lib/format';
 
 interface DealList {
   id: string;
@@ -792,7 +793,7 @@ export default function DealerNegotiations() {
                                 {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}
                               </h5>
                               <p className="text-sm text-gray-700 mb-1">
-                                Asking: ${selectedCar.car.salePrice.toLocaleString()}
+                                Asking: {formatPrice(selectedCar.car.salePrice)}
                               </p>
                               {isOutbid && competitorWon && competitorWon.car.acceptedDeals?.[0] && (
                                 <div className="bg-red-100 border border-red-300 rounded-lg p-2 mb-2">

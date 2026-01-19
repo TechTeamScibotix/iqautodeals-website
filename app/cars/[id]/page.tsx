@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink } from 'lucide-react';
+import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
@@ -273,7 +274,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                           {similarCar.year} {similarCar.make} {similarCar.model}
                         </h3>
                         <p className="text-2xl font-bold text-primary">
-                          ${similarCar.salePrice.toLocaleString()}
+                          {formatPrice(similarCar.salePrice)}
                         </p>
                         <p className="text-sm text-gray-600">
                           {similarCar.mileage.toLocaleString()} mi • {similarCar.city}, {similarCar.state}
@@ -359,9 +360,9 @@ export default async function CarDetailPage({ params }: PageProps) {
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8 w-full max-w-full">
           {/* Left: Photos & Details */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 min-w-0">
             {/* Photo Gallery */}
             <CarPhotoGallery
               photos={photos}
@@ -374,7 +375,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                 {car.year} {car.make} {car.model}
               </h1>
               <p className="text-3xl sm:text-4xl font-bold text-primary mb-6">
-                ${car.salePrice.toLocaleString()}
+                {formatPrice(car.salePrice)}
               </p>
 
               {/* Quick Specs Grid */}
@@ -419,7 +420,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           </div>
 
           {/* Right: Dealer Card & CTA */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {/* Dealer Card */}
             <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Sold By</h3>

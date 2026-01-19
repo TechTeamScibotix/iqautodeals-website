@@ -16,6 +16,7 @@ import {
   trackCarPhotoSwiped,
   trackFunnelStep,
 } from '@/lib/analytics';
+import { formatPrice } from '@/lib/format';
 
 interface CarListing {
   id: string;
@@ -478,7 +479,7 @@ export default function CarsPage() {
                       )}
                     </div>
                     <p className="text-2xl font-bold text-primary mb-2">
-                      ${car.salePrice.toLocaleString()}
+                      {formatPrice(car.salePrice)}
                     </p>
                     <div className="text-sm text-gray-600 mb-1">
                       <Car className="w-4 h-4 inline mr-1" />
@@ -603,7 +604,7 @@ export default function CarsPage() {
                     {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
                   </h2>
                   <p className="text-3xl lg:text-4xl font-bold text-primary">
-                    ${viewingPhotos.car.salePrice.toLocaleString()}
+                    {formatPrice(viewingPhotos.car.salePrice)}
                   </p>
                 </div>
 

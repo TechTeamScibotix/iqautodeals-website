@@ -38,6 +38,7 @@ export default function AddCarPage() {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
   const [dealerLocation, setDealerLocation] = useState<{ city: string; state: string } | null>(null);
+  const [callForPrice, setCallForPrice] = useState(false);
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -401,17 +402,37 @@ export default function AddCarPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Sale Price ($) *</label>
+            <label className="block text-sm font-medium mb-2">Sale Price ($){!callForPrice && ' *'}</label>
             <input
               type="number"
-              value={formData.salePrice}
-              onChange={(e) => setFormData({ ...formData, salePrice: parseFloat(e.target.value) })}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
+              value={callForPrice ? '' : formData.salePrice || ''}
+              onChange={(e) => setFormData({ ...formData, salePrice: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary disabled:bg-gray-100 disabled:text-gray-500"
               min="0"
               step="1"
-              required
+              required={!callForPrice}
+              disabled={callForPrice}
+              placeholder={callForPrice ? 'Call For Price' : 'Enter sale price'}
             />
-            <p className="text-sm text-gray-500 mt-1">This price will be hidden from customers until they make a deal</p>
+            <label className="flex items-center gap-2 mt-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={callForPrice}
+                onChange={(e) => {
+                  setCallForPrice(e.target.checked);
+                  if (e.target.checked) {
+                    setFormData({ ...formData, salePrice: 0 });
+                  }
+                }}
+                className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <span className="text-sm text-gray-700">Display &quot;Call For Price&quot; instead of a price</span>
+            </label>
+            <p className="text-sm text-gray-500 mt-1">
+              {callForPrice
+                ? 'Customers will see "Call For Price" on this listing'
+                : 'This price will be hidden from customers until they make a deal'}
+            </p>
           </div>
 
           <div>

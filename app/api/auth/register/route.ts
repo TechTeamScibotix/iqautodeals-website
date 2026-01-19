@@ -65,8 +65,21 @@ export async function POST(request: NextRequest) {
     const data = await request.json();
     const { email, password, name, userType, workDays, ...rest } = data;
 
-    const existing = await prisma.user.findUnique({
-      where: { email },
+    // Normalize email: trim whitespace and convert to lowercase
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !password || !name || !userType) {
+      return NextResponse.json({ error: 'Email, password, name, and user type are required' }, { status: 400 });
+    }
+
+    // Case-insensitive email check
+    const existing = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: normalizedEmail,
+          mode: 'insensitive'
+        }
+      },
     });
 
     if (existing) {
@@ -80,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
         name,
         userType,

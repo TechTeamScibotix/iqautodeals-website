@@ -54,10 +54,14 @@ export async function POST(request: NextRequest) {
       data: { status: 'won' },
     });
 
-    // Update car status to pending (waiting for dealer to mark as sold)
+    // Update car status to sold (shows as "sale pending" until dealer confirms)
+    // Set statusChangedAt to track when the 3-day auto-complete timer starts
     await prisma.car.update({
       where: { id: negotiation.selectedCar.carId },
-      data: { status: 'pending' },
+      data: {
+        status: 'sold',
+        statusChangedAt: new Date(),
+      },
     });
 
     // Update deal list status

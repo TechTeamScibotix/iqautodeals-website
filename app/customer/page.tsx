@@ -15,6 +15,7 @@ import {
   trackCarPhotoSwiped,
   trackFunnelStep,
 } from '@/lib/analytics';
+import { formatPrice } from '@/lib/format';
 
 interface Car {
   id: string;
@@ -253,8 +254,10 @@ export default function CustomerDashboard() {
   }
 
   const selectedCarsList = cars.filter(c => selectedCars.has(c.id));
-  const minPrice = selectedCarsList.length > 0 ? Math.min(...selectedCarsList.map(c => c.salePrice)) : 0;
-  const maxPrice = selectedCarsList.length > 0 ? Math.max(...selectedCarsList.map(c => c.salePrice)) : 0;
+  const pricedCars = selectedCarsList.filter(c => c.salePrice > 0);
+  const minPrice = pricedCars.length > 0 ? Math.min(...pricedCars.map(c => c.salePrice)) : 0;
+  const maxPrice = pricedCars.length > 0 ? Math.max(...pricedCars.map(c => c.salePrice)) : 0;
+  const hasCallForPrice = selectedCarsList.some(c => !c.salePrice || c.salePrice <= 0);
 
   return (
     <div className="min-h-screen bg-light">
@@ -414,7 +417,11 @@ export default function CustomerDashboard() {
                   {selectedCars.size} New Car{selectedCars.size !== 1 ? 's' : ''} Selected
                 </h3>
                 <p className="text-sm font-semibold mb-1">
-                  Price Range: ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}
+                  {pricedCars.length === 0
+                    ? 'Price: Call For Price'
+                    : hasCallForPrice
+                    ? `Price Range: ${formatPrice(minPrice)} - ${formatPrice(maxPrice)} + Call For Price`
+                    : `Price Range: ${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`}
                 </p>
                 <p className="text-xs opacity-90">
                   {existingDealCount > 0
