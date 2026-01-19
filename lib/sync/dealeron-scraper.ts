@@ -19,6 +19,7 @@ export interface ScrapedVehicle {
   trim?: string;
   transmission?: string;
   description?: string;
+  fuelType?: string;
 }
 
 export interface ScrapeResult {
@@ -324,6 +325,26 @@ async function parseDetailPage(
       }
     }
 
+    // If no fuel type from JSON-LD, try HTML
+    if (!vehicle.fuelType) {
+      const fuelPatterns = [
+        /fuel\s*(?:type)?[:\s]*([^<,\n]+)/i,
+        /engine[:\s]*[^<]*?(gasoline|diesel|electric|hybrid|flex\s*fuel|gas|petrol)/i,
+        /(?:gasoline|diesel|electric|hybrid|flex\s*fuel)\s*(?:engine|fuel)/i,
+      ];
+
+      for (const pattern of fuelPatterns) {
+        const fuelMatch = html.match(pattern);
+        if (fuelMatch) {
+          const fuelValue = fuelMatch[1]?.trim() || fuelMatch[0]?.trim();
+          if (fuelValue && fuelValue.length < 30) {
+            vehicle.fuelType = normalizeFuelType(fuelValue);
+            break;
+          }
+        }
+      }
+    }
+
     // ALWAYS probe for photos (DealerOn specific) - this gets ALL photos
     const dealerId = extractDealerId(html);
     if (dealerId) {
@@ -449,6 +470,10 @@ function parseJsonLdVehicle(
       detailUrl = `${baseUrl.replace(/\/$/, '')}${detailUrl.startsWith('/') ? '' : '/'}${detailUrl}`;
     }
 
+    // Extract fuel type from JSON-LD
+    const fuelTypeRaw = data.fuelType || data.vehicleFuelType || data.fuelEfficiency?.fuelType;
+    const fuelType = fuelTypeRaw ? normalizeFuelType(String(fuelTypeRaw)) : undefined;
+
     return {
       vin: (vinOverride || vin).toUpperCase(),
       price: isNaN(price) ? 0 : price,
@@ -461,6 +486,7 @@ function parseJsonLdVehicle(
       model: data.model?.name || data.model,
       trim: data.vehicleConfiguration || data.trim,
       description: data.description,
+      fuelType,
     };
   } catch (e) {
     console.error('Error parsing JSON-LD vehicle:', e);
@@ -575,6 +601,7 @@ async function enrichVehicleDetails(
             color: details.color || vehicle.color,
             mileage: details.mileage || vehicle.mileage,
             price: details.price || vehicle.price,
+            fuelType: details.fuelType || vehicle.fuelType,
           };
         } catch (e) {
           console.error(`Error enriching vehicle ${vehicle.vin}:`, e);
@@ -727,7 +754,45 @@ function extractDetailsFromHtml(html: string): Partial<ScrapedVehicle> {
     }
   }
 
+  // Fuel Type - try multiple patterns
+  const fuelPatterns = [
+    /fuel\s*(?:type)?[:\s]*([^<,\n]+)/i,
+    /engine[:\s]*[^<]*?(gasoline|diesel|electric|hybrid|flex\s*fuel|gas|petrol)/i,
+    /(?:gasoline|diesel|electric|hybrid|flex\s*fuel)\s*(?:engine|fuel)/i,
+  ];
+
+  for (const pattern of fuelPatterns) {
+    const fuelMatch = html.match(pattern);
+    if (fuelMatch) {
+      const fuelValue = fuelMatch[1]?.trim() || fuelMatch[0]?.trim();
+      if (fuelValue && fuelValue.length < 30) {
+        details.fuelType = normalizeFuelType(fuelValue);
+        break;
+      }
+    }
+  }
+
   return details;
+}
+
+/**
+ * Normalize fuel type to standard values
+ */
+function normalizeFuelType(fuelType: string): string {
+  const lower = fuelType.toLowerCase().trim();
+
+  if (lower.includes('diesel')) return 'Diesel';
+  if (lower.includes('electric') && !lower.includes('hybrid')) return 'Electric';
+  if (lower.includes('hybrid') || lower.includes('plug-in')) return 'Hybrid';
+  if (lower.includes('flex') || lower.includes('e85')) return 'Flex Fuel';
+  if (lower.includes('gas') || lower.includes('petrol') || lower.includes('unleaded')) return 'Gasoline';
+
+  // If it looks like a valid fuel type, return it capitalized
+  if (lower.length > 0 && lower.length < 20) {
+    return fuelType.charAt(0).toUpperCase() + fuelType.slice(1).toLowerCase();
+  }
+
+  return 'Gasoline'; // Default
 }
 
 /**

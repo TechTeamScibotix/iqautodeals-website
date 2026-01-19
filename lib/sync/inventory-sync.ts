@@ -96,7 +96,7 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
     // Get existing cars for this dealer
     const existingCars = await prisma.car.findMany({
       where: { dealerId, status: { not: 'sold' } },
-      select: { id: true, vin: true, salePrice: true, mileage: true, photos: true, color: true },
+      select: { id: true, vin: true, salePrice: true, mileage: true, photos: true, color: true, fuelType: true },
     });
 
     const existingVinMap = new Map(existingCars.map((c) => [c.vin, c]));
@@ -114,11 +114,15 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
           const isValidColor = scrapedVehicle.color && scrapedVehicle.color !== 'Unknown' && scrapedVehicle.color !== 'Content';
           const colorChanged = isValidColor && (existing.color === 'Unknown' || existing.color === 'Content');
 
+          // Check if fuel type needs updating (scraped fuel type takes priority)
+          const isValidFuelType = scrapedVehicle.fuelType && scrapedVehicle.fuelType !== 'Unknown';
+          const fuelTypeChanged = isValidFuelType && (!existing.fuelType || existing.fuelType === 'Unknown');
+
           // Check if scraped vehicle has more photos
           const existingPhotos: string[] = JSON.parse(existing.photos as string || '[]');
           const photosImproved = scrapedVehicle.photoUrls.length > existingPhotos.length;
 
-          if (priceChanged || mileageChanged || photosImproved || colorChanged) {
+          if (priceChanged || mileageChanged || photosImproved || colorChanged || fuelTypeChanged) {
             const updateData: Record<string, unknown> = {};
 
             if (priceChanged && scrapedVehicle.price > 0) {
@@ -133,6 +137,9 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
             if (colorChanged) {
               updateData.color = scrapedVehicle.color;
             }
+            if (fuelTypeChanged) {
+              updateData.fuelType = scrapedVehicle.fuelType;
+            }
 
             if (Object.keys(updateData).length > 0) {
               await prisma.car.update({
@@ -140,7 +147,7 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
                 data: updateData,
               });
               summary.stats.updated++;
-              console.log(`Updated car ${scrapedVehicle.vin}: price=${priceChanged}, mileage=${mileageChanged}, photos=${photosImproved ? scrapedVehicle.photoUrls.length : 'same'}, color=${colorChanged ? scrapedVehicle.color : 'same'}`);
+              console.log(`Updated car ${scrapedVehicle.vin}: price=${priceChanged}, mileage=${mileageChanged}, photos=${photosImproved ? scrapedVehicle.photoUrls.length : 'same'}, color=${colorChanged ? scrapedVehicle.color : 'same'}, fuelType=${fuelTypeChanged ? scrapedVehicle.fuelType : 'same'}`);
             }
           }
         } else {
@@ -248,7 +255,7 @@ async function addNewCar(
       ? `${slug}-${scrapedVehicle.vin.slice(-6).toLowerCase()}`
       : slug;
 
-    // Create the car
+    // Create the car - prefer scraped fuelType over VIN decoder
     await prisma.car.create({
       data: {
         dealerId: dealer.id,
@@ -271,7 +278,7 @@ async function addNewCar(
         slug: finalSlug,
         bodyType: vinData.bodyType,
         drivetrain: vinData.drivetrain,
-        fuelType: vinData.fuelType,
+        fuelType: scrapedVehicle.fuelType || vinData.fuelType || 'Gasoline', // Scraped takes priority, default to Gasoline
         engine: vinData.engine,
       },
     });
