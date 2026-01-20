@@ -114,9 +114,9 @@ export async function syncDealerInventory(dealerId: string): Promise<SyncSummary
           const isValidColor = scrapedVehicle.color && scrapedVehicle.color !== 'Unknown' && scrapedVehicle.color !== 'Content';
           const colorChanged = isValidColor && (existing.color === 'Unknown' || existing.color === 'Content');
 
-          // Check if fuel type needs updating (scraped fuel type takes priority)
+          // Check if fuel type needs updating (scraped fuel type ALWAYS takes priority over defaults)
           const isValidFuelType = scrapedVehicle.fuelType && scrapedVehicle.fuelType !== 'Unknown';
-          const fuelTypeChanged = isValidFuelType && (!existing.fuelType || existing.fuelType === 'Unknown');
+          const fuelTypeChanged = isValidFuelType && existing.fuelType !== scrapedVehicle.fuelType;
 
           // Check if scraped vehicle has more photos
           const existingPhotos: string[] = JSON.parse(existing.photos as string || '[]');

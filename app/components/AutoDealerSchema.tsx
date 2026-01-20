@@ -105,14 +105,8 @@ export default function AutoDealerSchema() {
         name: 'United States',
       },
     },
-    // Reviews
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '1250',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // NOTE: aggregateRating removed - Google doesn't support it on Service type schemas
+    // The aggregateRating is already in OrganizationSchema.tsx where it's valid
     // Service output
     serviceOutput: {
       '@type': 'Thing',
