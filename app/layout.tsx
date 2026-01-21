@@ -436,6 +436,18 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="msvalidate.01" content="3BCD417E7943B96A06FC27AF503F3523" />
+        {/* Google Ads Tag */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17892289492"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'AW-17892289492');
+            `,
+          }}
+        />
         <OrganizationSchema />
         <LocalBusinessSchema />
         <WebsiteSchema />
