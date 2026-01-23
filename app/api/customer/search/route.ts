@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const make = searchParams.get('make');
     const model = searchParams.get('model');
     const state = searchParams.get('state');
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
 
     const where: any = {
       status: 'active',
@@ -23,6 +25,19 @@ export async function GET(request: NextRequest) {
 
     if (make) where.make = { contains: make, mode: 'insensitive' };
     if (model) where.model = { contains: model, mode: 'insensitive' };
+
+    // Price range filtering
+    if (minPrice || maxPrice) {
+      where.salePrice = {};
+      if (minPrice) {
+        const min = parseInt(minPrice, 10);
+        if (!isNaN(min)) where.salePrice.gte = min;
+      }
+      if (maxPrice) {
+        const max = parseInt(maxPrice, 10);
+        if (!isNaN(max)) where.salePrice.lte = max;
+      }
+    }
 
     const cars = await prisma.car.findMany({
       where,

@@ -82,6 +82,17 @@ export async function GET() {
       },
     });
 
+    // Get min and max prices for price range filter
+    const priceStats = await prisma.car.aggregate({
+      where: {
+        status: 'active',
+        dealer: { verificationStatus: 'approved' },
+        salePrice: { gt: 0 },
+      },
+      _min: { salePrice: true },
+      _max: { salePrice: true },
+    });
+
     // Normalize makes to uppercase and remove duplicates
     const uniqueMakes = [...new Set(makes.map((m) => m.make.toUpperCase()))].sort();
 
@@ -95,6 +106,10 @@ export async function GET() {
       fuelTypes: uniqueFuelTypes,
       modelsByMake,
       totalCount,
+      priceRange: {
+        min: priceStats._min.salePrice || 0,
+        max: priceStats._max.salePrice || 100000,
+      },
     });
   } catch (error) {
     console.error('Error fetching filters:', error);

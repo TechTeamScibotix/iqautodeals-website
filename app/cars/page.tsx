@@ -49,6 +49,10 @@ interface FilterOptions {
   fuelTypes: string[];
   modelsByMake: Record<string, string[]>;
   totalCount: number;
+  priceRange: {
+    min: number;
+    max: number;
+  };
 }
 
 export default function CarsPage() {
@@ -61,6 +65,8 @@ export default function CarsPage() {
     state: 'all',  // Default to all states
     condition: 'all', // new, used, or all
     fuelType: 'all', // Gasoline, Diesel, Electric, Hybrid, Flex Fuel, or all
+    minPrice: '',
+    maxPrice: '',
   });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -75,6 +81,7 @@ export default function CarsPage() {
     fuelTypes: [],
     modelsByMake: {},
     totalCount: 0,
+    priceRange: { min: 0, max: 100000 },
   });
 
   // Get models for selected make
@@ -130,6 +137,8 @@ export default function CarsPage() {
       if (search.make) params.append('make', search.make);
       if (search.model) params.append('model', search.model);
       if (search.state && search.state !== 'all') params.append('state', search.state);
+      if (search.minPrice) params.append('minPrice', search.minPrice);
+      if (search.maxPrice) params.append('maxPrice', search.maxPrice);
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
@@ -273,7 +282,9 @@ export default function CarsPage() {
     const modelMatch = !search.model || car.model.toLowerCase().includes(search.model.toLowerCase());
     const stateMatch = search.state === 'all' || car.state === search.state;
     const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
-    return makeMatch && modelMatch && stateMatch && fuelTypeMatch;
+    const minPriceMatch = !search.minPrice || car.salePrice >= parseInt(search.minPrice, 10);
+    const maxPriceMatch = !search.maxPrice || car.salePrice <= parseInt(search.maxPrice, 10);
+    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch;
   });
 
   return (
@@ -343,7 +354,7 @@ export default function CarsPage() {
             Browse thousands of vehicles. {!user && 'Sign up to request deals from dealers.'}
           </p>
 
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid md:grid-cols-4 gap-4 mb-4">
             <select
               value={search.condition}
               onChange={(e) => handleFilterChange('condition', e.target.value)}
@@ -398,7 +409,9 @@ export default function CarsPage() {
                 </option>
               ))}
             </select>
+          </div>
 
+          <div className="grid md:grid-cols-4 gap-4">
             <select
               value={search.fuelType}
               onChange={(e) => handleFilterChange('fuelType', e.target.value)}
@@ -421,6 +434,30 @@ export default function CarsPage() {
                 </>
               )}
             </select>
+
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="number"
+                value={search.minPrice}
+                onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                placeholder="Min Price"
+                min="0"
+                className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
+              />
+            </div>
+
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                type="number"
+                value={search.maxPrice}
+                onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                placeholder="Max Price"
+                min="0"
+                className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
+              />
+            </div>
 
             <button
               onClick={loadCars}
