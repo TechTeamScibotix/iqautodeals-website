@@ -51,6 +51,9 @@ export async function GET() {
       'vehicle_transmission',
       'store_code',
       'google_product_category',
+      'pickup_method',
+      'pickup_sla',
+      'shipping',
     ];
 
     const rows = [headers.join('\t')];
@@ -130,6 +133,9 @@ export async function GET() {
         transmission,
         car.dealer.id, // store_code (dealer ID)
         '916', // Google product category for Vehicles
+        'buy', // pickup_method - customer picks up at dealer
+        'same day', // pickup_sla - same day pickup available
+        'US:::0 USD', // shipping - free local (no shipping for vehicles)
       ];
 
       // Escape tabs in values and join
