@@ -436,6 +436,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="msvalidate.01" content="3BCD417E7943B96A06FC27AF503F3523" />
+        <meta name="google-site-verification" content="c3bc0iS_ATQI5PqBRyvuSAjZ8kn1MedWPylEA8O_P_Y" />
         {/* Google Ads Tag */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17892289492"></script>
         <script
