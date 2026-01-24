@@ -148,11 +148,11 @@ export default function Home() {
               <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
                 Cars for Sale
               </Link>
-              <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
-                Research & Reviews
+              <Link href="/for-dealers" className="text-gray-300 hover:text-primary transition-colors">
+                For Dealers
               </Link>
               <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
-                News & Videos
+                Research & Reviews
               </Link>
               <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
                 Financing
@@ -583,6 +583,13 @@ export default function Home() {
                   <span className="text-gray-700">Close more sales faster</span>
                 </li>
               </ul>
+              <Link
+                href="/for-dealers"
+                className="mt-6 inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+              >
+                Learn More About Dealer Benefits
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>
