@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createDemoBooking } from '@/lib/google-calendar';
-import { prisma } from '@/lib/prisma';
 
 // POST - Book a demo
 export async function POST(req: NextRequest) {
@@ -43,7 +42,7 @@ export async function POST(req: NextRequest) {
       endTime,
     });
 
-    // Log the booking (optional - you could create a DemoBooking table)
+    // Log the booking
     console.log('[Book Demo] Demo booked:', {
       dealershipName,
       email,
@@ -53,26 +52,6 @@ export async function POST(req: NextRequest) {
       eventId,
       meetLink,
     });
-
-    // Optionally create a contact submission for lead tracking
-    try {
-      await prisma.contactSubmission.create({
-        data: {
-          name: dealershipName,
-          email,
-          phone,
-          message: `Demo booking for ${new Date(startTime).toLocaleString('en-US', {
-            timeZone: 'America/New_York',
-            dateStyle: 'full',
-            timeStyle: 'short',
-          })}`,
-          source: 'demo-booking',
-        },
-      });
-    } catch (e) {
-      // Don't fail if contact submission fails
-      console.warn('[Book Demo] Failed to create contact submission:', e);
-    }
 
     return NextResponse.json({
       success: true,
