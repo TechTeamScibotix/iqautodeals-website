@@ -181,3 +181,25 @@ model AvailabilityRequest {
   @@index([dealerId])
   @@index([email])
 }
+
+// Google Calendar connection for demo booking
+// This table is shared with scibotix-solutions
+model GoogleCalendarConnection {
+  id              String    @id @default(cuid())
+  organizationId  String    @unique @default("SCIBOTIX")
+  accessToken     String    @db.Text
+  refreshToken    String    @db.Text
+  tokenExpiresAt  DateTime
+  adminEmail      String
+  workspaceDomain String?
+  scopes          String[]  @default([])
+  isActive        Boolean   @default(true)
+  lastSyncAt      DateTime?
+  syncError       String?
+  webhookChannelId   String? @unique
+  webhookExpiration  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("google_calendar_connections")
+}
