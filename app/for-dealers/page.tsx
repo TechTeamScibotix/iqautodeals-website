@@ -84,8 +84,7 @@ export default function ForDealersPage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link
-                href="https://calendly.com/iqautodeals/demo"
-                target="_blank"
+                href="/for-dealers/book-demo"
                 className="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-primary/25"
               >
                 <Rocket className="w-5 h-5" />
@@ -206,8 +205,7 @@ export default function ForDealersPage() {
 
             <div className="text-center">
               <Link
-                href="https://calendly.com/iqautodeals/demo"
-                target="_blank"
+                href="/for-dealers/book-demo"
                 className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-colors"
               >
                 <Rocket className="w-5 h-5" />
@@ -416,8 +414,7 @@ export default function ForDealersPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="https://calendly.com/iqautodeals/demo"
-                target="_blank"
+                href="/for-dealers/book-demo"
                 className="border-2 border-primary text-primary px-8 py-4 rounded-lg font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Book a Quick Demo
@@ -532,8 +529,7 @@ export default function ForDealersPage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="https://calendly.com/iqautodeals/demo"
-                target="_blank"
+                href="/for-dealers/book-demo"
                 className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Book a Quick Demo
@@ -555,8 +551,7 @@ export default function ForDealersPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link
-              href="https://calendly.com/iqautodeals/demo"
-              target="_blank"
+              href="/for-dealers/book-demo"
               className="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg"
             >
               <Rocket className="w-5 h-5" />
