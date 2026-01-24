@@ -111,6 +111,7 @@ async function getFreeBusy(
     body: JSON.stringify({
       timeMin,
       timeMax,
+      timeZone: 'America/New_York',
       items: [{ id: calendarId }],
     }),
   });
@@ -126,6 +127,23 @@ async function getFreeBusy(
 }
 
 /**
+ * Create a date string in Eastern Time
+ * Returns ISO string that represents the given hour in ET
+ */
+function createEasternTimeSlot(dateStr: string, hour: number, minute: number): string {
+  // Create the datetime string in Eastern Time format
+  // Format: YYYY-MM-DDTHH:MM:00-05:00 (EST) or -04:00 (EDT)
+  const hourStr = hour.toString().padStart(2, '0');
+  const minuteStr = minute.toString().padStart(2, '0');
+
+  // Determine if we're in EST or EDT (simplified - assumes EST for Jan/Feb)
+  const month = parseInt(dateStr.split('-')[1], 10);
+  const offset = (month >= 3 && month <= 11) ? '-04:00' : '-05:00';
+
+  return `${dateStr}T${hourStr}:${minuteStr}:00${offset}`;
+}
+
+/**
  * Get available time slots for demo booking
  * Returns slots for the next 14 days, 9 AM - 5 PM EST, 30-minute slots
  */
@@ -134,70 +152,76 @@ export async function getAvailableSlots(
   daysToShow: number = 14
 ): Promise<{ date: string; slots: TimeSlot[] }[]> {
   const calendarId = process.env.GOOGLE_SHARED_CALENDAR_ID || 'primary';
-  const timeZone = 'America/New_York';
 
-  // Start from the specified date or tomorrow
-  const start = startDate || new Date();
-  if (!startDate) {
-    start.setDate(start.getDate() + 1); // Start from tomorrow
-  }
-  start.setHours(0, 0, 0, 0);
+  // Get current date in Eastern Time
+  const now = new Date();
+  const etFormatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 
-  const end = new Date(start);
-  end.setDate(end.getDate() + daysToShow);
+  // Parse today's date in ET
+  const todayET = etFormatter.format(now);
+  const [year, month, day] = todayET.split('-').map(Number);
+
+  // Start from tomorrow in ET
+  const startDay = new Date(year, month - 1, day + 1);
+
+  // Calculate end date for freeBusy query
+  const endDay = new Date(startDay);
+  endDay.setDate(endDay.getDate() + daysToShow);
 
   // Get busy times from Google Calendar
   let busyTimes: { start: string; end: string }[] = [];
   try {
-    busyTimes = await getFreeBusy(
-      calendarId,
-      start.toISOString(),
-      end.toISOString()
+    const startISO = createEasternTimeSlot(
+      `${startDay.getFullYear()}-${String(startDay.getMonth() + 1).padStart(2, '0')}-${String(startDay.getDate()).padStart(2, '0')}`,
+      0, 0
     );
+    const endISO = createEasternTimeSlot(
+      `${endDay.getFullYear()}-${String(endDay.getMonth() + 1).padStart(2, '0')}-${String(endDay.getDate()).padStart(2, '0')}`,
+      23, 59
+    );
+
+    busyTimes = await getFreeBusy(calendarId, startISO, endISO);
   } catch (error) {
     console.error('[Book Demo] Failed to get busy times:', error);
-    // If we can't get busy times, we'll show all slots as available
   }
 
   const results: { date: string; slots: TimeSlot[] }[] = [];
 
-  for (let day = 0; day < daysToShow; day++) {
-    const currentDate = new Date(start);
-    currentDate.setDate(start.getDate() + day);
+  for (let dayOffset = 0; dayOffset < daysToShow; dayOffset++) {
+    const currentDate = new Date(startDay);
+    currentDate.setDate(startDay.getDate() + dayOffset);
 
     // Skip weekends
     const dayOfWeek = currentDate.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
-    const dateStr = currentDate.toISOString().split('T')[0];
+    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
     const slots: TimeSlot[] = [];
 
-    // Generate 30-minute slots from 9 AM to 5 PM EST
+    // Generate 30-minute slots from 9 AM to 5 PM ET
     for (let hour = 9; hour < 17; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
-        const slotStart = new Date(currentDate);
-        slotStart.setHours(hour, minute, 0, 0);
-
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotEnd.getMinutes() + 30);
+        const slotStart = createEasternTimeSlot(dateStr, hour, minute);
+        const slotEnd = createEasternTimeSlot(dateStr, minute === 30 ? hour + 1 : hour, minute === 30 ? 0 : 30);
 
         // Check if this slot overlaps with any busy time
-        const slotStartISO = slotStart.toISOString();
-        const slotEndISO = slotEnd.toISOString();
+        const slotStartTime = new Date(slotStart).getTime();
+        const slotEndTime = new Date(slotEnd).getTime();
 
         const isAvailable = !busyTimes.some((busy) => {
           const busyStart = new Date(busy.start).getTime();
           const busyEnd = new Date(busy.end).getTime();
-          const slotStartTime = slotStart.getTime();
-          const slotEndTime = slotEnd.getTime();
-
-          // Check for overlap
           return slotStartTime < busyEnd && slotEndTime > busyStart;
         });
 
         slots.push({
-          start: slotStartISO,
-          end: slotEndISO,
+          start: slotStart,
+          end: slotEnd,
           available: isAvailable,
         });
       }
