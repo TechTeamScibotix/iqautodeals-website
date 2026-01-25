@@ -132,6 +132,78 @@ export default function CarsPage() {
     }
   }, [search.make, search.model, filterOptions.modelsByMake]);
 
+  // Reload when URL params change (e.g., clicking New Vehicles / Used Vehicles links)
+  useEffect(() => {
+    const urlCondition = searchParams.get('condition') || 'all';
+    const urlMake = searchParams.get('make') || '';
+    const urlModel = searchParams.get('model') || '';
+
+    // Update state and reload if URL params changed
+    const newSearch = {
+      ...search,
+      condition: urlCondition,
+      make: urlMake,
+      model: urlModel,
+    };
+
+    if (urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model) {
+      setSearch(newSearch);
+      loadCarsWithParams(newSearch);
+    }
+  }, [searchParams]);
+
+  const loadCarsWithParams = async (searchOverride?: typeof search) => {
+    const currentSearch = searchOverride || search;
+    setLoading(true);
+    try {
+      // Build query params
+      const params = new URLSearchParams();
+      if (currentSearch.make) params.append('make', currentSearch.make);
+      if (currentSearch.model) params.append('model', currentSearch.model);
+      if (currentSearch.state && currentSearch.state !== 'all') params.append('state', currentSearch.state);
+      if (currentSearch.condition && currentSearch.condition !== 'all') params.append('condition', currentSearch.condition);
+      if (currentSearch.minPrice) params.append('minPrice', currentSearch.minPrice);
+      if (currentSearch.maxPrice) params.append('maxPrice', currentSearch.maxPrice);
+      if (currentSearch.zipCode) params.append('zipCode', currentSearch.zipCode);
+
+      const res = await fetch(`/api/customer/search?${params.toString()}`);
+      const data = await res.json();
+      const loadedCars = data.cars || [];
+      setCars(loadedCars);
+
+      // Track search performed
+      trackSearchPerformed({
+        query: `${currentSearch.make} ${currentSearch.model}`.trim(),
+        resultsCount: loadedCars.length,
+        location: currentSearch.state,
+        filters: {
+          make: currentSearch.make,
+          model: currentSearch.model,
+          state: currentSearch.state,
+          condition: currentSearch.condition,
+        },
+      });
+
+      // Track if no results
+      if (loadedCars.length === 0) {
+        trackSearchNoResults({
+          query: `${currentSearch.make} ${currentSearch.model}`.trim(),
+          location: currentSearch.state,
+          filters: {
+            make: currentSearch.make,
+            model: currentSearch.model,
+            state: currentSearch.state,
+            condition: currentSearch.condition,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load cars:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadCars = async () => {
     setLoading(true);
     try {
@@ -301,14 +373,17 @@ export default function CarsPage() {
             <LogoWithBeam className="h-full" />
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link href="/cars" className="text-primary border-b-2 border-primary pb-1">
-              Cars for Sale
+            <Link href="/cars?condition=new" className={search.condition === 'new' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
+              New Vehicles
+            </Link>
+            <Link href="/cars?condition=used" className={search.condition === 'used' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
+              Used Vehicles
+            </Link>
+            <Link href="/for-dealers" className="text-gray-300 hover:text-primary transition-colors">
+              For Dealers
             </Link>
             <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
               Research & Reviews
-            </Link>
-            <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
-              News & Videos
             </Link>
             <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
               Financing
