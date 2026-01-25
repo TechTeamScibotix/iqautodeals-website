@@ -157,7 +157,7 @@ export default function ForDealersPage() {
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-2">
                     <span className="text-red-500 mt-1">✗</span>
-                    Autotrader, Cars.com, CarGurus
+                    Traditional listing sites
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-500 mt-1">✗</span>
@@ -165,7 +165,7 @@ export default function ForDealersPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-500 mt-1">✗</span>
-                    Complacent innovation
+                    Slow to adapt to AI search
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-500 mt-1">✗</span>
