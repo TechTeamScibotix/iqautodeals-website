@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Car, Mail, Lock, User, Phone, Building2, MapPin, Hash, LogIn, UserPlus, Briefcase, Globe } from 'lucide-react';
+import TCPAConsent from '../components/TCPAConsent';
 import { Suspense } from 'react';
 import {
   trackSignupStarted,
@@ -437,10 +438,18 @@ function RegisterForm() {
             </>
           )}
 
+          {/* TCPA Consent Disclaimer */}
+          <div className="animate-slide-in mt-6" style={{ animationDelay: '1.3s' }}>
+            <TCPAConsent
+              actionText="Create Account"
+              isDealer={isDealer}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary via-purple to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-105 mt-8 animate-slide-in"
+            className="w-full bg-gradient-to-r from-primary via-purple to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-105 mt-4 animate-slide-in"
             style={{ animationDelay: '1s' }}
           >
             {loading ? (

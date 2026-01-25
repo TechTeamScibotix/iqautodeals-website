@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, CheckCircle, Loader2, Phone } from 'lucide-react';
+import TCPAConsent from './TCPAConsent';
 import {
   trackCheckAvailabilityOpened,
   trackCheckAvailabilitySubmitted,
@@ -348,9 +349,10 @@ export default function CheckAvailabilityModal({ car, user, onClose }: CheckAvai
             />
           </div>
 
-          <p className="text-xs text-gray-500">
-            By clicking &quot;Check Availability&quot;, you agree to be contacted by {car.dealer.businessName} about this vehicle.
-          </p>
+          <TCPAConsent
+            actionText="Check Availability"
+            sellerName={car.dealer.businessName}
+          />
 
           <button
             type="submit"
