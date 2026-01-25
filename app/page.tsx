@@ -345,7 +345,7 @@ export default function Home() {
                 and Quality Pre-Owned Vehicles
               </h2>
               <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md mt-4">
-                Compare Prices and Receive Competitive Offers from Verified Dealers Nationwide. Browse thousands of vehicles, get multiple quotes, and save up to $5,000 on your next car.
+                Compare Prices and Receive Competitive Offers from Verified Dealers Nationwide. Browse thousands of vehicles, get multiple quotes, and save thousands on your next vehicle.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
