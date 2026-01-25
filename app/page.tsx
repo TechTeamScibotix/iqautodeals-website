@@ -327,12 +327,11 @@ export default function Home() {
             {/* Right: Value Proposition */}
             <div className="lg:col-span-3 text-white space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold leading-tight drop-shadow-lg">
-                Buy New & Certified Used Cars<br />
-                Compare Prices from<br />
-                Nationwide Dealers
+                Shop New, Certified Pre-Owned<br />
+                and Quality Pre-Owned Vehicles
               </h2>
-              <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md">
-                Shop thousands of new and certified used vehicles from trusted dealers. Get competitive quotes. Compare prices. Save up to $5,000 on your next car.
+              <p className="text-xl text-gray-100 leading-relaxed drop-shadow-md mt-4">
+                Compare Prices and Receive Competitive Offers from Verified Dealers Nationwide. Browse thousands of vehicles, get multiple quotes, and save up to $5,000 on your next car.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
@@ -461,8 +460,8 @@ export default function Home() {
       {/* Value Proposition */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold text-dark mb-4">How to Buy New & Certified Used Cars Online</h2>
-          <p className="text-lg text-gray-600">Browse quality new and certified used vehicles, request dealer quotes, and save thousands in minutes</p>
+          <h2 className="text-3xl font-bold text-dark mb-4">How to Shop New & Pre-Owned Vehicles Online</h2>
+          <p className="text-lg text-gray-600">Browse new, certified pre-owned, and quality pre-owned vehicles. Request competitive offers from verified dealers and save thousands.</p>
         </div>
 
         {/* Features */}
@@ -529,7 +528,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">Why Choose Our Nationwide Car Marketplace?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              The trusted online marketplace for quality new and certified used cars - compare dealer prices and save up to $5,000
+              The trusted online marketplace for new, certified pre-owned, and quality pre-owned vehicles. Compare prices from verified dealers and save up to $5,000.
             </p>
           </div>
 
