@@ -502,7 +502,7 @@ export default function Footer() {
                   className="h-full w-auto"
                 />
               </div>
-              <p className="text-gray-400 text-sm mt-1">Your trusted marketplace for quality used cars online</p>
+              <p className="text-gray-400 text-sm mt-1">Your Trusted Marketplace for Intelligent Quality Deals</p>
               <p className="text-gray-500 text-xs mt-1">A product of Scibotix Solutions LLC</p>
             </div>
             <div className="text-center md:text-right">
