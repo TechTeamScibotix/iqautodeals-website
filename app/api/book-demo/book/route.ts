@@ -47,17 +47,19 @@ export async function POST(req: NextRequest) {
     // Create Centrix Calendar Event so it appears in Centrix CRM
     try {
       // Get the default Centrix user for IQ Auto Deals bookings
-      // Use admin@centrix.com or the first active admin
-      const centrixOwner = await prisma.centrixUser.findFirst({
-        where: {
-          OR: [
-            { email: 'admin@centrix.com' },
-            { email: 'Nate.Hayward@scibotixsolutions.com' },
-          ],
-          isActive: true,
-        },
+      // Must be admin@centrix.com to show in calendar for that user
+      let centrixOwner = await prisma.centrixUser.findUnique({
+        where: { email: 'admin@centrix.com' },
         select: { id: true },
       });
+
+      // Fallback to any active user if admin doesn't exist
+      if (!centrixOwner) {
+        centrixOwner = await prisma.centrixUser.findFirst({
+          where: { isActive: true },
+          select: { id: true },
+        });
+      }
 
       if (centrixOwner) {
         await prisma.centrixCalendarEvent.create({
