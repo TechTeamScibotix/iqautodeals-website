@@ -203,3 +203,79 @@ model GoogleCalendarConnection {
 
   @@map("google_calendar_connections")
 }
+
+// Centrix Calendar Events - shared with scibotix-solutions
+// Used to sync IQ Auto Deals demo bookings to Centrix
+model CentrixCalendarEvent {
+  id              String    @id @default(cuid())
+
+  // Event details
+  title           String
+  description     String?
+  eventType       String    // DEMO, MEETING, CALL, FOLLOW_UP, ONBOARDING, OTHER
+  location        String?
+  videoLink       String?
+
+  // Timing
+  startTime       DateTime
+  endTime         DateTime
+  allDay          Boolean   @default(false)
+  timezone        String    @default("America/New_York")
+
+  // Recurrence
+  isRecurring     Boolean   @default(false)
+  recurrenceRule  String?
+
+  // Owner and attendees
+  ownerId         String
+  attendeeIds     String[]  @default([])
+
+  // Related entities
+  accountId       String?
+  contactId       String?
+
+  // Status
+  status          String    @default("SCHEDULED")
+  outcome         String?
+  outcomeStatus   String?
+
+  // Reminders
+  reminderMinutes Int[]     @default([60, 1440])
+  remindersSent   Boolean   @default(false)
+
+  // External calendar sync
+  googleEventId       String?
+  googleSharedEventId String?
+  outlookEventId      String?
+
+  // Public booking
+  isPublicBooking Boolean   @default(false)
+  bookingToken    String?   @unique
+
+  // Booking customer info
+  googleMeetLink    String?
+  bookedByName      String?
+  bookedByEmail     String?
+  bookedByPhone     String?
+  bookedByCompany   String?
+  bookingNotes      String?
+
+  // Google Calendar sync status
+  googleSyncStatus  String?   @default("PENDING")
+  lastGoogleSyncAt  DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("centrix_calendar_events")
+}
+
+// Centrix User - minimal model for owner reference
+model CentrixUser {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  isActive      Boolean   @default(true)
+
+  @@map("centrix_users")
+}
