@@ -47,12 +47,12 @@ export async function POST(req: NextRequest) {
     // Create Centrix Calendar Event so it appears in Centrix CRM
     try {
       // Get the default Centrix user for IQ Auto Deals bookings
-      // Use techteam@scibotixsolutions.com or the first active admin
+      // Use admin@centrix.com or the first active admin
       const centrixOwner = await prisma.centrixUser.findFirst({
         where: {
           OR: [
-            { email: 'techteam@scibotixsolutions.com' },
-            { email: 'joe@scibotixsolutions.com' },
+            { email: 'admin@centrix.com' },
+            { email: 'Nate.Hayward@scibotixsolutions.com' },
           ],
           isActive: true,
         },
