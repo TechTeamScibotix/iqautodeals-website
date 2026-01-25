@@ -333,15 +333,6 @@ export default function ForDealersPage() {
               </thead>
               <tbody>
                 <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">One-Time Setup Fee</td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-2xl font-bold text-primary">$1,500</span>
-                    <p className="text-xs text-gray-500 mt-1">Inventory feed setup & onboarding</p>
-                  </td>
-                  <td className="px-6 py-4 text-center text-gray-600">Included (paid during pilot)</td>
-                  <td className="px-6 py-4 text-center text-gray-500">$2,000 – $5,000+</td>
-                </tr>
-                <tr className="border-b border-gray-100">
                   <td className="px-6 py-4 font-medium text-dark">Monthly Subscription</td>
                   <td className="px-6 py-4 text-center">
                     <span className="text-2xl font-bold text-green-600">$0</span>
@@ -380,7 +371,7 @@ export default function ForDealersPage() {
                 <tr className="bg-gray-50">
                   <td className="px-6 py-4 font-bold text-dark">Total First 90 Days</td>
                   <td className="px-6 py-4 text-center">
-                    <span className="text-2xl font-bold text-primary">Only $1,500</span>
+                    <span className="text-2xl font-bold text-green-600">$0</span>
                   </td>
                   <td className="px-6 py-4 text-center text-gray-600">—</td>
                   <td className="px-6 py-4 text-center text-gray-500">$10,000 – $15,000+ upfront</td>
@@ -422,7 +413,7 @@ export default function ForDealersPage() {
             </div>
 
             <p className="text-sm text-gray-500 mt-4">
-              Setup fee is one-time and required to connect your live inventory feed. Free 90-day period after setup.
+              Free 90-day pilot with full marketplace access.
               You only pay monthly if you choose to continue after the pilot.
             </p>
           </div>
