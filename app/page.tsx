@@ -210,6 +210,7 @@ export default function Home() {
                   <input
                     type="text"
                     placeholder="Try great deals under $20k"
+                    aria-label="Search for vehicles"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
                   />
                 </div>
@@ -224,6 +225,7 @@ export default function Home() {
                   <select
                     value={searchForm.condition}
                     onChange={(e) => setSearchForm({ ...searchForm, condition: e.target.value })}
+                    aria-label="Select vehicle condition"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
                   >
                     <option value="">New/Used</option>
@@ -234,6 +236,7 @@ export default function Home() {
                   <select
                     value={searchForm.make}
                     onChange={(e) => setSearchForm({ ...searchForm, make: e.target.value, model: '' })}
+                    aria-label="Select vehicle make"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
                   >
                     <option value="">All Makes ({filterOptions.makes.length})</option>
@@ -248,6 +251,7 @@ export default function Home() {
                     value={searchForm.model}
                     onChange={(e) => setSearchForm({ ...searchForm, model: e.target.value })}
                     disabled={!searchForm.make}
+                    aria-label="Select vehicle model"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm disabled:bg-gray-100 disabled:text-gray-400"
                   >
                     <option value="">
@@ -263,6 +267,7 @@ export default function Home() {
                   <select
                     value={searchForm.state}
                     onChange={(e) => setSearchForm({ ...searchForm, state: e.target.value })}
+                    aria-label="Select state"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
                   >
                     <option value="">All States ({filterOptions.states.length})</option>

@@ -9,25 +9,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Enterprise professional theme
+        // Enterprise professional theme - ADA/WCAG AA compliant (4.5:1 contrast ratio)
         primary: "#2563eb",      // Blue 600 - vibrant professional blue
         "primary-dark": "#1d4ed8", // Blue 700 for hover
-        "primary-light": "#3b82f6", // Blue 500 for accents
+        "primary-light": "#1e40af", // Blue 800 for better contrast on light bg
         secondary: "#1e293b",    // Slate 800
         "secondary-light": "#334155", // Slate 700
-        accent: "#059669",       // Emerald 600 - sophisticated green
-        "accent-light": "#10b981", // Emerald 500
+        accent: "#047857",       // Emerald 700 - better contrast than 600
+        "accent-light": "#059669", // Emerald 600
         dark: "#1e293b",         // Slate 800 - professional dark
         "dark-light": "#334155", // Slate 700
         light: "#f8fafc",        // Slate 50 - clean white
         "light-dark": "#f1f5f9", // Slate 100
         "text-primary": "#0f172a",   // Slate 900
         "text-secondary": "#334155", // Slate 700
-        "text-muted": "#64748b",     // Slate 500
-        "text-light": "#94a3b8",     // Slate 400
+        "text-muted": "#475569",     // Slate 600 - darker for better contrast (was 500)
+        "text-light": "#64748b",     // Slate 500 - darker for better contrast (was 400)
         error: "#dc2626",        // Red 600
-        success: "#059669",      // Emerald 600
-        warning: "#d97706",      // Amber 600
+        success: "#047857",      // Emerald 700 - better contrast
+        warning: "#b45309",      // Amber 700 - better contrast (was 600)
         border: "#e2e8f0",       // Slate 200
       },
       animation: {

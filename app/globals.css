@@ -33,3 +33,83 @@ body {
     display: none;
   }
 }
+
+/* ADA Accessibility Improvements */
+
+/* Minimum touch target size (WCAG 2.5.5 - 44x44px) */
+@layer base {
+  a,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Inline links don't need min dimensions */
+  p a,
+  li a,
+  span a,
+  td a {
+    min-height: auto;
+    min-width: auto;
+    padding: 0.125rem 0;
+  }
+
+  /* Focus visible styles for keyboard navigation */
+  :focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  /* Ensure form elements have visible focus */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 0;
+    border-color: #2563eb;
+  }
+
+  /* Skip link for keyboard users */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #1e293b;
+    color: white;
+    padding: 8px 16px;
+    z-index: 100;
+    text-decoration: none;
+  }
+
+  .skip-link:focus {
+    top: 0;
+  }
+
+  /* Ensure sufficient line height for readability */
+  p, li, td, th, label {
+    line-height: 1.5;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    * {
+      border-color: currentColor !important;
+    }
+  }
+
+  /* Reduced motion for vestibular disorders */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

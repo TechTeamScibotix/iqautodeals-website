@@ -358,6 +358,7 @@ export default function CarsPage() {
             <select
               value={search.condition}
               onChange={(e) => handleFilterChange('condition', e.target.value)}
+              aria-label="Select vehicle condition"
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="all">New/Used</option>
@@ -371,6 +372,7 @@ export default function CarsPage() {
                 handleFilterChange('make', e.target.value);
                 setSearch(prev => ({ ...prev, make: e.target.value, model: '' }));
               }}
+              aria-label="Select vehicle make"
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="">All Makes ({filterOptions.makes.length})</option>
@@ -385,6 +387,7 @@ export default function CarsPage() {
               value={search.model}
               onChange={(e) => handleFilterChange('model', e.target.value)}
               disabled={!search.make}
+              aria-label="Select vehicle model"
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white disabled:bg-gray-100 disabled:text-gray-400"
             >
               <option value="">
@@ -400,6 +403,7 @@ export default function CarsPage() {
             <select
               value={search.state}
               onChange={(e) => handleFilterChange('state', e.target.value)}
+              aria-label="Select state"
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="all">All States ({filterOptions.states.length})</option>
@@ -415,6 +419,7 @@ export default function CarsPage() {
             <select
               value={search.fuelType}
               onChange={(e) => handleFilterChange('fuelType', e.target.value)}
+              aria-label="Select fuel type"
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
             >
               <option value="all">All Fuel Types</option>
@@ -442,6 +447,7 @@ export default function CarsPage() {
                 value={search.minPrice}
                 onChange={(e) => handleFilterChange('minPrice', e.target.value)}
                 placeholder="Min Price"
+                aria-label="Minimum price"
                 min="0"
                 className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
               />
@@ -452,6 +458,7 @@ export default function CarsPage() {
               <input
                 type="number"
                 value={search.maxPrice}
+                aria-label="Maximum price"
                 onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
                 placeholder="Max Price"
                 min="0"

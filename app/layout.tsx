@@ -423,8 +423,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // ADA Compliance: Allow users to zoom for accessibility
 };
 
 export default function RootLayout({
@@ -455,11 +454,17 @@ export default function RootLayout({
         <AutoDealerSchema />
       </head>
       <body className="antialiased">
+        {/* Skip link for keyboard navigation - ADA compliance */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <PostHogProvider>
           <Suspense fallback={null}>
             <PostHogPageView />
             <AnalyticsProvider>
-              {children}
+              <main id="main-content">
+                {children}
+              </main>
             </AnalyticsProvider>
           </Suspense>
           <Analytics debug={true} />
