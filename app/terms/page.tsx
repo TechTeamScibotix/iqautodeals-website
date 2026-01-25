@@ -341,7 +341,8 @@ export default function TermsOfServicePage() {
                     <p className="text-gray-700">
                       Scibotix Solutions LLC<br />
                       (DBA IQ Auto Deals)<br />
-                      Atlanta, GA 30301<br />
+                      345 W Washington Ave Ste 301<br />
+                      Madison, WI 53703<br />
                       United States
                     </p>
                   </div>

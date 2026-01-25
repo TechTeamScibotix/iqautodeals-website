@@ -314,7 +314,8 @@ You may also mail us with general questions at:
 
 **Scibotix Solutions LLC**
 (DBA IQ Auto Deals)
-Atlanta, GA 30301
+345 W Washington Ave Ste 301
+Madison, WI 53703
 United States
 
 ---
