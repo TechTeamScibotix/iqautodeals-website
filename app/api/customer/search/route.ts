@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import zipcodes from 'zipcodes';
+
+// Calculate distance between two coordinates using Haversine formula (in miles)
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,6 +23,28 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get('state');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
+    const zipCode = searchParams.get('zipCode');
+    const radius = searchParams.get('radius'); // Optional radius in miles (default: nationwide)
+
+    // Get coordinates from zipcode if provided
+    let userLat: number | null = null;
+    let userLon: number | null = null;
+    let maxRadius: number | null = null;
+
+    if (zipCode) {
+      const zipData = zipcodes.lookup(zipCode);
+      if (zipData) {
+        userLat = zipData.latitude;
+        userLon = zipData.longitude;
+        // If radius is provided, use it; otherwise show all cars sorted by distance
+        if (radius) {
+          const parsedRadius = parseInt(radius, 10);
+          if (!isNaN(parsedRadius) && parsedRadius > 0) {
+            maxRadius = parsedRadius;
+          }
+        }
+      }
+    }
 
     const where: any = {
       status: 'active',
@@ -19,7 +55,8 @@ export async function GET(request: NextRequest) {
     };
 
     // Only filter by state if a specific state is provided (not 'all' or empty)
-    if (state && state !== 'all') {
+    // Skip state filter if searching by zipcode (zipcode takes precedence)
+    if (state && state !== 'all' && !zipCode) {
       where.state = state;
     }
 
@@ -54,18 +91,44 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Add isDemo flag based on dealer email
-    const carsWithDemo = cars.map(car => ({
-      ...car,
-      isDemo: car.dealer.email?.endsWith('@iqautodeals.com') || false,
-      dealer: {
-        businessName: car.dealer.businessName,
-        websiteUrl: car.dealer.websiteUrl,
-        verificationStatus: car.dealer.verificationStatus,
-      },
-    }));
+    // Calculate distance and filter/sort if zipcode is provided
+    let processedCars = cars.map(car => {
+      let distance: number | null = null;
 
-    return NextResponse.json({ cars: carsWithDemo });
+      if (userLat !== null && userLon !== null && car.latitude && car.longitude) {
+        distance = calculateDistance(userLat, userLon, car.latitude, car.longitude);
+      }
+
+      return {
+        ...car,
+        distance: distance !== null ? Math.round(distance) : null,
+        isDemo: car.dealer.email?.endsWith('@iqautodeals.com') || false,
+        dealer: {
+          businessName: car.dealer.businessName,
+          websiteUrl: car.dealer.websiteUrl,
+          verificationStatus: car.dealer.verificationStatus,
+        },
+      };
+    });
+
+    // Filter by radius if specified
+    if (maxRadius !== null && userLat !== null) {
+      processedCars = processedCars.filter(car =>
+        car.distance !== null && car.distance <= maxRadius!
+      );
+    }
+
+    // Sort by distance if zipcode was provided (closest first)
+    if (userLat !== null) {
+      processedCars.sort((a, b) => {
+        // Cars without distance go to the end
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+    }
+
+    return NextResponse.json({ cars: processedCars });
   } catch (error: any) {
     console.error('Error searching cars:', error);
     return NextResponse.json({

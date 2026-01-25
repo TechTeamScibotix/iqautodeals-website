@@ -36,6 +36,7 @@ interface CarListing {
   vin: string;
   isDemo?: boolean;
   dealerId: string;
+  distance?: number | null; // Distance in miles from searched zipcode
   dealer: {
     businessName: string;
     websiteUrl?: string;
@@ -494,6 +495,11 @@ export default function CarsPage() {
           <h2 className="text-2xl font-bold text-dark">
             {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
           </h2>
+          {search.zipCode && filteredCars.length > 0 && (
+            <p className="text-primary font-medium mt-1">
+              Sorted by distance from ZIP code {search.zipCode}
+            </p>
+          )}
           {!user && filteredCars.length > 0 && (
             <p className="text-gray-600 mt-2">
               <Link href="/register?type=customer" className="text-primary font-semibold hover:underline">
@@ -573,6 +579,11 @@ export default function CarsPage() {
                     <div className="text-sm text-gray-600 mb-3">
                       <MapPin className="w-4 h-4 inline mr-1" />
                       {car.city}, {car.state}
+                      {car.distance !== null && car.distance !== undefined && (
+                        <span className="ml-2 text-primary font-medium">
+                          ({car.distance} mi away)
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-gray-500 mb-3">{car.dealer.businessName}</p>
 
