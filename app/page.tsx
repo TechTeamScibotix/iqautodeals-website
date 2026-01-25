@@ -343,12 +343,12 @@ export default function Home() {
                   <div className="text-sm text-gray-600">Competitive offers per vehicle</div>
                 </div>
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="text-3xl font-bold text-primary mb-1">$5,000</div>
-                  <div className="text-sm text-gray-600">Average savings vs dealership</div>
+                  <div className="text-3xl font-bold text-primary mb-1">Huge Savings</div>
+                  <div className="text-sm text-gray-600">From Verified Trusted Dealerships</div>
                 </div>
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="text-3xl font-bold text-primary mb-1">50mi</div>
-                  <div className="text-sm text-gray-600">Search radius from your location</div>
+                  <div className="text-2xl font-bold text-primary mb-1">Nationwide Shipping</div>
+                  <div className="text-sm text-gray-600">Available From Select Dealers</div>
                 </div>
               </div>
             </div>
