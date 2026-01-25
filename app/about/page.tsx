@@ -79,7 +79,7 @@ export default function AboutPage() {
               <ol className="list-decimal pl-6 space-y-2">
                 <li><strong>Browse Inventory</strong>: Search thousands of used cars from certified dealers within 50 miles of your location</li>
                 <li><strong>Select Vehicles</strong>: Choose up to 4 cars you are interested in purchasing</li>
-                <li><strong>Request Offers</strong>: Submit a deal request and receive up to 3 competitive offers per vehicle</li>
+                <li><strong>Request Offers</strong>: Submit a deal request and receive up to 4 competitive offers per vehicle</li>
                 <li><strong>Compare & Choose</strong>: Review offers from different dealers and select the best deal</li>
                 <li><strong>Reserve & Purchase</strong>: Accept an offer to reserve your vehicle and complete the purchase at the dealership</li>
               </ol>

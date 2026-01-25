@@ -353,7 +353,7 @@ export default function Home() {
                   <div className="text-sm text-gray-600">No fees to browse or request deals</div>
                 </div>
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                  <div className="text-3xl font-bold text-primary mb-1">Up to 3</div>
+                  <div className="text-3xl font-bold text-primary mb-1">Up to 4</div>
                   <div className="text-sm text-gray-600">Competitive offers per vehicle</div>
                 </div>
                 <div className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg">
@@ -566,7 +566,7 @@ export default function Home() {
                 </li>
                 <li className="flex gap-3 items-start">
                   <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">Get up to 3 competitive offers per vehicle</span>
+                  <span className="text-gray-700">Get up to 4 competitive offers per vehicle</span>
                 </li>
                 <li className="flex gap-3 items-start">
                   <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
@@ -813,7 +813,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
               <h3 className="text-xl font-bold text-dark mb-3">How many dealer offers will I receive?</h3>
               <p className="text-gray-700 leading-relaxed">
-                You can receive up to 3 competitive offers per vehicle from different dealers. This gives you multiple options to compare and ensures you get the best deal available in your area.
+                You can receive up to 4 competitive offers per vehicle from different dealers. This gives you multiple options to compare and ensures you get the best deal available in your area.
               </p>
             </div>
 
@@ -861,7 +861,7 @@ export default function Home() {
             },
             {
               question: 'How many dealer offers will I receive?',
-              answer: 'You can receive up to 3 competitive offers per vehicle from different dealers. This gives you multiple options to compare and ensures you get the best deal available in your area.'
+              answer: 'You can receive up to 4 competitive offers per vehicle from different dealers. This gives you multiple options to compare and ensures you get the best deal available in your area.'
             },
             {
               question: 'What types of vehicles are available?',

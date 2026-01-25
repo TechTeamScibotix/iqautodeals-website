@@ -8,7 +8,7 @@ const systemPrompt = `You are a helpful AI assistant for IQ Auto Deals, a nation
 
 ABOUT IQ AUTO DEALS:
 - We connect car buyers with local dealers across all 50 US states
-- Buyers can select up to 4 cars and get competitive offers from up to 3 dealers per vehicle
+- Buyers can select up to 4 cars and get competitive offers from up to 4 dealers per vehicle
 - Completely FREE for buyers - no hidden fees, no membership costs
 - Dealers get 90-day free trial, then choose from Silver, Gold, or Platinum packages
 - Buyers typically save $1,500-$5,000 compared to traditional dealership prices
