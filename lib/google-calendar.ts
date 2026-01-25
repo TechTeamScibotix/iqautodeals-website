@@ -248,13 +248,34 @@ export async function createDemoBooking(params: {
 
   const event: CalendarEvent = {
     summary: `IQ Auto Deals Demo - ${params.dealershipName}`,
-    description: `Demo booking for IQ Auto Deals
+    description: `🎉 Welcome to IQ Auto Deals!
 
-Dealership: ${params.dealershipName}
-Email: ${params.email}
-Phone: ${params.phone}
+Hi ${params.dealershipName} Team,
 
-Booked via iqautodeals.com/for-dealers/book-demo`,
+We're excited to show you how IQ Auto Deals can transform your dealership's online presence and help you reach thousands of motivated car buyers nationwide!
+
+📋 WHAT TO EXPECT IN THIS DEMO:
+• See how our platform connects you with qualified buyers actively searching for vehicles
+• Learn how our unique "Deal List" feature lets buyers compare and receive competing offers
+• Discover how dealers like you are closing more deals with less hassle
+• Get answers to all your questions from our team
+
+📞 YOUR CONTACT INFO:
+• Dealership: ${params.dealershipName}
+• Email: ${params.email}
+• Phone: ${params.phone}
+
+🔗 JOIN THE MEETING:
+Click the Google Meet link below at your scheduled time. We recommend joining a few minutes early to ensure your audio/video is working.
+
+💡 PRO TIP: Have questions ready! We love helping dealerships maximize their success on our platform.
+
+We can't wait to meet you and show you why dealers across the country are choosing IQ Auto Deals!
+
+See you soon,
+The IQ Auto Deals Team
+📧 support@iqautodeals.com
+🌐 www.iqautodeals.com`,
     start: {
       dateTime: params.startTime,
       timeZone: 'America/New_York',
