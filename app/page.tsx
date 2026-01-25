@@ -146,8 +146,11 @@ export default function Home() {
 
             {/* Navigation Menu - cars.com style */}
             <nav className="hidden lg:flex gap-6 text-sm font-semibold">
-              <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
-                Cars for Sale
+              <Link href="/cars?condition=new" className="text-gray-300 hover:text-primary transition-colors">
+                New Vehicles
+              </Link>
+              <Link href="/cars?condition=used" className="text-gray-300 hover:text-primary transition-colors">
+                Used Vehicles
               </Link>
               <Link href="/for-dealers" className="text-gray-300 hover:text-primary transition-colors">
                 For Dealers

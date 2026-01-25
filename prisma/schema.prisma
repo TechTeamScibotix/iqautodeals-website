@@ -84,6 +84,7 @@ model Car {
   drivetrain      String?  // AWD, FWD, RWD, 4WD
   fuelType        String?  // Gasoline, Diesel, Hybrid, Electric
   engine          String?  // "2.5L 4-Cylinder", "3.5L V6"
+  condition       String?  // New, Used, Certified Pre-Owned
 
   dealer          User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   selectedCars    SelectedCar[]

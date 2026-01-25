@@ -140,6 +140,7 @@ export default function CarsPage() {
       if (search.make) params.append('make', search.make);
       if (search.model) params.append('model', search.model);
       if (search.state && search.state !== 'all') params.append('state', search.state);
+      if (search.condition && search.condition !== 'all') params.append('condition', search.condition);
       if (search.minPrice) params.append('minPrice', search.minPrice);
       if (search.maxPrice) params.append('maxPrice', search.maxPrice);
       if (search.zipCode) params.append('zipCode', search.zipCode);
@@ -345,7 +346,11 @@ export default function CarsPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Page Title */}
         <h1 className="text-3xl md:text-4xl font-bold text-dark mb-6">
-          Used Cars for Sale - Browse Quality Pre-Owned Vehicles
+          {search.condition === 'new'
+            ? 'New Vehicles for Sale - Browse New Cars from Dealers'
+            : search.condition === 'used'
+            ? 'Used Cars for Sale - Browse Quality Pre-Owned Vehicles'
+            : 'Cars for Sale - Browse New & Used Vehicles'}
         </h1>
 
         {/* Search Filters */}

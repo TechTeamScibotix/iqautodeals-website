@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
     const maxPrice = searchParams.get('maxPrice');
     const zipCode = searchParams.get('zipCode');
     const radius = searchParams.get('radius'); // Optional radius in miles (default: nationwide)
+    const condition = searchParams.get('condition'); // new, used
 
     // Get coordinates from zipcode if provided
     let userLat: number | null = null;
@@ -62,6 +63,11 @@ export async function GET(request: NextRequest) {
 
     if (make) where.make = { contains: make, mode: 'insensitive' };
     if (model) where.model = { contains: model, mode: 'insensitive' };
+
+    // Filter by condition (new/used)
+    if (condition && condition !== 'all') {
+      where.condition = { equals: condition, mode: 'insensitive' };
+    }
 
     // Price range filtering
     if (minPrice || maxPrice) {
