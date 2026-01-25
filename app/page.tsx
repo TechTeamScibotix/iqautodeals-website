@@ -111,6 +111,7 @@ export default function Home() {
     if (searchForm.model) params.append('model', searchForm.model);
     if (searchForm.state) params.append('state', searchForm.state);
     if (searchForm.fuelType) params.append('fuelType', searchForm.fuelType);
+    if (searchForm.zipCode) params.append('zipCode', searchForm.zipCode);
     router.push(`/cars?${params.toString()}`);
   };
 
@@ -277,6 +278,16 @@ export default function Home() {
                       </option>
                     ))}
                   </select>
+
+                  <input
+                    type="text"
+                    value={searchForm.zipCode}
+                    onChange={(e) => setSearchForm({ ...searchForm, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
+                    placeholder="Search by ZIP Code"
+                    aria-label="Search by ZIP code"
+                    maxLength={5}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                  />
                 </div>
 
                 {/* Fuel Type */}

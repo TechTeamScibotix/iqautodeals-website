@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone, Globe, ExternalLink } from 'lucide-react';
@@ -57,16 +57,18 @@ interface FilterOptions {
 
 export default function CarsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState({
-    make: '',
-    model: '',
-    state: 'all',  // Default to all states
-    condition: 'all', // new, used, or all
-    fuelType: 'all', // Gasoline, Diesel, Electric, Hybrid, Flex Fuel, or all
-    minPrice: '',
-    maxPrice: '',
+    make: searchParams.get('make') || '',
+    model: searchParams.get('model') || '',
+    state: searchParams.get('state') || 'all',
+    condition: searchParams.get('condition') || 'all',
+    fuelType: searchParams.get('fuelType') || 'all',
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    zipCode: searchParams.get('zipCode') || '',
   });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -139,6 +141,7 @@ export default function CarsPage() {
       if (search.state && search.state !== 'all') params.append('state', search.state);
       if (search.minPrice) params.append('minPrice', search.minPrice);
       if (search.maxPrice) params.append('maxPrice', search.maxPrice);
+      if (search.zipCode) params.append('zipCode', search.zipCode);
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
@@ -415,7 +418,7 @@ export default function CarsPage() {
             </select>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-5 gap-4">
             <select
               value={search.fuelType}
               onChange={(e) => handleFilterChange('fuelType', e.target.value)}
@@ -465,6 +468,16 @@ export default function CarsPage() {
                 className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
               />
             </div>
+
+            <input
+              type="text"
+              value={search.zipCode}
+              onChange={(e) => handleFilterChange('zipCode', e.target.value.replace(/\D/g, '').slice(0, 5))}
+              placeholder="Search by ZIP Code"
+              aria-label="Search by ZIP code"
+              maxLength={5}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
+            />
 
             <button
               onClick={loadCars}
