@@ -1215,7 +1215,7 @@ Webhooks will notify your system of important events in real-time:
 ### Technical Support
 
 **For API Integration Issues:**
-- Email: api-support@iqautodeals.com
+- Email: support@iqautodeals.com
 - Developer Portal: https://developers.iqautodeals.com
 - Response Time: 24 hours (business days)
 

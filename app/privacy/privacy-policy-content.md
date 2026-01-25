@@ -31,7 +31,7 @@ This Privacy Notice does not describe our collection, use, and disclosure of inf
 
 By using the Sites and the Services, you acknowledge that you have read and agree to this Privacy Notice and expressly consent to our data processing as described below, including its information collection. You additionally agree that you are subject to the IQ Auto Deals Terms and Conditions of Use.
 
-The Privacy Notice is divided into sections for your convenience. If you are a California resident, see our California Notice at Collection. Residents of Colorado, Connecticut, Delaware, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, New Hampshire, Nebraska, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah, and Virginia can find information provided pursuant to each state's data protection law in the supplemental privacy notice below. You may request that we not "sell" or "share" your Personal Information by contacting us at privacy@iqautodeals.com or calling 1-678-313-4597.
+The Privacy Notice is divided into sections for your convenience. If you are a California resident, see our California Notice at Collection. Residents of Colorado, Connecticut, Delaware, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, New Hampshire, Nebraska, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah, and Virginia can find information provided pursuant to each state's data protection law in the supplemental privacy notice below. You may request that we not "sell" or "share" your Personal Information by contacting us at support@iqautodeals.com or calling 1-678-313-4597.
 
 ---
 
@@ -252,7 +252,7 @@ To determine the appropriate retention period for Personal Information, we consi
 - **Analytics Data:** Subject to our analytics providers' retention policies
 
 **Requesting Data Deletion:**
-To request deletion of your Personal Information, please contact us at privacy@iqautodeals.com or call 1-678-313-4597. We will process your request in accordance with applicable law. Please note that certain information may be retained as required by law, for legitimate business purposes, or to complete transactions you have requested.
+To request deletion of your Personal Information, please contact us at support@iqautodeals.com or call 1-678-313-4597. We will process your request in accordance with applicable law. Please note that certain information may be retained as required by law, for legitimate business purposes, or to complete transactions you have requested.
 
 ---
 
@@ -260,7 +260,7 @@ To request deletion of your Personal Information, please contact us at privacy@i
 
 IQ Auto Deals does not knowingly collect or use any Personal Information from children under the age of 18. IQ Auto Deals does not knowingly provide any Personal Information, regardless of its source, to any third party for any purpose whatsoever from visitors younger than 18 years of age. No information should be submitted to IQ Auto Deals by visitors younger than 18 years old.
 
-If you are a parent or legal guardian and believe your child under 18 has given us Personal Information, you can email us at privacy@iqautodeals.com.
+If you are a parent or legal guardian and believe your child under 18 has given us Personal Information, you can email us at support@iqautodeals.com.
 
 ---
 
@@ -282,13 +282,13 @@ Most browsers accept cookies until you change your browser settings. If you do n
 You may disable the collection and use of your location data through browser, operating system, or device-level settings. Consent concerning use of location data may be withdrawn at any time by contacting our customer support team at any of the addresses provided below.
 
 ### Analytics Opt-Out
-- **PostHog:** You can request to opt out of PostHog tracking by contacting us at privacy@iqautodeals.com.
+- **PostHog:** You can request to opt out of PostHog tracking by contacting us at support@iqautodeals.com.
 - **Google Analytics:** You can opt out at https://tools.google.com/dlpage/gaoptout/
-- **All Analytics:** Contact us at privacy@iqautodeals.com to request complete opt-out from all analytics tracking.
+- **All Analytics:** Contact us at support@iqautodeals.com to request complete opt-out from all analytics tracking.
 
 Please note that the above rights are not unqualified; we may be entitled to refuse requests, wholly or partly, where exceptions under applicable law apply.
 
-You may make any of the above requests by emailing privacy@iqautodeals.com or calling us at 1-678-313-4597.
+You may make any of the above requests by emailing support@iqautodeals.com or calling us at 1-678-313-4597.
 
 ---
 
@@ -306,7 +306,7 @@ We have designated a person in charge of the protection of Personal Information.
 
 **Phone:** 1-678-313-4597
 
-**Email:** privacy@iqautodeals.com
+**Email:** support@iqautodeals.com
 
 **General Support:** support@iqautodeals.com
 
@@ -352,9 +352,9 @@ If you are a California resident, state law may provide you with additional righ
 - Inferences drawn from the above
 
 **How We "Sell" or "Share" Personal Information:**
-We may share certain categories of Personal Information with third parties for targeted advertising purposes, which may constitute a "sale" or "sharing" under California law. You can opt out by contacting us at privacy@iqautodeals.com or calling 1-678-313-4597.
+We may share certain categories of Personal Information with third parties for targeted advertising purposes, which may constitute a "sale" or "sharing" under California law. You can opt out by contacting us at support@iqautodeals.com or calling 1-678-313-4597.
 
-In addition, if you reside in California, you also have the right to ask us one time each year if we have disclosed Personal Information to third parties for their direct marketing purposes. To make a request, please send us an email at privacy@iqautodeals.com. Indicate in your message that you are a California resident making a "Shine the Light" inquiry.
+In addition, if you reside in California, you also have the right to ask us one time each year if we have disclosed Personal Information to third parties for their direct marketing purposes. To make a request, please send us an email at support@iqautodeals.com. Indicate in your message that you are a California resident making a "Shine the Light" inquiry.
 
 ---
 
@@ -403,7 +403,7 @@ The specific rights available to you depend on your state of residence. Please c
 
 ### Nevada
 
-If you are a Nevada resident, you have the right to request that we not sell your personal information. We do not currently sell personal information as defined under Nevada law. If you wish to submit such a request, please contact us at privacy@iqautodeals.com.
+If you are a Nevada resident, you have the right to request that we not sell your personal information. We do not currently sell personal information as defined under Nevada law. If you wish to submit such a request, please contact us at support@iqautodeals.com.
 
 ---
 
@@ -418,19 +418,19 @@ We may process, store, and transfer your Personal Information in and to a foreig
 By law you have the right to request access to and to correct the Personal Information that we hold about you. You also have the right to request that we provide you with a copy of your Personal Information in a structured and commonly used format.
 
 **Withdrawing Consent:**
-Where you have provided your consent to the collection, use, and transfer of your Personal Information, you may have the legal right to withdraw your consent under certain circumstances. To withdraw your consent, contact us at privacy@iqautodeals.com.
+Where you have provided your consent to the collection, use, and transfer of your Personal Information, you may have the legal right to withdraw your consent under certain circumstances. To withdraw your consent, contact us at support@iqautodeals.com.
 
 ---
 
 ### Other International Residents
 
-This Site and Services are intended for use solely in the United States (including its territories and commonwealths) and Canada by U.S. and Canadian residents. We make no claims that the Site and Services are appropriate for use outside of the United States or Canada. IQ Auto Deals does not knowingly collect or solicit Personal Information from residents of the European Union, United Kingdom, Switzerland, or any other jurisdiction other than the U.S. and Canada. If you believe that we may have any Personal Information from or about a non-U.S. or Canada resident, please email us at privacy@iqautodeals.com. No information should be submitted to IQ Auto Deals by any resident from outside of the U.S. or Canada.
+This Site and Services are intended for use solely in the United States (including its territories and commonwealths) and Canada by U.S. and Canadian residents. We make no claims that the Site and Services are appropriate for use outside of the United States or Canada. IQ Auto Deals does not knowingly collect or solicit Personal Information from residents of the European Union, United Kingdom, Switzerland, or any other jurisdiction other than the U.S. and Canada. If you believe that we may have any Personal Information from or about a non-U.S. or Canada resident, please email us at support@iqautodeals.com. No information should be submitted to IQ Auto Deals by any resident from outside of the U.S. or Canada.
 
 ---
 
 ### Exercising Your Rights
 
-Depending on where you live, the rights described in this supplement may apply to you. To exercise your rights compatible with applicable law, please submit a verifiable consumer request via 1-678-313-4597 or privacy@iqautodeals.com.
+Depending on where you live, the rights described in this supplement may apply to you. To exercise your rights compatible with applicable law, please submit a verifiable consumer request via 1-678-313-4597 or support@iqautodeals.com.
 
 **Verifiable Consumer Requests:**
 Your verifiable consumer request must provide sufficient information that allows us to reasonably verify you are the person about whom we collected information, and describe your request in sufficient detail that allows us to properly respond to it. We cannot respond to your request if we cannot verify your identity and confirm that the information relates to you.

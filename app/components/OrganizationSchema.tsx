@@ -79,7 +79,7 @@ export default function OrganizationSchema() {
       {
         '@type': 'ContactPoint',
         contactType: 'sales',
-        email: 'dealers@iqautodeals.com',
+        email: 'support@iqautodeals.com',
         availableLanguage: ['English'],
         areaServed: 'US',
       },

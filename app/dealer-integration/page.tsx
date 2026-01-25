@@ -381,7 +381,7 @@ export default function DealerIntegration() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-bold mb-4">Support</h3>
                 <ul className="space-y-2 text-gray-700">
-                  <li>Email: <a href="mailto:api-support@iqautodeals.com" className="text-primary hover:underline">api-support@iqautodeals.com</a></li>
+                  <li>Email: <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a></li>
                   <li>Response Time: 24 hours</li>
                   <li>Enterprise: 4 hour priority</li>
                 </ul>

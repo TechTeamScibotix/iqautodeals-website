@@ -96,7 +96,7 @@ export default function PrivacyPolicyPage() {
                 By using the Sites and the Services, you acknowledge that you have read and agree to this Privacy Notice and expressly consent to our data processing as described below, including its information collection. You additionally agree that you are subject to the IQ Auto Deals Terms and Conditions of Use.
               </p>
               <p className="text-gray-700">
-                The Privacy Notice is divided into sections for your convenience. If you are a California resident, see our California Notice at Collection. Residents of Colorado, Connecticut, Delaware, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, New Hampshire, Nebraska, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah, and Virginia can find information provided pursuant to each state's data protection law in the supplemental privacy notice below. You may request that we not "sell" or "share" your Personal Information by contacting us at privacy@iqautodeals.com or calling 1-678-313-4597.
+                The Privacy Notice is divided into sections for your convenience. If you are a California resident, see our California Notice at Collection. Residents of Colorado, Connecticut, Delaware, Indiana, Iowa, Kentucky, Maryland, Minnesota, Montana, New Hampshire, Nebraska, New Jersey, Oregon, Rhode Island, Tennessee, Texas, Utah, and Virginia can find information provided pursuant to each state's data protection law in the supplemental privacy notice below. You may request that we not "sell" or "share" your Personal Information by contacting us at support@iqautodeals.com or calling 1-678-313-4597.
               </p>
             </section>
 
@@ -307,14 +307,14 @@ export default function PrivacyPolicyPage() {
               </ul>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                 <p className="text-gray-700 font-medium">Requesting Data Deletion:</p>
-                <p className="text-gray-700">To request deletion of your Personal Information, please contact us at <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a> or call <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>. We will process your request in accordance with applicable law.</p>
+                <p className="text-gray-700">To request deletion of your Personal Information, please contact us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> or call <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>. We will process your request in accordance with applicable law.</p>
               </div>
             </section>
 
             {/* Section 9: Children */}
             <section id="children" className="mb-12">
               <h2 className="text-2xl font-bold text-dark border-b border-gray-200 pb-2">8. Children</h2>
-              <p className="text-gray-700">IQ Auto Deals does not knowingly collect or use any Personal Information from children under the age of 18. No information should be submitted to IQ Auto Deals by visitors younger than 18 years old. If you are a parent or legal guardian and believe your child under 18 has given us Personal Information, you can email us at <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a>.</p>
+              <p className="text-gray-700">IQ Auto Deals does not knowingly collect or use any Personal Information from children under the age of 18. No information should be submitted to IQ Auto Deals by visitors younger than 18 years old. If you are a parent or legal guardian and believe your child under 18 has given us Personal Information, you can email us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a>.</p>
             </section>
 
             {/* Section 10: External Links */}
@@ -335,11 +335,11 @@ export default function PrivacyPolicyPage() {
 
               <h3 className="text-xl font-semibold text-dark mt-6">Analytics Opt-Out</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-1">
-                <li>Contact us at <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a> to request opt-out from analytics tracking</li>
+                <li>Contact us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> to request opt-out from analytics tracking</li>
                 <li>Google Analytics: <a href="https://tools.google.com/dlpage/gaoptout/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">https://tools.google.com/dlpage/gaoptout/</a></li>
               </ul>
 
-              <p className="text-gray-700 mt-4">You may make any privacy requests by emailing <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a> or calling <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>.</p>
+              <p className="text-gray-700 mt-4">You may make any privacy requests by emailing <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> or calling <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>.</p>
             </section>
 
             {/* Section 12: Changes */}
@@ -361,7 +361,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-dark">Privacy Email:</p>
-                    <p className="text-gray-700"><a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a></p>
+                    <p className="text-gray-700"><a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a></p>
                   </div>
                   <div>
                     <p className="font-semibold text-dark">General Support:</p>
@@ -397,7 +397,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Right to Opt-Out:</strong> Opt-out of the sale or sharing of Personal Information</li>
                 <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising your rights</li>
               </ul>
-              <p className="text-gray-700 mt-4">You can opt out of the sale or sharing of your Personal Information by contacting us at <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a> or calling <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>.</p>
+              <p className="text-gray-700 mt-4">You can opt out of the sale or sharing of your Personal Information by contacting us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> or calling <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>.</p>
 
               <h3 className="text-xl font-semibold text-dark mt-6">Colorado, Connecticut, Virginia, and Other States</h3>
               <p className="text-gray-700">Residents of these states generally have the following rights:</p>
@@ -417,7 +417,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-gray-700">This Site and Services are intended for use solely in the United States and Canada. IQ Auto Deals does not knowingly collect Personal Information from residents of the European Union, United Kingdom, Switzerland, or other jurisdictions outside the U.S. and Canada.</p>
 
               <h3 className="text-xl font-semibold text-dark mt-6">Exercising Your Rights</h3>
-              <p className="text-gray-700">To exercise your rights, please contact us via <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a> or <a href="mailto:privacy@iqautodeals.com" className="text-primary hover:underline">privacy@iqautodeals.com</a>. We will respond within 45 days of receipt.</p>
+              <p className="text-gray-700">To exercise your rights, please contact us via <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a> or <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a>. We will respond within 45 days of receipt.</p>
             </section>
 
             {/* Effective Date */}

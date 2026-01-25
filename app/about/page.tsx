@@ -235,7 +235,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500 uppercase tracking-wide">Dealer Inquiries</dt>
-                  <dd className="text-lg font-semibold text-dark mt-1">dealers@iqautodeals.com</dd>
+                  <dd className="text-lg font-semibold text-dark mt-1">support@iqautodeals.com</dd>
                 </div>
               </dl>
             </div>
