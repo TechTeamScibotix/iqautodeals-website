@@ -146,6 +146,7 @@ function createEasternTimeSlot(dateStr: string, hour: number, minute: number): s
 /**
  * Get available time slots for demo booking
  * Returns slots for the next 14 days, 9 AM - 5 PM EST, 30-minute slots
+ * Checks both Google Calendar AND CentrixCalendarEvent for busy times
  */
 export async function getAvailableSlots(
   startDate?: Date,
@@ -186,8 +187,39 @@ export async function getAvailableSlots(
     );
 
     busyTimes = await getFreeBusy(calendarId, startISO, endISO);
+    console.log('[Book Demo] Google Calendar busy times:', busyTimes.length);
   } catch (error) {
-    console.error('[Book Demo] Failed to get busy times:', error);
+    console.error('[Book Demo] Failed to get Google Calendar busy times:', error);
+  }
+
+  // ALSO check CentrixCalendarEvent records (fallback/additional source)
+  // This ensures availability is accurate even if Google Calendar sync fails
+  try {
+    const centrixEvents = await prisma.centrixCalendarEvent.findMany({
+      where: {
+        status: 'SCHEDULED',
+        startTime: {
+          gte: startDay,
+          lt: endDay,
+        },
+      },
+      select: {
+        startTime: true,
+        endTime: true,
+      },
+    });
+
+    console.log('[Book Demo] Centrix events found:', centrixEvents.length);
+
+    // Add Centrix events to busy times
+    for (const event of centrixEvents) {
+      busyTimes.push({
+        start: event.startTime.toISOString(),
+        end: event.endTime.toISOString(),
+      });
+    }
+  } catch (error) {
+    console.error('[Book Demo] Failed to get Centrix calendar events:', error);
   }
 
   const results: { date: string; slots: TimeSlot[] }[] = [];
