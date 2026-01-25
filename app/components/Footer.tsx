@@ -481,9 +481,11 @@ export default function Footer() {
             <div>
               <h4 className="font-semibold text-white mb-3">Company</h4>
               <ul className="space-y-2">
+                <li><Link href="/about" className="text-gray-400 hover:text-white text-sm">About Us</Link></li>
                 <li><Link href="/locations" className="text-gray-400 hover:text-white text-sm">All Locations</Link></li>
                 <li><Link href="/models" className="text-gray-400 hover:text-white text-sm">All Models</Link></li>
-                <li><Link href="/forgot-password" className="text-gray-400 hover:text-white text-sm">Forgot Password</Link></li>
+                <li><Link href="/privacy" className="text-gray-400 hover:text-white text-sm">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-gray-400 hover:text-white text-sm">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
@@ -501,8 +503,15 @@ export default function Footer() {
                 />
               </div>
               <p className="text-gray-400 text-sm mt-1">Your trusted marketplace for quality used cars online</p>
+              <p className="text-gray-500 text-xs mt-1">A product of Scibotix Solutions LLC</p>
             </div>
-            <p className="text-gray-500 text-sm">&copy; 2025 IQ Auto Deals. All rights reserved.</p>
+            <div className="text-center md:text-right">
+              <p className="text-gray-500 text-sm">&copy; 2026 Scibotix Solutions LLC. All rights reserved.</p>
+              <div className="flex gap-4 mt-2 justify-center md:justify-end">
+                <Link href="/privacy" className="text-gray-500 hover:text-gray-300 text-xs">Privacy Policy</Link>
+                <Link href="/terms" className="text-gray-500 hover:text-gray-300 text-xs">Terms of Service</Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

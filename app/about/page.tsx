@@ -207,7 +207,7 @@ export default function AboutPage() {
               <dl className="grid md:grid-cols-2 gap-6">
                 <div>
                   <dt className="text-sm font-medium text-gray-500 uppercase tracking-wide">Legal Name</dt>
-                  <dd className="text-lg font-semibold text-dark mt-1">IQ Auto Deals LLC</dd>
+                  <dd className="text-lg font-semibold text-dark mt-1">Scibotix Solutions LLC (DBA IQ Auto Deals)</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-gray-500 uppercase tracking-wide">Founded</dt>
