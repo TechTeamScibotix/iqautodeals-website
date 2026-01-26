@@ -3,12 +3,12 @@ import { parse } from 'csv-parse/sync';
 import { prisma } from '@/lib/prisma';
 import { uploadVehiclePhotos } from '@/lib/sync/photo-uploader';
 
-// SFTP Configuration
+// SFTP Configuration - credentials from environment variables
 const SFTP_CONFIG = {
-  host: '137.184.82.172',
-  port: 22,
-  username: 'solera_turpin',
-  password: '2026ScibotixSftp',
+  host: process.env.DEALERSOCKET_SFTP_HOST || '',
+  port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
+  username: process.env.DEALERSOCKET_SFTP_USERNAME || '',
+  password: process.env.DEALERSOCKET_SFTP_PASSWORD || '',
 };
 
 // Path is relative to chroot (/home/solera_turpin)
