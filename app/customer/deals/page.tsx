@@ -389,8 +389,10 @@ export default function CustomerDeals() {
                                     console.error('Failed to parse photos:', e);
                                   }
                                   return (
-                                    <div className="flex items-center justify-center h-full bg-gray-100">
-                                      <Car className="w-12 h-12 text-gray-300" />
+                                    <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                                      <div className="bg-primary/90 text-white px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">
+                                        IN STOCK
+                                      </div>
                                     </div>
                                   );
                                 })()}

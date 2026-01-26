@@ -1,109 +1,96 @@
 'use client';
 
-import { useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
-import { Shield, Loader2, LogOut } from 'lucide-react';
-import Link from 'next/link';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { useState, useEffect } from 'react';
+import { Lock } from 'lucide-react';
 
-// Admin emails - in production, use environment variable
-const ADMIN_EMAILS = [
-  'techteam@scibotixsolutions.com',
-  'admin@iqautodeals.com',
-  'joe@scibotixsolutions.com',
-];
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  userType: string;
-}
-
-export default function AdminLayout({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const router = useRouter();
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in and is an admin
-    const storedUser = localStorage.getItem('user');
-
-    if (!storedUser) {
-      router.push('/login?redirect=/admin');
-      return;
+    // Check if already authenticated (must have both flag and token)
+    const adminAuth = sessionStorage.getItem('adminAuth');
+    const adminToken = sessionStorage.getItem('adminToken');
+    if (adminAuth === 'true' && adminToken) {
+      setIsAuthenticated(true);
     }
+    setChecking(false);
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
 
     try {
-      const userData = JSON.parse(storedUser) as User;
-      setUser(userData);
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
 
-      // Check if user email is in admin list
-      const isAdminUser = ADMIN_EMAILS.some(
-        email => email.toLowerCase() === userData.email.toLowerCase()
-      );
-
-      if (!isAdminUser) {
-        router.push('/');
-        return;
+      if (res.ok) {
+        const data = await res.json();
+        sessionStorage.setItem('adminAuth', 'true');
+        sessionStorage.setItem('adminToken', data.token);
+        setIsAuthenticated(true);
+      } else {
+        setError('Invalid password');
       }
-
-      setIsAdmin(true);
     } catch {
-      router.push('/login?redirect=/admin');
-      return;
+      setError('Authentication failed');
     }
-
-    setLoading(false);
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    router.push('/login');
   };
 
-  if (loading) {
+  if (checking) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
       </div>
     );
   }
 
-  if (!isAdmin) {
-    return null;
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <Lock className="w-8 h-8 text-blue-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Admin Access</h1>
+            <p className="text-gray-600 mt-2">Enter the admin password to continue</p>
+          </div>
+
+          <form onSubmit={handleLogin}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Admin password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              autoFocus
+            />
+
+            {error && (
+              <p className="mt-2 text-red-600 text-sm">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full mt-4 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Login
+            </button>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Admin Header */}
-      <header className="bg-gray-900 text-white shadow-lg h-20">
-        <div className="max-w-7xl mx-auto px-4 h-full flex justify-between items-center">
-          <div className="flex items-center gap-3 h-full">
-            <Link href="/admin" className="flex items-center h-full py-1">
-              <LogoWithBeam className="h-full" />
-            </Link>
-            <span className="text-xs text-gray-400 ml-2">Admin Portal</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-gray-400">{user?.email}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-red-600 rounded-lg transition"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
       {children}
     </div>
   );

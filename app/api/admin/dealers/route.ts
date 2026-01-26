@@ -1,39 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerApprovalEmail, sendDealerRejectionEmail } from '@/lib/email';
-import { isAdminEmail } from '@/lib/admin-auth';
 
-// Verify admin authentication
-async function verifyAdmin(request: NextRequest): Promise<{ isAdmin: boolean; error?: string }> {
-  // Get user email from authorization header (set by client)
-  const userEmail = request.headers.get('x-user-email');
+// Verify admin authentication via token
+function verifyAdmin(request: NextRequest): { isAdmin: boolean; error?: string } {
+  const token = request.headers.get('x-admin-token');
 
-  if (!userEmail) {
+  if (!token) {
     return { isAdmin: false, error: 'Authentication required' };
   }
 
-  // Verify user exists and is an admin
-  const user = await prisma.user.findUnique({
-    where: { email: userEmail.toLowerCase() },
-    select: { email: true },
-  });
-
-  if (!user) {
-    return { isAdmin: false, error: 'User not found' };
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    return { isAdmin: false, error: 'Admin not configured' };
   }
 
-  if (!isAdminEmail(user.email)) {
-    return { isAdmin: false, error: 'Admin access required' };
+  try {
+    const decoded = Buffer.from(token, 'base64').toString();
+    if (decoded === adminPassword) {
+      return { isAdmin: true };
+    }
+  } catch {
+    // Invalid token format
   }
 
-  return { isAdmin: true };
+  return { isAdmin: false, error: 'Invalid admin token' };
 }
 
 // Get all dealers (for admin dashboard)
 export async function GET(request: NextRequest) {
   try {
     // Verify admin access
-    const auth = await verifyAdmin(request);
+    const auth = verifyAdmin(request);
     if (!auth.isAdmin) {
       return NextResponse.json({ error: auth.error }, { status: 403 });
     }
@@ -68,6 +66,7 @@ export async function GET(request: NextRequest) {
         // Sync fields
         inventoryFeedUrl: true,
         inventoryFeedType: true,
+        dealerSocketFeedId: true,
         autoSyncEnabled: true,
         syncFrequencyDays: true,
         lastSyncAt: true,
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Verify admin access
-    const auth = await verifyAdmin(request);
+    const auth = verifyAdmin(request);
     if (!auth.isAdmin) {
       return NextResponse.json({ error: auth.error }, { status: 403 });
     }
@@ -112,6 +111,7 @@ export async function PATCH(request: NextRequest) {
     const allowedFields = [
       'inventoryFeedUrl',
       'inventoryFeedType',
+      'dealerSocketFeedId',
       'autoSyncEnabled',
       'syncFrequencyDays',
       'websiteUrl',
@@ -139,6 +139,7 @@ export async function PATCH(request: NextRequest) {
         businessName: true,
         inventoryFeedUrl: true,
         inventoryFeedType: true,
+        dealerSocketFeedId: true,
         autoSyncEnabled: true,
         syncFrequencyDays: true,
         lastSyncAt: true,
@@ -162,7 +163,7 @@ export async function PATCH(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     // Verify admin access
-    const auth = await verifyAdmin(request);
+    const auth = verifyAdmin(request);
     if (!auth.isAdmin) {
       return NextResponse.json({ error: auth.error }, { status: 403 });
     }

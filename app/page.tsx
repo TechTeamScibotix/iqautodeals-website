@@ -433,8 +433,11 @@ export default function Home() {
                             sizes="288px"
                           />
                         ) : (
-                          <div className="flex items-center justify-center h-full bg-gray-100">
-                            <Car className="w-16 h-16 text-gray-300" />
+                          <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                            <div className="bg-primary/90 text-white px-4 py-1.5 rounded-full text-sm font-bold tracking-wide shadow-lg">
+                              IN STOCK
+                            </div>
+                            <p className="text-gray-400 text-xs mt-1">Photos Coming Soon</p>
                           </div>
                         )}
                       </div>

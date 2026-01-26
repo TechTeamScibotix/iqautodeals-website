@@ -55,10 +55,12 @@ export async function downloadAndUploadPhoto(
 
     const finalFilename = `${filename}.${extension}`;
 
-    // Upload to Vercel Blob
+    // Upload to Vercel Blob (allow overwrite for re-syncs)
     const blob = await put(finalFilename, imageBlob, {
       access: 'public',
       contentType,
+      addRandomSuffix: false,
+      allowOverwrite: true,
     });
 
     return blob.url;

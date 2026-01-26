@@ -62,8 +62,11 @@ export default function CarPhotoGallery({ photos, carName }: CarPhotoGalleryProp
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <Car className="w-24 h-24 text-gray-300" />
+            <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+              <div className="bg-primary/90 text-white px-8 py-3 rounded-full text-xl font-bold tracking-wide shadow-lg">
+                IN STOCK
+              </div>
+              <p className="text-gray-400 text-sm mt-3">Photos Coming Soon</p>
             </div>
           )}
 

@@ -18,11 +18,10 @@ import {
 
 // Helper to get auth headers for admin API calls
 function getAuthHeaders(): HeadersInit {
-  const user = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const email = user ? JSON.parse(user).email : '';
+  const token = typeof window !== 'undefined' ? sessionStorage.getItem('adminToken') : null;
   return {
     'Content-Type': 'application/json',
-    'x-user-email': email,
+    'x-admin-token': token || '',
   };
 }
 
@@ -37,6 +36,7 @@ interface Dealer {
   verificationStatus: string | null;
   inventoryFeedUrl: string | null;
   inventoryFeedType: string | null;
+  dealerSocketFeedId: string | null;
   autoSyncEnabled: boolean;
   syncFrequencyDays: number;
   lastSyncAt: string | null;
@@ -73,6 +73,7 @@ export default function InventorySyncAdmin() {
   const [editForm, setEditForm] = useState({
     inventoryFeedUrl: '',
     inventoryFeedType: 'dealeron',
+    dealerSocketFeedId: '',
     autoSyncEnabled: false,
     syncFrequencyDays: 2,
   });
@@ -126,30 +127,51 @@ export default function InventorySyncAdmin() {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleTriggerSync = async (dealerId: string) => {
-    setSyncing(dealerId);
+  const handleTriggerSync = async (dealer: Dealer) => {
+    setSyncing(dealer.id);
     setMessage(null);
 
     try {
-      const res = await fetch('/api/sync', {
+      // Use DealerSocket sync endpoint for DealerSocket dealers
+      const isDealerSocket = dealer.inventoryFeedType === 'dealersocket' && dealer.dealerSocketFeedId;
+      const endpoint = isDealerSocket ? '/api/admin/inventory-sync' : '/api/sync';
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({ dealerId }),
+        body: JSON.stringify({ dealerId: dealer.id }),
       });
 
-      const data: SyncResult = await res.json();
+      const data = await res.json();
 
-      if (data.success && data.summary) {
-        const stats = data.summary.stats;
-        setMessage({
-          type: 'success',
-          text: `Sync complete! Added: ${stats.added}, Updated: ${stats.updated}, Sold: ${stats.markedSold}`,
-        });
+      if (isDealerSocket) {
+        // Handle DealerSocket sync response
+        if (data.success) {
+          const result = data.result;
+          setMessage({
+            type: 'success',
+            text: `Sync complete! Created: ${result.created}, Updated: ${result.updated}, Sold: ${result.markedSold}`,
+          });
+        } else {
+          setMessage({
+            type: 'error',
+            text: data.error || 'Sync failed',
+          });
+        }
       } else {
-        setMessage({
-          type: 'error',
-          text: data.error || data.summary?.error || 'Sync failed',
-        });
+        // Handle URL-based sync response
+        if (data.success && data.summary) {
+          const stats = data.summary.stats;
+          setMessage({
+            type: 'success',
+            text: `Sync complete! Added: ${stats.added}, Updated: ${stats.updated}, Sold: ${stats.markedSold}`,
+          });
+        } else {
+          setMessage({
+            type: 'error',
+            text: data.error || data.summary?.error || 'Sync failed',
+          });
+        }
       }
 
       loadDealers();
@@ -165,6 +187,7 @@ export default function InventorySyncAdmin() {
     setEditForm({
       inventoryFeedUrl: dealer.inventoryFeedUrl || '',
       inventoryFeedType: dealer.inventoryFeedType || 'dealeron',
+      dealerSocketFeedId: dealer.dealerSocketFeedId || '',
       autoSyncEnabled: dealer.autoSyncEnabled,
       syncFrequencyDays: dealer.syncFrequencyDays || 2,
     });
@@ -335,10 +358,10 @@ export default function InventorySyncAdmin() {
 
                     {/* Sync Now Button */}
                     <button
-                      onClick={() => handleTriggerSync(dealer.id)}
-                      disabled={syncing === dealer.id || !dealer.inventoryFeedUrl}
+                      onClick={() => handleTriggerSync(dealer)}
+                      disabled={syncing === dealer.id || (!dealer.inventoryFeedUrl && !dealer.dealerSocketFeedId)}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${
-                        dealer.inventoryFeedUrl
+                        dealer.inventoryFeedUrl || dealer.dealerSocketFeedId
                           ? 'bg-blue-600 text-white hover:bg-blue-700'
                           : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                       }`}
@@ -377,9 +400,17 @@ export default function InventorySyncAdmin() {
                 {expandedDealer === dealer.id && (
                   <div className="mt-4 pl-9 grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500">Feed URL</p>
+                      <p className="text-gray-500">Feed Type</p>
+                      <p className="font-medium capitalize">{dealer.inventoryFeedType || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Feed Source</p>
                       <p className="font-medium">
-                        {dealer.inventoryFeedUrl ? (
+                        {dealer.inventoryFeedType === 'dealersocket' ? (
+                          <span className="text-purple-600">
+                            SFTP Feed ID: {dealer.dealerSocketFeedId || 'Not configured'}
+                          </span>
+                        ) : dealer.inventoryFeedUrl ? (
                           <a
                             href={dealer.inventoryFeedUrl}
                             target="_blank"
@@ -393,10 +424,6 @@ export default function InventorySyncAdmin() {
                           <span className="text-gray-400">Not configured</span>
                         )}
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Feed Type</p>
-                      <p className="font-medium">{dealer.inventoryFeedType || 'N/A'}</p>
                     </div>
                     <div>
                       <p className="text-gray-500">Sync Frequency</p>
@@ -451,12 +478,33 @@ export default function InventorySyncAdmin() {
                           }
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         >
+                          <option value="dealersocket">DealerSocket (SFTP)</option>
                           <option value="dealeron">DealerOn</option>
                           <option value="dealer_com">Dealer.com</option>
                           <option value="xml_feed">XML Feed</option>
                           <option value="custom">Custom</option>
                         </select>
                       </div>
+                      {editForm.inventoryFeedType === 'dealersocket' && (
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            DealerSocket Feed ID
+                            <span className="text-gray-500 font-normal ml-2">(e.g., 11106)</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={editForm.dealerSocketFeedId}
+                            onChange={(e) =>
+                              setEditForm({ ...editForm, dealerSocketFeedId: e.target.value })
+                            }
+                            placeholder="Enter the SFTP feed ID"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            This is the filename (without .csv) on the SFTP server at 137.184.82.172
+                          </p>
+                        </div>
+                      )}
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Sync Frequency (days)

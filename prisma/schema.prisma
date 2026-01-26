@@ -39,12 +39,13 @@ model User {
 
   // Inventory sync fields (for dealers)
   inventoryFeedUrl   String?   // URL to scrape inventory from (e.g., dealer website)
-  inventoryFeedType  String?   // "dealeron", "dealer_com", "xml_feed", "custom"
+  inventoryFeedType  String?   // "dealeron", "dealer_com", "xml_feed", "dealersocket"
   autoSyncEnabled    Boolean   @default(false)
   syncFrequencyDays  Int       @default(2)  // How often to sync (default every 2 days)
   lastSyncAt         DateTime?
   lastSyncStatus     String?   // "success", "failed", "in_progress"
   lastSyncMessage    String?   // Error message or summary
+  dealerSocketFeedId String?   // DealerSocket feed ID (e.g., "11106") for SFTP inventory sync
 
   // Relations
   cars          Car[]

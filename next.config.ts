@@ -24,8 +24,24 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.turpindodgeofdubuque.net',
       },
+      // DealerSocket CDN images
+      {
+        protocol: 'https',
+        hostname: '*.dealersocket.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'inventory.dealersocket.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.dealersocket.com',
+      },
     ],
   },
+  // Externalize ssh2-sftp-client and native modules for server-side only
+  // These modules have native bindings that webpack cannot bundle
+  serverExternalPackages: ['ssh2-sftp-client', 'ssh2', 'cpu-features'],
 };
 
 export default nextConfig;
