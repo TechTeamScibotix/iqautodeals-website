@@ -62,6 +62,7 @@ export default function CarsPage() {
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState({
+    q: searchParams.get('q') || '', // Free-text search query
     make: searchParams.get('make') || '',
     model: searchParams.get('model') || '',
     state: searchParams.get('state') || 'all',
@@ -132,21 +133,25 @@ export default function CarsPage() {
     }
   }, [search.make, search.model, filterOptions.modelsByMake]);
 
-  // Reload when URL params change (e.g., clicking New Vehicles / Used Vehicles links)
+  // Reload when URL params change (e.g., clicking New Vehicles / Used Vehicles links, or search query)
   useEffect(() => {
+    const urlQ = searchParams.get('q') || '';
     const urlCondition = searchParams.get('condition') || 'all';
     const urlMake = searchParams.get('make') || '';
     const urlModel = searchParams.get('model') || '';
+    const urlZipCode = searchParams.get('zipCode') || '';
 
     // Update state and reload if URL params changed
     const newSearch = {
       ...search,
+      q: urlQ,
       condition: urlCondition,
       make: urlMake,
       model: urlModel,
+      zipCode: urlZipCode,
     };
 
-    if (urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model) {
+    if (urlQ !== search.q || urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model || urlZipCode !== search.zipCode) {
       setSearch(newSearch);
       loadCarsWithParams(newSearch);
     }
@@ -158,6 +163,7 @@ export default function CarsPage() {
     try {
       // Build query params
       const params = new URLSearchParams();
+      if (currentSearch.q) params.append('q', currentSearch.q); // Free-text search
       if (currentSearch.make) params.append('make', currentSearch.make);
       if (currentSearch.model) params.append('model', currentSearch.model);
       if (currentSearch.state && currentSearch.state !== 'all') params.append('state', currentSearch.state);
@@ -209,6 +215,7 @@ export default function CarsPage() {
     try {
       // Build query params
       const params = new URLSearchParams();
+      if (search.q) params.append('q', search.q); // Free-text search
       if (search.make) params.append('make', search.make);
       if (search.model) params.append('model', search.model);
       if (search.state && search.state !== 'all') params.append('state', search.state);
@@ -438,6 +445,19 @@ export default function CarsPage() {
             Browse thousands of vehicles. {!user && 'Sign up to request deals from dealers.'}
           </p>
 
+          {/* Free-text Search */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={search.q}
+              onChange={(e) => handleFilterChange('q', e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && loadCars()}
+              placeholder="Search by make, model, year, color, body type, VIN..."
+              aria-label="Search vehicles"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
+            />
+          </div>
+
           <div className="grid md:grid-cols-4 gap-4 mb-4">
             <select
               value={search.condition}
@@ -575,6 +595,20 @@ export default function CarsPage() {
           <h2 className="text-2xl font-bold text-dark">
             {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
           </h2>
+          {search.q && (
+            <p className="text-primary font-medium mt-1">
+              Search results for &quot;{search.q}&quot;
+              <button
+                onClick={() => {
+                  setSearch(prev => ({ ...prev, q: '' }));
+                  router.push('/cars');
+                }}
+                className="ml-2 text-gray-500 hover:text-gray-700 text-sm underline"
+              >
+                Clear search
+              </button>
+            </p>
+          )}
           {search.zipCode && filteredCars.length > 0 && (
             <p className="text-primary font-medium mt-1">
               Sorted by distance from ZIP code {search.zipCode}

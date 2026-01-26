@@ -66,6 +66,10 @@ export default function Home() {
     radius: '50',
   });
 
+  // Quick search state
+  const [quickSearch, setQuickSearch] = useState('');
+  const [searchCount, setSearchCount] = useState<number | null>(null);
+
   // Get models for selected make
   const availableModels = searchForm.make
     ? filterOptions.modelsByMake[searchForm.make.toUpperCase()] || []
@@ -107,13 +111,38 @@ export default function Home() {
   // Handle search submission
   const handleSearch = () => {
     const params = new URLSearchParams();
-    if (searchForm.make) params.append('make', searchForm.make);
-    if (searchForm.model) params.append('model', searchForm.model);
-    if (searchForm.state) params.append('state', searchForm.state);
-    if (searchForm.fuelType) params.append('fuelType', searchForm.fuelType);
+    if (quickSearch.trim()) {
+      params.append('q', quickSearch.trim());
+    } else {
+      if (searchForm.make) params.append('make', searchForm.make);
+      if (searchForm.model) params.append('model', searchForm.model);
+      if (searchForm.state) params.append('state', searchForm.state);
+      if (searchForm.fuelType) params.append('fuelType', searchForm.fuelType);
+      if (searchForm.condition) params.append('condition', searchForm.condition);
+    }
     if (searchForm.zipCode) params.append('zipCode', searchForm.zipCode);
     router.push(`/cars?${params.toString()}`);
   };
+
+  // Debounced search count when typing in quick search
+  useEffect(() => {
+    if (!quickSearch.trim()) {
+      setSearchCount(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/customer/search?q=${encodeURIComponent(quickSearch.trim())}`);
+        const data = await res.json();
+        setSearchCount(data.cars?.length || 0);
+      } catch (error) {
+        console.error('Failed to fetch search count:', error);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [quickSearch]);
 
   useEffect(() => {
     const fetchFeaturedCars = async () => {
@@ -213,7 +242,10 @@ export default function Home() {
                 <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                   <input
                     type="text"
-                    placeholder="Try great deals under $20k"
+                    value={quickSearch}
+                    onChange={(e) => setQuickSearch(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Try &quot;Jeep Wrangler&quot; or &quot;trucks under 30000&quot;"
                     aria-label="Search for vehicles"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
                   />
@@ -326,7 +358,10 @@ export default function Home() {
                   className="w-full bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 text-sm"
                 >
                   <Search className="w-4 h-4" />
-                  Show {filterOptions.totalCount > 0 ? filterOptions.totalCount.toLocaleString() : ''} Matches
+                  {quickSearch.trim()
+                    ? `Show ${searchCount !== null ? searchCount.toLocaleString() : '...'} Matches`
+                    : `Show ${filterOptions.totalCount > 0 ? filterOptions.totalCount.toLocaleString() : ''} Matches`
+                  }
                 </button>
               </div>
 

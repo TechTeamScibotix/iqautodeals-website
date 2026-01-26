@@ -18,6 +18,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q') || searchParams.get('query'); // Free-text search
     const make = searchParams.get('make');
     const model = searchParams.get('model');
     const state = searchParams.get('state');
@@ -59,6 +60,24 @@ export async function GET(request: NextRequest) {
     // Skip state filter if searching by zipcode (zipcode takes precedence)
     if (state && state !== 'all' && !zipCode) {
       where.state = state;
+    }
+
+    // Free-text search across multiple fields
+    if (query) {
+      const searchTerms = query.trim().split(/\s+/);
+
+      // Build OR conditions for each term to match against make, model, year, color, etc.
+      where.AND = searchTerms.map(term => ({
+        OR: [
+          { make: { contains: term, mode: 'insensitive' } },
+          { model: { contains: term, mode: 'insensitive' } },
+          { year: { equals: parseInt(term, 10) || 0 } },
+          { color: { contains: term, mode: 'insensitive' } },
+          { trim: { contains: term, mode: 'insensitive' } },
+          { bodyType: { contains: term, mode: 'insensitive' } },
+          { vin: { contains: term, mode: 'insensitive' } },
+        ],
+      }));
     }
 
     if (make) where.make = { contains: make, mode: 'insensitive' };
