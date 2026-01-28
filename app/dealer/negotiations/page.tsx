@@ -781,8 +781,11 @@ export default function DealerNegotiations() {
                                   console.error('Failed to parse photos:', e);
                                 }
                                 return (
-                                  <div className="flex items-center justify-center h-full text-4xl">
-                                    🚗
+                                  <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                                    <div className="bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-lg">
+                                      IN STOCK
+                                    </div>
+                                    <p className="text-gray-400 text-[10px] mt-1">Photos Coming Soon</p>
                                   </div>
                                 );
                               })()}
@@ -1170,8 +1173,11 @@ export default function DealerNegotiations() {
                                         console.error('Failed to parse photos:', e);
                                       }
                                       return (
-                                        <div className="flex items-center justify-center h-full text-4xl">
-                                          🚗
+                                        <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                                          <div className="bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-lg">
+                                            IN STOCK
+                                          </div>
+                                          <p className="text-gray-400 text-[10px] mt-1">Photos Coming Soon</p>
                                         </div>
                                       );
                                     })()}

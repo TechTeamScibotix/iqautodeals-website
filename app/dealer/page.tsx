@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings, Search, X, Sparkles, Loader2 } from 'lucide-react';
+import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings, Search, X, Sparkles, Loader2, Car } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { formatPrice } from '@/lib/format';
 
@@ -520,7 +520,7 @@ export default function DealerDashboard() {
         {/* Cars List */}
         {cars.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-6 md:p-8 text-center">
-            <div className="text-3xl md:text-4xl mb-3">🚗</div>
+            <Car className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3" />
             <h3 className="text-base md:text-lg font-semibold mb-2">No cars listed yet</h3>
             <p className="text-gray-600 mb-3 text-xs md:text-sm">Start listing your inventory to attract buyers</p>
             <Link
@@ -569,7 +569,14 @@ export default function DealerDashboard() {
                     } catch (e) {
                       console.error('Failed to parse photos:', e);
                     }
-                    return <div className="flex items-center justify-center h-full text-6xl">🚗</div>;
+                    return (
+                      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                        <div className="bg-primary/90 text-white px-4 py-1.5 rounded-full text-sm font-bold tracking-wide shadow-lg">
+                          IN STOCK
+                        </div>
+                        <p className="text-gray-400 text-xs mt-1">Photos Coming Soon</p>
+                      </div>
+                    );
                   })()}
                   {/* Tap hint overlay on mobile */}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
