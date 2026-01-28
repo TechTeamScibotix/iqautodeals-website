@@ -3,16 +3,34 @@ import { parse } from 'csv-parse/sync';
 import { prisma } from '@/lib/prisma';
 import { uploadVehiclePhotos } from '@/lib/sync/photo-uploader';
 
-// SFTP Configuration - credentials from environment variables
-const SFTP_CONFIG = {
-  host: process.env.DEALERSOCKET_SFTP_HOST || '',
-  port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
-  username: process.env.DEALERSOCKET_SFTP_USERNAME || '',
-  password: process.env.DEALERSOCKET_SFTP_PASSWORD || '',
-};
+// SFTP Configuration - read at call time so env vars are available after dotenv loads
+function getSftpConfig() {
+  return {
+    host: process.env.DEALERSOCKET_SFTP_HOST || '',
+    port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
+    username: process.env.DEALERSOCKET_SFTP_USERNAME || '',
+    password: process.env.DEALERSOCKET_SFTP_PASSWORD || '',
+    // OpenSSH 9.6 requires explicit algorithm negotiation with ssh2 library
+    algorithms: {
+      kex: [
+        'ecdh-sha2-nistp256',
+        'ecdh-sha2-nistp384',
+        'ecdh-sha2-nistp521',
+        'diffie-hellman-group-exchange-sha256',
+        'diffie-hellman-group14-sha256',
+      ],
+      serverHostKey: [
+        'ssh-ed25519',
+        'ecdsa-sha2-nistp256',
+        'rsa-sha2-512',
+        'rsa-sha2-256',
+      ],
+    },
+  };
+}
 
-// Path is relative to chroot (/home/solera_turpin)
-const UPLOADS_PATH = '/uploads';
+// Path relative to home directory
+const UPLOADS_PATH = 'uploads';
 
 // DealerSocket CSV field mapping
 interface DealerSocketVehicle {
@@ -211,7 +229,7 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
 
     // Connect to SFTP
     console.log(`Connecting to SFTP server...`);
-    await sftp.connect(SFTP_CONFIG);
+    await sftp.connect(getSftpConfig());
 
     // Read CSV file
     const feedPath = `${UPLOADS_PATH}/${dealer.dealerSocketFeedId}.csv`;
@@ -365,7 +383,7 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
 export async function listAvailableFeeds(): Promise<string[]> {
   const sftp = new SftpClient();
   try {
-    await sftp.connect(SFTP_CONFIG);
+    await sftp.connect(getSftpConfig());
     const files = await sftp.list(UPLOADS_PATH);
     return files
       .filter(f => f.name.endsWith('.csv'))

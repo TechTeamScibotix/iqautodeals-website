@@ -3,16 +3,34 @@ import { parse } from 'csv-parse/sync';
 import { prisma } from '@/lib/prisma';
 import { uploadVehiclePhotos } from '@/lib/sync/photo-uploader';
 
-// SFTP Configuration - Lexus Nashville uses its own chrooted user on the same SFTP host
-const SFTP_CONFIG = {
-  host: process.env.DEALERSOCKET_SFTP_HOST || '',
-  port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
-  username: process.env.LEXUS_SFTP_USERNAME || '',
-  password: process.env.LEXUS_SFTP_PASSWORD || '',
-};
+// SFTP Configuration - read at call time so env vars are available after dotenv loads
+function getSftpConfig() {
+  return {
+    host: process.env.DEALERSOCKET_SFTP_HOST || '',
+    port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
+    username: process.env.LEXUS_SFTP_USERNAME || '',
+    password: process.env.LEXUS_SFTP_PASSWORD || '',
+    // OpenSSH 9.6 requires explicit algorithm negotiation with ssh2 library
+    algorithms: {
+      kex: [
+        'ecdh-sha2-nistp256',
+        'ecdh-sha2-nistp384',
+        'ecdh-sha2-nistp521',
+        'diffie-hellman-group-exchange-sha256',
+        'diffie-hellman-group14-sha256',
+      ],
+      serverHostKey: [
+        'ssh-ed25519',
+        'ecdsa-sha2-nistp256',
+        'rsa-sha2-512',
+        'rsa-sha2-256',
+      ],
+    },
+  };
+}
 
-// Path is relative to chroot (/home/lexus_MP12861)
-const UPLOADS_PATH = '/uploads';
+// Path relative to home directory (user is not chrooted)
+const UPLOADS_PATH = 'uploads';
 
 // Lexus CSV field mapping
 interface LexusCsvVehicle {
@@ -208,7 +226,7 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
 
     // Connect to SFTP
     console.log(`[Lexus Sync] Connecting to SFTP server for ${dealer.businessName}...`);
-    await sftp.connect(SFTP_CONFIG);
+    await sftp.connect(getSftpConfig());
 
     // Read CSV file - filename format: lexus_MP12861_inventory.csv
     const feedPath = `${UPLOADS_PATH}/${dealer.dealerSocketFeedId}_inventory.csv`;
