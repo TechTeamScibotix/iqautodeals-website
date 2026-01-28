@@ -18,13 +18,13 @@ function getSftpConfig() {
         'ecdh-sha2-nistp521',
         'diffie-hellman-group-exchange-sha256',
         'diffie-hellman-group14-sha256',
-      ],
+      ] as any,
       serverHostKey: [
         'ssh-ed25519',
         'ecdsa-sha2-nistp256',
         'rsa-sha2-512',
         'rsa-sha2-256',
-      ],
+      ] as any,
     },
   };
 }
