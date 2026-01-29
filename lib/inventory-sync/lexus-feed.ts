@@ -29,8 +29,11 @@ function getSftpConfig() {
   };
 }
 
-// Path relative to home directory (user is not chrooted)
-const UPLOADS_PATH = 'uploads';
+// Absolute path template — each dealer has its own home dir on the shared SFTP server
+// e.g. /home/lexus_MP12861/uploads/lexus_MP12861_inventory.csv
+function getFeedPath(feedId: string): string {
+  return `/home/${feedId}/uploads/${feedId}_inventory.csv`;
+}
 
 // Lexus CSV field mapping
 interface LexusCsvVehicle {
@@ -167,6 +170,7 @@ function getCoordinatesForDealer(city: string, state: string): { latitude: numbe
     'tampa-fl': { lat: 27.9506, lng: -82.4572 },
     'madison-wi': { lat: 43.0731, lng: -89.4012 },
     'nashville-tn': { lat: 36.1627, lng: -86.7816 },
+    'brentwood-tn': { lat: 36.0331, lng: -86.7828 },
   };
 
   const key = `${city.toLowerCase().trim()}-${state.toLowerCase().trim()}`;
@@ -228,8 +232,8 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
     console.log(`[Lexus Sync] Connecting to SFTP server for ${dealer.businessName}...`);
     await sftp.connect(getSftpConfig());
 
-    // Read CSV file - filename format: lexus_MP12861_inventory.csv
-    const feedPath = `${UPLOADS_PATH}/${dealer.dealerSocketFeedId}_inventory.csv`;
+    // Read CSV file via absolute path on the shared SFTP server
+    const feedPath = getFeedPath(dealer.dealerSocketFeedId);
     console.log(`[Lexus Sync] Reading feed file: ${feedPath}`);
 
     const exists = await sftp.exists(feedPath);
