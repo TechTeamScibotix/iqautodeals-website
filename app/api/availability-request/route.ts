@@ -4,6 +4,52 @@ import { sendDealerAvailabilityRequestNotification } from '@/lib/email';
 
 const prisma = new PrismaClient();
 
+// Webhook configuration for Scibotix Solutions integration
+const DEALERHUB_WEBHOOK_URL = process.env.DEALERHUB_AVAILABILITY_WEBHOOK_URL || 'https://scibotixsolutions.com/api/webhooks/iqautodeals/availability-request';
+const WEBHOOK_SECRET = process.env.IQAUTODEALS_WEBHOOK_SECRET || 'iq-dealerhub-sync-2024';
+
+// Notify Scibotix Solutions of new availability request (fire and forget)
+async function notifyDealerHub(
+  dealerId: string,
+  requestId: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  phone: string,
+  zipCode: string,
+  comments: string | null,
+  car: { carId: string; vin: string; year: number; make: string; model: string; price: number }
+) {
+  try {
+    const response = await fetch(DEALERHUB_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-webhook-secret': WEBHOOK_SECRET,
+      },
+      body: JSON.stringify({
+        dealerId,
+        requestId,
+        firstName,
+        lastName,
+        email,
+        phone,
+        zipCode,
+        comments,
+        car,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('DealerHub availability webhook failed:', response.status, await response.text());
+    } else {
+      console.log('DealerHub availability webhook success:', await response.json());
+    }
+  } catch (error) {
+    console.error('DealerHub availability webhook error:', error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
@@ -96,6 +142,26 @@ export async function POST(request: NextRequest) {
       // Log email error but don't fail the request
       console.error(`[Availability Request] Failed to send email to dealer:`, emailError);
     }
+
+    // Notify Scibotix Solutions (fire and forget - don't block the response)
+    notifyDealerHub(
+      dealerId,
+      availabilityRequest.id,
+      firstName,
+      lastName,
+      email,
+      phone,
+      zipCode,
+      comments || null,
+      {
+        carId,
+        vin: car.vin,
+        year: car.year,
+        make: car.make,
+        model: car.model,
+        price: car.salePrice,
+      }
+    );
 
     return NextResponse.json({
       success: true,
