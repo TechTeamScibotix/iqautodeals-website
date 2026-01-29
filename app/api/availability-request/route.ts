@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             email: true,
+            notificationEmail: true,
             name: true,
             businessName: true,
             showCustomMessage: true,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
     // Send email notification to dealer
     try {
       await sendDealerAvailabilityRequestNotification(
-        car.dealer.email,
+        car.dealer.notificationEmail || car.dealer.email,
         car.dealer.businessName || car.dealer.name || 'Dealer',
         {
           year: car.year,

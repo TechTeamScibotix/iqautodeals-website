@@ -25,8 +25,10 @@ export default function OrganizationSchema() {
       '@type': 'Place',
       address: {
         '@type': 'PostalAddress',
-        addressLocality: 'Atlanta',
-        addressRegion: 'GA',
+        streetAddress: '345 W Washington Ave Ste 301',
+        addressLocality: 'Madison',
+        addressRegion: 'WI',
+        postalCode: '53703',
         addressCountry: 'US',
       },
     },

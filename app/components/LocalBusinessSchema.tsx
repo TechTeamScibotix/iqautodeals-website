@@ -27,10 +27,10 @@ export default function LocalBusinessSchema() {
     // Headquarters address (not a car lot)
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '123 Auto Plaza',
-      addressLocality: 'Atlanta',
-      addressRegion: 'GA',
-      postalCode: '30301',
+      streetAddress: '345 W Washington Ave Ste 301',
+      addressLocality: 'Madison',
+      addressRegion: 'WI',
+      postalCode: '53703',
       addressCountry: 'US',
     },
     // Service area: NATIONWIDE

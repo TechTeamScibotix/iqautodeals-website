@@ -61,6 +61,19 @@ export async function PUT(
       photos,
     } = body;
 
+    // Check if description is being changed (Agentix SEO or manual edit)
+    // so the cron sync knows not to overwrite it
+    let seoDescriptionGenerated: boolean | undefined;
+    if (description !== undefined) {
+      const existing = await prisma.car.findUnique({
+        where: { id: carId },
+        select: { description: true },
+      });
+      if (existing && description !== existing.description) {
+        seoDescriptionGenerated = true;
+      }
+    }
+
     // Update the car
     const updatedCar = await prisma.car.update({
       where: { id: carId },
@@ -80,6 +93,7 @@ export async function PUT(
         latitude,
         longitude,
         photos,
+        ...(seoDescriptionGenerated !== undefined && { seoDescriptionGenerated }),
       },
     });
 

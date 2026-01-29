@@ -253,9 +253,9 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
     // Get existing VINs for this dealer
     const existingCars = await prisma.car.findMany({
       where: { dealerId },
-      select: { id: true, vin: true },
+      select: { id: true, vin: true, seoDescriptionGenerated: true },
     });
-    const existingVinMap = new Map(existingCars.map(c => [c.vin, c.id]));
+    const existingVinMap = new Map(existingCars.map(c => [c.vin, { id: c.id, seoDescriptionGenerated: c.seoDescriptionGenerated }]));
     const feedVins = new Set(vehicles.map(v => v.VIN));
 
     // Use city/state from CSV if available, otherwise fall back to dealer record
@@ -314,10 +314,15 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
         };
 
         if (existingVinMap.has(vehicle.VIN)) {
-          // Update existing
+          // Update existing — preserve description if it was customized via Agentix SEO or manual edit
+          const existing = existingVinMap.get(vehicle.VIN)!;
+          const updateData = { ...carData };
+          if (existing.seoDescriptionGenerated) {
+            delete (updateData as any).description;
+          }
           await prisma.car.update({
-            where: { id: existingVinMap.get(vehicle.VIN) },
-            data: carData,
+            where: { id: existing.id },
+            data: updateData,
           });
           result.updated++;
         } else {
@@ -333,11 +338,11 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
     }
 
     // Mark vehicles not in feed as sold
-    for (const [vin, carId] of existingVinMap) {
+    for (const [vin, existing] of existingVinMap) {
       if (!feedVins.has(vin)) {
         try {
           await prisma.car.update({
-            where: { id: carId },
+            where: { id: existing.id },
             data: {
               status: 'sold',
               statusChangedAt: new Date(),

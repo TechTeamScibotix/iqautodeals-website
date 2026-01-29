@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare } from 'lucide-react';
+import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare, Mail } from 'lucide-react';
 
 export default function DealerSettings() {
   const router = useRouter();
@@ -15,6 +15,7 @@ export default function DealerSettings() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    notificationEmail: '',
     businessName: '',
     websiteUrl: '',
     showCustomMessage: false,
@@ -55,6 +56,7 @@ export default function DealerSettings() {
         setFormData({
           name: data.user.name || '',
           phone: data.user.phone || '',
+          notificationEmail: data.user.notificationEmail || '',
           businessName: data.user.businessName || '',
           websiteUrl: data.user.websiteUrl || '',
           showCustomMessage: data.user.showCustomMessage || false,
@@ -223,6 +225,32 @@ export default function DealerSettings() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Your website will be linked on all your vehicle listings for SEO benefits
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Email */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 text-secondary">
+              <Mail className="w-5 h-5" />
+              Notification Email
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address for Notifications
+                </label>
+                <input
+                  type="email"
+                  value={formData.notificationEmail}
+                  onChange={(e) => setFormData({ ...formData, notificationEmail: e.target.value })}
+                  placeholder={user?.email || 'notifications@yourdealership.com'}
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Customer notifications (availability requests, deal requests, offer declines, cancellations) will be sent to this email instead of your login email. Leave blank to use your login email.
                 </p>
               </div>
             </div>

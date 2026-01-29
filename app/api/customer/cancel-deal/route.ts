@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
               select: {
                 id: true,
                 email: true,
+                notificationEmail: true,
                 name: true,
                 businessName: true,
               },
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (dealer?.email) {
       sendDealerCustomerCancelledNotification(
-        dealer.email,
+        dealer.notificationEmail || dealer.email,
         dealer.businessName || dealer.name,
         customerName,
         {

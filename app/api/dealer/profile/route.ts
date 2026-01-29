@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
         email: true,
         name: true,
         phone: true,
+        notificationEmail: true,
         businessName: true,
         websiteUrl: true,
         showCustomMessage: true,
@@ -56,6 +57,7 @@ export async function PUT(request: NextRequest) {
     const allowedFields = [
       'name',
       'phone',
+      'notificationEmail',
       'businessName',
       'websiteUrl',
       'showCustomMessage',
@@ -88,6 +90,7 @@ export async function PUT(request: NextRequest) {
         email: true,
         name: true,
         phone: true,
+        notificationEmail: true,
         businessName: true,
         websiteUrl: true,
         showCustomMessage: true,

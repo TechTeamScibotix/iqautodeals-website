@@ -146,6 +146,7 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             email: true,
+            notificationEmail: true,
             name: true,
             businessName: true,
           },
@@ -182,7 +183,7 @@ export async function POST(request: NextRequest) {
       if (car.dealer?.id) {
         if (!carsByDealer.has(car.dealer.id)) {
           carsByDealer.set(car.dealer.id, {
-            dealerEmail: car.dealer.email,
+            dealerEmail: car.dealer.notificationEmail || car.dealer.email,
             dealerName: car.dealer.businessName || car.dealer.name || 'Dealer',
             cars: [],
           });

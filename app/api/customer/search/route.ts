@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
 
     const where: any = {
       status: 'active',
+      // Only show cars that have photos
+      photos: { not: '[]' },
       // Only show cars from approved dealers
       dealer: {
         verificationStatus: 'approved',

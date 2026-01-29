@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
           select: {
             id: true,
             email: true,
+            notificationEmail: true,
             name: true,
             businessName: true,
           },
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
     const car = negotiation.selectedCar.car;
 
     sendDealerOfferDeclinedNotification(
-      negotiation.dealer.email,
+      negotiation.dealer.notificationEmail || negotiation.dealer.email,
       negotiation.dealer.businessName || negotiation.dealer.name,
       customerName,
       {

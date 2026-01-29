@@ -10,6 +10,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
+          photos: { not: '[]' },
           dealer: { verificationStatus: 'approved' },
         },
         select: { make: true },
@@ -21,6 +22,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
+          photos: { not: '[]' },
           dealer: { verificationStatus: 'approved' },
         },
         select: { year: true },
@@ -32,6 +34,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
+          photos: { not: '[]' },
           dealer: { verificationStatus: 'approved' },
         },
         select: { state: true },
@@ -43,6 +46,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
+          photos: { not: '[]' },
           dealer: { verificationStatus: 'approved' },
         },
         select: { fuelType: true },
@@ -55,6 +59,7 @@ export async function GET() {
     const modelsRaw = await prisma.car.findMany({
       where: {
         status: 'active',
+        photos: { not: '[]' },
         dealer: { verificationStatus: 'approved' },
       },
       select: { make: true, model: true },
@@ -78,6 +83,7 @@ export async function GET() {
     const totalCount = await prisma.car.count({
       where: {
         status: 'active',
+        photos: { not: '[]' },
         dealer: { verificationStatus: 'approved' },
       },
     });
@@ -86,6 +92,7 @@ export async function GET() {
     const priceStats = await prisma.car.aggregate({
       where: {
         status: 'active',
+        photos: { not: '[]' },
         dealer: { verificationStatus: 'approved' },
         salePrice: { gt: 0 },
       },

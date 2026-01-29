@@ -10,6 +10,7 @@ export async function GET() {
     const cars = await prisma.car.findMany({
       where: {
         status: 'active',
+        photos: { not: '[]' },
         salePrice: { gt: 0 },
         dealer: {
           verificationStatus: 'approved',

@@ -25,6 +25,7 @@ model User {
   verificationNote   String?  // Admin note for rejection reason
 
   // Dealer specific fields
+  notificationEmail   String?   // Override email for customer notifications (availability, deals, offers)
   businessName        String?
   websiteUrl          String?   // Dealer's website URL for SEO backlinks
   showCustomMessage   Boolean   @default(false)  // Toggle for custom availability message
@@ -79,6 +80,7 @@ model Car {
   createdAt       DateTime @default(now())
 
   // SEO fields
+  seoDescriptionGenerated Boolean @default(false)  // True when description was set via Agentix SEO or manual edit; sync will not overwrite
   slug            String?  @unique  // SEO-friendly URL: "2022-toyota-camry-atlanta-ga"
   bodyType        String?  // SUV, Sedan, Truck, Coupe, etc.
   trim            String?  // LE, XLE, Limited, etc.
