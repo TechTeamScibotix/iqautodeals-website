@@ -19,6 +19,7 @@ import { formatPrice } from '@/lib/format';
 
 interface Car {
   id: string;
+  slug?: string;
   make: string;
   model: string;
   year: number;
@@ -28,8 +29,10 @@ interface Car {
   state: string;
   salePrice: number;
   photos: string;
+  fuelType?: string;
   isDemo?: boolean;
   dealerId: string;
+  distance?: number | null;
   dealer: {
     businessName: string;
   };
@@ -50,24 +53,52 @@ export default function CustomerDashboard() {
   const [cars, setCars] = useState<Car[]>([]);
   const [selectedCars, setSelectedCars] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState({ make: '', model: '', state: '' });
+  const [search, setSearch] = useState({
+    q: '',
+    make: '',
+    model: '',
+    state: 'all',
+    condition: 'all',
+    fuelType: 'all',
+    minPrice: '',
+    maxPrice: '',
+    zipCode: '',
+  });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: Car; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [dealStatus, setDealStatus] = useState<DealStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<Car | null>(null);
-  const [availableStates, setAvailableStates] = useState<string[]>([]);
+
+  // Dynamic filter options from database
+  const [filterOptions, setFilterOptions] = useState<{
+    makes: string[];
+    states: string[];
+    fuelTypes: string[];
+    modelsByMake: Record<string, string[]>;
+  }>({
+    makes: [],
+    states: [],
+    fuelTypes: [],
+    modelsByMake: {},
+  });
+
+  // Get models for selected make
+  const availableModels = search.make
+    ? filterOptions.modelsByMake[search.make.toUpperCase()] || []
+    : [];
 
   const loadFilters = async () => {
     try {
       const res = await fetch('/api/filters');
       const data = await res.json();
-      if (data.states && data.states.length > 0) {
-        setAvailableStates(data.states);
-        // Set default state to first available if current default not in list
-        if (!data.states.includes(search.state)) {
-          setSearch(prev => ({ ...prev, state: data.states[0] }));
-        }
+      if (data.makes) {
+        setFilterOptions({
+          makes: data.makes || [],
+          states: data.states || [],
+          fuelTypes: data.fuelTypes || [],
+          modelsByMake: data.modelsByMake || {},
+        });
       }
     } catch (error) {
       console.error('Failed to load filters:', error);
@@ -99,22 +130,32 @@ export default function CustomerDashboard() {
 
     setUser(parsed);
     loadFilters();
+    loadCars();
     loadDealStatus(parsed.id);
   }, [router, loadDealStatus]);
 
-  // Load cars when search state changes (after filters are loaded)
+  // Reset model when make changes
   useEffect(() => {
-    if (search.state) {
-      loadCars();
+    if (search.make && search.model) {
+      const models = filterOptions.modelsByMake[search.make.toUpperCase()] || [];
+      if (!models.includes(search.model)) {
+        setSearch((prev) => ({ ...prev, model: '' }));
+      }
     }
-  }, [search.state]);
+  }, [search.make, search.model, filterOptions.modelsByMake]);
 
   const loadCars = async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams();
+      if (search.q) params.append('q', search.q);
       if (search.make) params.append('make', search.make);
       if (search.model) params.append('model', search.model);
-      if (search.state) params.append('state', search.state);
+      if (search.state && search.state !== 'all') params.append('state', search.state);
+      if (search.condition && search.condition !== 'all') params.append('condition', search.condition);
+      if (search.minPrice) params.append('minPrice', search.minPrice);
+      if (search.maxPrice) params.append('maxPrice', search.maxPrice);
+      if (search.zipCode) params.append('zipCode', search.zipCode);
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
@@ -130,6 +171,14 @@ export default function CustomerDashboard() {
   const existingDealCount = dealStatus?.currentCount || 0;
   const totalSlotsUsed = existingDealCount + selectedCars.size;
   const remainingSlots = 4 - totalSlotsUsed;
+
+  // Client-side filtering for additional refinement
+  const filteredCars = cars.filter(car => {
+    const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
+    const minPriceMatch = !search.minPrice || car.salePrice >= parseInt(search.minPrice, 10);
+    const maxPriceMatch = !search.maxPrice || car.salePrice <= parseInt(search.maxPrice, 10);
+    return fuelTypeMatch && minPriceMatch && maxPriceMatch;
+  });
 
   const toggleCar = (carId: string) => {
     // Check if car is already in an existing deal
@@ -395,44 +444,140 @@ export default function CustomerDashboard() {
         <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-border">
           <h2 className="text-lg font-bold mb-3 flex items-center gap-2 text-dark">
             <Search className="w-5 h-5 text-primary" />
-            Search Available Vehicles
+            Search Inventory
           </h2>
-          <div className="grid md:grid-cols-4 gap-3">
+          <p className="text-sm text-gray-600 mb-3">
+            Browse vehicles and add up to 4 to your deal request.
+          </p>
+
+          {/* Free-text Search */}
+          <div className="mb-3">
             <input
               type="text"
-              placeholder="Make (e.g., Toyota)"
-              value={search.make}
-              onChange={(e) => setSearch({ ...search, make: e.target.value })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+              value={search.q}
+              onChange={(e) => setSearch({ ...search, q: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && loadCars()}
+              placeholder="Search by make, model, year, color, body type, VIN..."
+              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
             />
-            <input
-              type="text"
-              placeholder="Model (e.g., Camry)"
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-3 mb-3">
+            <select
+              value={search.condition}
+              onChange={(e) => setSearch({ ...search, condition: e.target.value })}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+            >
+              <option value="all">New/Used</option>
+              <option value="new">New</option>
+              <option value="used">Used</option>
+            </select>
+
+            <select
+              value={search.make}
+              onChange={(e) => setSearch({ ...search, make: e.target.value, model: '' })}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+            >
+              <option value="">All Makes ({filterOptions.makes.length})</option>
+              {filterOptions.makes.map((make) => (
+                <option key={make} value={make}>
+                  {make}
+                </option>
+              ))}
+            </select>
+
+            <select
               value={search.model}
               onChange={(e) => setSearch({ ...search, model: e.target.value })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            />
+              disabled={!search.make}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm disabled:bg-gray-100 disabled:text-gray-400"
+            >
+              <option value="">
+                {search.make ? `All ${search.make} Models (${availableModels.length})` : 'Select Make First'}
+              </option>
+              {availableModels.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </select>
+
             <select
               value={search.state}
               onChange={(e) => setSearch({ ...search, state: e.target.value })}
               className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
             >
-              {availableStates.length > 0 ? (
-                availableStates.map((state) => (
-                  <option key={state} value={state}>
-                    {state}
+              <option value="all">All States ({filterOptions.states.length})</option>
+              {filterOptions.states.map((state) => (
+                <option key={state} value={state}>
+                  {state}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid md:grid-cols-5 gap-3">
+            <select
+              value={search.fuelType}
+              onChange={(e) => setSearch({ ...search, fuelType: e.target.value })}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+            >
+              <option value="all">All Fuel Types</option>
+              {filterOptions.fuelTypes.length > 0 ? (
+                filterOptions.fuelTypes.map((fuelType) => (
+                  <option key={fuelType} value={fuelType}>
+                    {fuelType}
                   </option>
                 ))
               ) : (
-                <option value="">Loading...</option>
+                <>
+                  <option value="Gasoline">Gasoline</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Electric">Electric</option>
+                  <option value="Hybrid">Hybrid</option>
+                </>
               )}
             </select>
+
+            <div className="relative">
+              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+              <input
+                type="number"
+                value={search.minPrice}
+                onChange={(e) => setSearch({ ...search, minPrice: e.target.value })}
+                placeholder="Min Price"
+                min="0"
+                className="w-full pl-6 pr-2 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+              />
+            </div>
+
+            <div className="relative">
+              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+              <input
+                type="number"
+                value={search.maxPrice}
+                onChange={(e) => setSearch({ ...search, maxPrice: e.target.value })}
+                placeholder="Max Price"
+                min="0"
+                className="w-full pl-6 pr-2 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+              />
+            </div>
+
+            <input
+              type="text"
+              value={search.zipCode}
+              onChange={(e) => setSearch({ ...search, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
+              placeholder="ZIP Code"
+              maxLength={5}
+              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+            />
+
             <button
               onClick={loadCars}
               className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center justify-center gap-2 text-sm"
             >
               <Search className="w-4 h-4" />
-              Search
+              Show Matches
             </button>
           </div>
         </div>
@@ -475,11 +620,20 @@ export default function CustomerDashboard() {
         <div className="mb-3">
           <h2 className="text-xl font-bold mb-2 text-dark flex items-center gap-2">
             <Car className="w-5 h-5 text-primary" />
-            Available Cars ({cars.length})
+            {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
           </h2>
+          {search.zipCode && filteredCars.length > 0 && (
+            <p className="text-primary text-sm font-medium">
+              Sorted by distance from ZIP code {search.zipCode}
+            </p>
+          )}
         </div>
 
-        {cars.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-gray-500">Loading inventory...</div>
+          </div>
+        ) : filteredCars.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center border border-border">
             <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
               <Search className="w-8 h-8 text-primary" />
@@ -489,7 +643,7 @@ export default function CustomerDashboard() {
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {cars.map((car, index) => {
+            {filteredCars.map((car, index) => {
               const isSelected = selectedCars.has(car.id);
               const isInDeal = dealStatus?.carIdsInDeal.includes(car.id) || false;
               const canAdd = !isInDeal && totalSlotsUsed < 4;
