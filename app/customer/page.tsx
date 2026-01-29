@@ -50,12 +50,29 @@ export default function CustomerDashboard() {
   const [cars, setCars] = useState<Car[]>([]);
   const [selectedCars, setSelectedCars] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState({ make: '', model: '', state: 'GA' });
+  const [search, setSearch] = useState({ make: '', model: '', state: '' });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: Car; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [dealStatus, setDealStatus] = useState<DealStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<Car | null>(null);
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
+
+  const loadFilters = async () => {
+    try {
+      const res = await fetch('/api/filters');
+      const data = await res.json();
+      if (data.states && data.states.length > 0) {
+        setAvailableStates(data.states);
+        // Set default state to first available if current default not in list
+        if (!data.states.includes(search.state)) {
+          setSearch(prev => ({ ...prev, state: data.states[0] }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load filters:', error);
+    }
+  };
 
   const loadDealStatus = useCallback(async (userId: string) => {
     try {
@@ -81,9 +98,16 @@ export default function CustomerDashboard() {
     }
 
     setUser(parsed);
-    loadCars();
+    loadFilters();
     loadDealStatus(parsed.id);
   }, [router, loadDealStatus]);
+
+  // Load cars when search state changes (after filters are loaded)
+  useEffect(() => {
+    if (search.state) {
+      loadCars();
+    }
+  }, [search.state]);
 
   const loadCars = async () => {
     try {
@@ -393,9 +417,15 @@ export default function CustomerDashboard() {
               onChange={(e) => setSearch({ ...search, state: e.target.value })}
               className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
             >
-              <option value="GA">Georgia</option>
-              <option value="FL">Florida</option>
-              <option value="AL">Alabama</option>
+              {availableStates.length > 0 ? (
+                availableStates.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))
+              ) : (
+                <option value="">Loading...</option>
+              )}
             </select>
             <button
               onClick={loadCars}
