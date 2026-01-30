@@ -53,7 +53,9 @@ interface FilterOptions {
 export default function Home() {
   const router = useRouter();
   const [featuredCars, setFeaturedCars] = useState<FeaturedCar[]>([]);
+  const [newCars, setNewCars] = useState<FeaturedCar[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingNew, setLoadingNew] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Filter options from database
@@ -173,6 +175,25 @@ export default function Home() {
     fetchFeaturedCars();
   }, []);
 
+  // Fetch new cars for New Inventory section
+  useEffect(() => {
+    const fetchNewCars = async () => {
+      try {
+        const res = await fetch('/api/new-cars', {
+          next: { revalidate: 3600 } // Cache for 1 hour
+        });
+        const data = await res.json();
+        setNewCars(data.cars || []);
+      } catch (error) {
+        console.error('Failed to load new cars:', error);
+      } finally {
+        setLoadingNew(false);
+      }
+    };
+
+    fetchNewCars();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AIChat />
@@ -223,13 +244,16 @@ export default function Home() {
 
       {/* Hero Section with Search */}
       <section className="relative py-16 min-h-[600px]">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/car-lot-bg.png)' }}
-        />
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/60" />
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/New.mp4" type="video/mp4" />
+        </video>
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-5 gap-8 items-start">
@@ -551,6 +575,102 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* New Inventory Carousel */}
+      {newCars.length > 0 && (
+        <section className="bg-white py-12 border-y border-gray-200">
+          <div className="container mx-auto px-4">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-dark">New Inventory</h3>
+              <Link href="/cars?condition=new" className="text-primary font-semibold hover:underline flex items-center gap-1">
+                View All <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            {loadingNew ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-gray-500">Loading new cars...</div>
+              </div>
+            ) : (
+              <div className="relative overflow-hidden">
+                <style jsx>{`
+                  @keyframes scrollNew {
+                    0% {
+                      transform: translateX(0);
+                    }
+                    100% {
+                      transform: translateX(-50%);
+                    }
+                  }
+                  .scroll-container-new {
+                    animation: scrollNew 40s linear infinite;
+                  }
+                  .scroll-container-new:hover {
+                    animation-play-state: paused;
+                  }
+                `}</style>
+
+                <div className="scroll-container-new flex gap-4 pb-4">
+                  {[...newCars, ...newCars].map((car, index) => {
+                    let photoUrl = '';
+                    try {
+                      const photos = JSON.parse(car.photos || '[]');
+                      photoUrl = photos[0] || '';
+                    } catch (e) {
+                      console.error('Failed to parse photos:', e);
+                    }
+
+                    return (
+                      <Link
+                        href={`/cars/${car.slug || car.id}`}
+                        key={`new-${car.id}-${index}`}
+                        className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary transition-all cursor-pointer"
+                      >
+                        <div className="relative h-48 bg-gray-200">
+                          <Image
+                            src={photoUrl || getPlaceholderImage(car.bodyType)}
+                            alt={`${car.year} ${car.make} ${car.model}`}
+                            fill
+                            className="object-cover"
+                            sizes="288px"
+                          />
+                          <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                            NEW
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <h4 className="font-bold text-lg text-dark">
+                              {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                            </h4>
+                            {car.isDemo && (
+                              <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                                Sample
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {car.dealer.city}, {car.dealer.state}
+                          </p>
+                          <p className="text-2xl font-bold text-primary mb-2">
+                            {formatPrice(car.salePrice)}
+                          </p>
+                          <p className="text-xs text-gray-500">{car.dealer.businessName}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div className="text-center mt-4 text-sm text-gray-500">
+                  Hover to pause
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Car Loan Calculator Section */}
       <section className="bg-light-dark py-20 border-t border-gray-200">

@@ -5,11 +5,12 @@ export const revalidate = 3600; // Cache for 1 hour
 
 export async function GET() {
   try {
-    // Only count cars from approved dealers that have photos
+    // Only count NEW cars from approved dealers that have photos
     const totalCars = await prisma.car.count({
       where: {
         status: 'active',
         photos: { not: '[]' },
+        condition: { equals: 'new', mode: 'insensitive' },
         dealer: {
           verificationStatus: 'approved',
         },
@@ -20,7 +21,7 @@ export async function GET() {
       return NextResponse.json({ cars: [] });
     }
 
-    // Get 30 random cars (or all if less than 30)
+    // Get 30 random new cars (or all if less than 30)
     const limit = Math.min(30, totalCars);
 
     // Generate random skip offset
@@ -30,6 +31,7 @@ export async function GET() {
       where: {
         status: 'active',
         photos: { not: '[]' },
+        condition: { equals: 'new', mode: 'insensitive' },
         dealer: {
           verificationStatus: 'approved',
         },
@@ -69,9 +71,9 @@ export async function GET() {
 
     return NextResponse.json({ cars: carsWithDemo });
   } catch (error) {
-    console.error('Error fetching featured cars:', error);
+    console.error('Error fetching new cars:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch featured cars' },
+      { error: 'Failed to fetch new cars' },
       { status: 500 }
     );
   }
