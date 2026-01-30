@@ -10,8 +10,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
-          photos: { not: '[]' },
-          dealer: { verificationStatus: 'approved' },
+                    dealer: { verificationStatus: 'approved' },
         },
         select: { make: true },
         distinct: ['make'],
@@ -22,8 +21,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
-          photos: { not: '[]' },
-          dealer: { verificationStatus: 'approved' },
+                    dealer: { verificationStatus: 'approved' },
         },
         select: { year: true },
         distinct: ['year'],
@@ -34,8 +32,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
-          photos: { not: '[]' },
-          dealer: { verificationStatus: 'approved' },
+                    dealer: { verificationStatus: 'approved' },
         },
         select: { state: true },
         distinct: ['state'],
@@ -46,8 +43,7 @@ export async function GET() {
       prisma.car.findMany({
         where: {
           status: 'active',
-          photos: { not: '[]' },
-          dealer: { verificationStatus: 'approved' },
+                    dealer: { verificationStatus: 'approved' },
         },
         select: { fuelType: true },
         distinct: ['fuelType'],
@@ -59,8 +55,7 @@ export async function GET() {
     const modelsRaw = await prisma.car.findMany({
       where: {
         status: 'active',
-        photos: { not: '[]' },
-        dealer: { verificationStatus: 'approved' },
+                dealer: { verificationStatus: 'approved' },
       },
       select: { make: true, model: true },
       distinct: ['make', 'model'],
@@ -83,8 +78,7 @@ export async function GET() {
     const totalCount = await prisma.car.count({
       where: {
         status: 'active',
-        photos: { not: '[]' },
-        dealer: { verificationStatus: 'approved' },
+                dealer: { verificationStatus: 'approved' },
       },
     });
 
@@ -92,8 +86,7 @@ export async function GET() {
     const priceStats = await prisma.car.aggregate({
       where: {
         status: 'active',
-        photos: { not: '[]' },
-        dealer: { verificationStatus: 'approved' },
+                dealer: { verificationStatus: 'approved' },
         salePrice: { gt: 0 },
       },
       _min: { salePrice: true },

@@ -9,7 +9,6 @@ export async function GET() {
     const totalCars = await prisma.car.count({
       where: {
         status: 'active',
-        photos: { not: '[]' },
         dealer: {
           verificationStatus: 'approved',
         },
@@ -29,7 +28,6 @@ export async function GET() {
     const cars = await prisma.car.findMany({
       where: {
         status: 'active',
-        photos: { not: '[]' },
         dealer: {
           verificationStatus: 'approved',
         },

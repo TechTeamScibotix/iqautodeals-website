@@ -149,7 +149,6 @@ export default async function CarDetailPage({ params }: PageProps) {
     const similarCars = await prisma.car.findMany({
       where: {
         status: 'active',
-        photos: { not: '[]' },
         make: car.make,
         id: { not: car.id },
         dealer: {
@@ -179,7 +178,6 @@ export default async function CarDetailPage({ params }: PageProps) {
     const carsToShow = similarCars.length > 0 ? similarCars : await prisma.car.findMany({
       where: {
         status: 'active',
-        photos: { not: '[]' },
         id: { not: car.id },
         dealer: {
           verificationStatus: 'approved',

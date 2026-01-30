@@ -10,7 +10,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const activeCars = await prisma.car.findMany({
       where: {
         status: 'active',
-        photos: { not: '[]' },
         dealer: {
           verificationStatus: 'approved',
         },
