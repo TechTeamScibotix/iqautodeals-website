@@ -22,12 +22,23 @@ interface FeaturedCar {
   year: number;
   salePrice: number;
   photos: string;
+  bodyType?: string;
   isDemo?: boolean;
   dealer: {
     businessName: string;
     city: string;
     state: string;
   };
+}
+
+// Helper function to get placeholder image based on body type
+function getPlaceholderImage(bodyType?: string): string {
+  if (bodyType?.toLowerCase().includes('truck') ||
+      bodyType?.toLowerCase().includes('cab') ||
+      bodyType?.toLowerCase().includes('pickup')) {
+    return '/placeholder_IQ_Truck.png';
+  }
+  return '/placeholder_IQ_Car.png';
 }
 
 interface FilterOptions {
@@ -459,22 +470,13 @@ export default function Home() {
                       className="flex-shrink-0 w-72 bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary transition-all cursor-pointer"
                     >
                       <div className="relative h-48 bg-gray-200">
-                        {photoUrl ? (
-                          <Image
-                            src={photoUrl}
-                            alt={`${car.year} ${car.make} ${car.model}`}
-                            fill
-                            className="object-cover"
-                            sizes="288px"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
-                            <div className="bg-primary/90 text-white px-4 py-1.5 rounded-full text-sm font-bold tracking-wide shadow-lg">
-                              IN STOCK
-                            </div>
-                            <p className="text-gray-400 text-xs mt-1">Photos Coming Soon</p>
-                          </div>
-                        )}
+                        <Image
+                          src={photoUrl || getPlaceholderImage(car.bodyType)}
+                          alt={`${car.year} ${car.make} ${car.model}`}
+                          fill
+                          className="object-cover"
+                          sizes="288px"
+                        />
                       </div>
                       <div className="p-4">
                         <div className="flex items-start justify-between gap-2 mb-1">

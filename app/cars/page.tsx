@@ -33,6 +33,7 @@ interface CarListing {
   description: string;
   transmission: string;
   fuelType?: string;
+  bodyType?: string;
   vin: string;
   isDemo?: boolean;
   dealerId: string;
@@ -41,6 +42,16 @@ interface CarListing {
     businessName: string;
     websiteUrl?: string;
   };
+}
+
+// Helper function to get placeholder image based on body type
+function getPlaceholderImage(bodyType?: string): string {
+  if (bodyType?.toLowerCase().includes('truck') ||
+      bodyType?.toLowerCase().includes('cab') ||
+      bodyType?.toLowerCase().includes('pickup')) {
+    return '/placeholder_IQ_Truck.png';
+  }
+  return '/placeholder_IQ_Car.png';
 }
 
 interface FilterOptions {
@@ -653,22 +664,13 @@ export default function CarsPage() {
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
-                    {photoUrl ? (
-                      <Image
-                        src={photoUrl}
-                        alt={`${car.year} ${car.make} ${car.model}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
-                        <div className="bg-primary/90 text-white px-6 py-2 rounded-full text-lg font-bold tracking-wide shadow-lg">
-                          IN STOCK
-                        </div>
-                        <p className="text-gray-400 text-sm mt-2">Photos Coming Soon</p>
-                      </div>
-                    )}
+                    <Image
+                      src={photoUrl || getPlaceholderImage(car.bodyType)}
+                      alt={`${car.year} ${car.make} ${car.model}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
                     <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
                       <Camera className="w-3 h-3 inline mr-1" />
                       View Photos

@@ -377,6 +377,7 @@ export default async function CarDetailPage({ params }: PageProps) {
             <CarPhotoGallery
               photos={photos}
               carName={`${car.year} ${car.make} ${car.model}`}
+              bodyType={car.bodyType || undefined}
             />
 
             {/* Vehicle Info */}

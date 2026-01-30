@@ -30,12 +30,23 @@ interface Car {
   salePrice: number;
   photos: string;
   fuelType?: string;
+  bodyType?: string;
   isDemo?: boolean;
   dealerId: string;
   distance?: number | null;
   dealer: {
     businessName: string;
   };
+}
+
+// Helper function to get placeholder image based on body type
+function getPlaceholderImage(bodyType?: string): string {
+  if (bodyType?.toLowerCase().includes('truck') ||
+      bodyType?.toLowerCase().includes('cab') ||
+      bodyType?.toLowerCase().includes('pickup')) {
+    return '/placeholder_IQ_Truck.png';
+  }
+  return '/placeholder_IQ_Car.png';
 }
 
 interface DealStatus {
@@ -667,28 +678,27 @@ export default function CustomerDashboard() {
                       try {
                         const photoUrls = JSON.parse(car.photos || '[]');
                         const firstPhoto = photoUrls[0];
-                        if (firstPhoto) {
-                          return (
-                            <Image
-                              src={firstPhoto}
-                              alt={`${car.year} ${car.make} ${car.model}`}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          );
-                        }
+                        return (
+                          <Image
+                            src={firstPhoto || getPlaceholderImage(car.bodyType)}
+                            alt={`${car.year} ${car.make} ${car.model}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        );
                       } catch (e) {
                         console.error('Failed to parse photos:', e);
+                        return (
+                          <Image
+                            src={getPlaceholderImage(car.bodyType)}
+                            alt={`${car.year} ${car.make} ${car.model}`}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        );
                       }
-                      return (
-                        <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
-                          <div className="bg-primary/90 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-lg">
-                            IN STOCK
-                          </div>
-                          <p className="text-gray-400 text-[10px] mt-1">Photos Coming Soon</p>
-                        </div>
-                      );
                     })()}
                   </div>
                   <div className="p-3">

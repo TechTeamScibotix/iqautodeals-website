@@ -7,9 +7,20 @@ import { X, ChevronLeft, ChevronRight, Car } from 'lucide-react';
 interface CarPhotoGalleryProps {
   photos: string[];
   carName: string;
+  bodyType?: string;
 }
 
-export default function CarPhotoGallery({ photos, carName }: CarPhotoGalleryProps) {
+// Helper function to get placeholder image based on body type
+function getPlaceholderImage(bodyType?: string): string {
+  if (bodyType?.toLowerCase().includes('truck') ||
+      bodyType?.toLowerCase().includes('cab') ||
+      bodyType?.toLowerCase().includes('pickup')) {
+    return '/placeholder_IQ_Truck.png';
+  }
+  return '/placeholder_IQ_Car.png';
+}
+
+export default function CarPhotoGallery({ photos, carName, bodyType }: CarPhotoGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -45,28 +56,19 @@ export default function CarPhotoGallery({ photos, carName }: CarPhotoGalleryProp
           className="relative aspect-[16/10] bg-gray-200 cursor-pointer group"
           onClick={() => photos[0] && openLightbox(selectedIndex)}
         >
-          {photos[selectedIndex] ? (
-            <>
-              <Image
-                src={photos[selectedIndex]}
-                alt={`${carName} - Photo ${selectedIndex + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 66vw"
-                priority
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                  Click to enlarge
-                </span>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
-              <div className="bg-primary/90 text-white px-8 py-3 rounded-full text-xl font-bold tracking-wide shadow-lg">
-                IN STOCK
-              </div>
-              <p className="text-gray-400 text-sm mt-3">Photos Coming Soon</p>
+          <Image
+            src={photos[selectedIndex] || getPlaceholderImage(bodyType)}
+            alt={`${carName} - Photo ${selectedIndex + 1}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 66vw"
+            priority
+          />
+          {photos[selectedIndex] && (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                Click to enlarge
+              </span>
             </div>
           )}
 
