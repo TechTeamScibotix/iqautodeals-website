@@ -61,6 +61,7 @@ export const locations = {
   'columbus': { city: 'Columbus', state: 'Georgia', stateCode: 'GA', lat: 32.4609, lng: -84.9877 },
   'savannah': { city: 'Savannah', state: 'Georgia', stateCode: 'GA', lat: 32.0809, lng: -81.0912 },
   'macon': { city: 'Macon', state: 'Georgia', stateCode: 'GA', lat: 32.8407, lng: -83.6324 },
+  'duluth-ga': { city: 'Duluth', state: 'Georgia', stateCode: 'GA', lat: 34.0029, lng: -84.1446 },
 
   // Hawaii
   'honolulu': { city: 'Honolulu', state: 'Hawaii', stateCode: 'HI', lat: 21.3099, lng: -157.8581 },
