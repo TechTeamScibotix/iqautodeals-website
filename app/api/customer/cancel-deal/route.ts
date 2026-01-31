@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerCustomerCancelledNotification } from '@/lib/email';
+import { getNotificationRecipients, getParentDealerId } from '@/lib/notification-recipients';
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,22 +74,31 @@ export async function POST(request: NextRequest) {
       data: { status: 'cancelled' },
     });
 
-    // Send notification to dealer
+    // Send notification to dealer and configured team members
     const customerName = selectedCar.dealList.customer.name || 'A customer';
     const dealer = selectedCar.car.dealer;
 
-    if (dealer?.email) {
-      sendDealerCustomerCancelledNotification(
-        dealer.notificationEmail || dealer.email,
-        dealer.businessName || dealer.name,
-        customerName,
-        {
-          year: selectedCar.car.year,
-          make: selectedCar.car.make,
-          model: selectedCar.car.model,
-        },
-        !!acceptedDeal // wasAccepted - true if they had accepted an offer
-      ).catch(err => console.error('Failed to send dealer cancellation notification:', err));
+    if (dealer?.id) {
+      // Get the parent dealer ID (in case the car belongs to a team member's account)
+      const parentDealerId = await getParentDealerId(dealer.id);
+
+      getNotificationRecipients(parentDealerId, 'dealCancelled')
+        .then(recipients => {
+          for (const recipient of recipients) {
+            sendDealerCustomerCancelledNotification(
+              recipient.email,
+              recipient.name,
+              customerName,
+              {
+                year: selectedCar.car.year,
+                make: selectedCar.car.make,
+                model: selectedCar.car.model,
+              },
+              !!acceptedDeal // wasAccepted - true if they had accepted an offer
+            ).catch(err => console.error('Failed to send dealer cancellation notification:', err));
+          }
+        })
+        .catch(err => console.error('Failed to get notification recipients:', err));
     }
 
     return NextResponse.json({

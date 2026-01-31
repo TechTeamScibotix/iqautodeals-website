@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerDealRequestNotification } from '@/lib/email';
+import { getNotificationRecipients } from '@/lib/notification-recipients';
 
 // Webhook to notify DealerHub of new deal requests
 const DEALERHUB_WEBHOOK_URL = process.env.DEALERHUB_WEBHOOK_URL || 'https://scibotixsolutions.com/api/webhooks/iqautodeals/deal-request';
@@ -211,13 +212,19 @@ export async function POST(request: NextRequest) {
         dealerData.cars
       );
 
-      // Email notification to dealer
-      sendDealerDealRequestNotification(
-        dealerData.dealerEmail,
-        dealerData.dealerName,
-        customer?.name || 'A Customer',
-        dealerData.cars.map(c => ({ year: c.year, make: c.make, model: c.model, price: c.price }))
-      ).catch(err => console.error('Failed to send dealer deal request email:', err));
+      // Email notification to dealer and configured team members
+      getNotificationRecipients(dealerId, 'dealRequest')
+        .then(recipients => {
+          for (const recipient of recipients) {
+            sendDealerDealRequestNotification(
+              recipient.email,
+              recipient.name,
+              customer?.name || 'A Customer',
+              dealerData.cars.map(c => ({ year: c.year, make: c.make, model: c.model, price: c.price }))
+            ).catch(err => console.error('Failed to send dealer deal request email:', err));
+          }
+        })
+        .catch(err => console.error('Failed to get notification recipients:', err));
     }
 
     // Get accurate counts using stored values from earlier

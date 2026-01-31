@@ -200,11 +200,11 @@ export default function BookDemoPage() {
               About Us
             </Link>
           </nav>
-          <div className="flex gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold">
+          <div className="flex gap-2 md:gap-3">
+            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold">
               Dealer Login
             </Link>
-            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold">
+            <Link href="/register?type=dealer" className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold">
               Start Free Pilot
             </Link>
           </div>

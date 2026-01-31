@@ -95,6 +95,7 @@ export default function CarsPage() {
     brand: true,
     distance: true,
     price: true,
+    state: false,
     bodyType: false,
     condition: false,
   });
@@ -203,7 +204,10 @@ export default function CarsPage() {
       if (currentSearch.fuelType && currentSearch.fuelType !== 'all') params.append('fuelType', currentSearch.fuelType);
       if (currentSearch.minPrice) params.append('minPrice', currentSearch.minPrice);
       if (currentSearch.maxPrice) params.append('maxPrice', currentSearch.maxPrice);
-      if (currentSearch.zipCode) params.append('zipCode', currentSearch.zipCode);
+      if (currentSearch.zipCode) {
+        params.append('zipCode', currentSearch.zipCode);
+        params.append('radius', searchRadius.toString());
+      }
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
@@ -258,7 +262,10 @@ export default function CarsPage() {
       if (search.fuelType && search.fuelType !== 'all') params.append('fuelType', search.fuelType);
       if (search.minPrice) params.append('minPrice', search.minPrice);
       if (search.maxPrice) params.append('maxPrice', search.maxPrice);
-      if (search.zipCode) params.append('zipCode', search.zipCode);
+      if (search.zipCode) {
+        params.append('zipCode', search.zipCode);
+        params.append('radius', searchRadius.toString());
+      }
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
@@ -410,7 +417,9 @@ export default function CarsPage() {
     const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
     const minPriceMatch = !search.minPrice || car.salePrice >= parseInt(search.minPrice, 10);
     const maxPriceMatch = !search.maxPrice || car.salePrice <= parseInt(search.maxPrice, 10);
-    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch;
+    // Filter by distance if zipcode is entered
+    const distanceMatch = !search.zipCode || car.distance === null || car.distance === undefined || car.distance <= searchRadius;
+    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch && distanceMatch;
   });
 
   return (
@@ -569,41 +578,58 @@ export default function CarsPage() {
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Min price</label>
-                      <select
-                        value={search.minPrice}
-                        onChange={(e) => setSearch(prev => ({ ...prev, minPrice: e.target.value }))}
-                        className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
-                      >
-                        <option value="">Any</option>
-                        <option value="5000">$5,000</option>
-                        <option value="10000">$10,000</option>
-                        <option value="15000">$15,000</option>
-                        <option value="20000">$20,000</option>
-                        <option value="25000">$25,000</option>
-                        <option value="30000">$30,000</option>
-                        <option value="40000">$40,000</option>
-                        <option value="50000">$50,000</option>
-                      </select>
+                      <div className="relative mt-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <input
+                          type="text"
+                          value={search.minPrice ? parseInt(search.minPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, minPrice: value }));
+                          }}
+                          placeholder="Min"
+                          className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Max price</label>
-                      <select
-                        value={search.maxPrice}
-                        onChange={(e) => setSearch(prev => ({ ...prev, maxPrice: e.target.value }))}
-                        className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
-                      >
-                        <option value="">Any</option>
-                        <option value="10000">$10,000</option>
-                        <option value="15000">$15,000</option>
-                        <option value="20000">$20,000</option>
-                        <option value="25000">$25,000</option>
-                        <option value="30000">$30,000</option>
-                        <option value="40000">$40,000</option>
-                        <option value="50000">$50,000</option>
-                        <option value="75000">$75,000</option>
-                        <option value="100000">$100,000</option>
-                      </select>
+                      <div className="relative mt-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                        <input
+                          type="text"
+                          value={search.maxPrice ? parseInt(search.maxPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, maxPrice: value }));
+                          }}
+                          placeholder="Max"
+                          className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* State Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">State</span>
+                  {openSections.state ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.state && (
+                  <div className="mt-4">
+                    <select
+                      value={search.state}
+                      onChange={(e) => setSearch(prev => ({ ...prev, state: e.target.value }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="all">All States</option>
+                      {filterOptions.states.map((state) => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>
@@ -741,14 +767,14 @@ export default function CarsPage() {
                 {openSections.distance && (
                   <div className="mt-3 space-y-3">
                     <div>
-                      <label className="text-xs text-gray-500 uppercase">ZIP Code</label>
+                      <label className="block text-xs text-gray-500 uppercase mb-1">ZIP Code</label>
                       <input
                         type="text"
                         value={search.zipCode}
                         onChange={(e) => setSearch(prev => ({ ...prev, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
                         placeholder="Enter ZIP"
                         maxLength={5}
-                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                        className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                       />
                     </div>
                     <div>
@@ -777,41 +803,58 @@ export default function CarsPage() {
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Min price</label>
-                      <select
-                        value={search.minPrice}
-                        onChange={(e) => setSearch(prev => ({ ...prev, minPrice: e.target.value }))}
-                        className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
-                      >
-                        <option value="">Any</option>
-                        <option value="5000">$5,000</option>
-                        <option value="10000">$10,000</option>
-                        <option value="15000">$15,000</option>
-                        <option value="20000">$20,000</option>
-                        <option value="25000">$25,000</option>
-                        <option value="30000">$30,000</option>
-                        <option value="40000">$40,000</option>
-                        <option value="50000">$50,000</option>
-                      </select>
+                      <div className="relative mt-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                        <input
+                          type="text"
+                          value={search.minPrice ? parseInt(search.minPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, minPrice: value }));
+                          }}
+                          placeholder="Min"
+                          className="w-full pl-7 pr-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs text-gray-500 uppercase">Max price</label>
-                      <select
-                        value={search.maxPrice}
-                        onChange={(e) => setSearch(prev => ({ ...prev, maxPrice: e.target.value }))}
-                        className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
-                      >
-                        <option value="">Any</option>
-                        <option value="10000">$10,000</option>
-                        <option value="15000">$15,000</option>
-                        <option value="20000">$20,000</option>
-                        <option value="25000">$25,000</option>
-                        <option value="30000">$30,000</option>
-                        <option value="40000">$40,000</option>
-                        <option value="50000">$50,000</option>
-                        <option value="75000">$75,000</option>
-                        <option value="100000">$100,000</option>
-                      </select>
+                      <div className="relative mt-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                        <input
+                          type="text"
+                          value={search.maxPrice ? parseInt(search.maxPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, maxPrice: value }));
+                          }}
+                          placeholder="Max"
+                          className="w-full pl-7 pr-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* State Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">State</span>
+                  {openSections.state ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.state && (
+                  <div className="mt-3">
+                    <select
+                      value={search.state}
+                      onChange={(e) => setSearch(prev => ({ ...prev, state: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="all">All States</option>
+                      {filterOptions.states.map((state) => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>
@@ -862,13 +905,22 @@ export default function CarsPage() {
                 )}
               </div>
 
-              {/* Apply Button */}
-              <div className="py-4">
+              {/* Apply & Clear Buttons */}
+              <div className="py-4 space-y-2">
                 <button
                   onClick={loadCars}
                   className="w-full px-4 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition-colors"
                 >
                   Apply filters
+                </button>
+                <button
+                  onClick={() => {
+                    setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
+                    router.push('/cars');
+                  }}
+                  className="w-full px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm transition-colors"
+                >
+                  Clear all filters
                 </button>
               </div>
             </div>

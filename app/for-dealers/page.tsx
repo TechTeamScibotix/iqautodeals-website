@@ -43,11 +43,11 @@ export default function ForDealersPage() {
               About Us
             </Link>
           </nav>
-          <div className="flex gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold">
+          <div className="flex gap-2 md:gap-3">
+            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold">
               Dealer Login
             </Link>
-            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold">
+            <Link href="/register?type=dealer" className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold">
               Start Free Pilot
             </Link>
           </div>
@@ -56,9 +56,18 @@ export default function ForDealersPage() {
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-dark via-gray-900 to-dark text-white py-20 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.4"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+        {/* Background Video */}
+        <div className="absolute inset-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+          >
+            <source src="/forest.mp4" type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-gradient-to-b from-dark/50 to-dark/80" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">

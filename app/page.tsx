@@ -429,7 +429,12 @@ export default function Home() {
                   }
                 }
                 .scroll-container {
-                  animation: scroll 40s linear infinite;
+                  animation: scroll 6s linear infinite;
+                }
+                @media (min-width: 768px) {
+                  .scroll-container {
+                    animation: scroll 12s linear infinite;
+                  }
                 }
                 .scroll-container:hover {
                   animation-play-state: paused;
@@ -557,7 +562,12 @@ export default function Home() {
                     }
                   }
                   .scroll-container-new {
-                    animation: scrollNew 40s linear infinite;
+                    animation: scrollNew 6s linear infinite;
+                  }
+                  @media (min-width: 768px) {
+                    .scroll-container-new {
+                      animation: scrollNew 12s linear infinite;
+                    }
                   }
                   .scroll-container-new:hover {
                     animation-play-state: paused;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerOfferDeclinedNotification } from '@/lib/email';
+import { getNotificationRecipients, getParentDealerId } from '@/lib/notification-recipients';
 
 export async function POST(request: NextRequest) {
   try {
@@ -94,21 +95,30 @@ export async function POST(request: NextRequest) {
       dealAutoCancelled = true;
     }
 
-    // Send email notification to dealer
+    // Send email notification to dealer and configured team members
     const customerName = negotiation.selectedCar.dealList.customer.name || 'A customer';
     const car = negotiation.selectedCar.car;
 
-    sendDealerOfferDeclinedNotification(
-      negotiation.dealer.notificationEmail || negotiation.dealer.email,
-      negotiation.dealer.businessName || negotiation.dealer.name,
-      customerName,
-      {
-        year: car.year,
-        make: car.make,
-        model: car.model,
-      },
-      negotiation.offeredPrice
-    ).catch(err => console.error('Failed to send dealer decline notification:', err));
+    // Get the parent dealer ID (in case the negotiation was from a team member)
+    const parentDealerId = await getParentDealerId(negotiation.dealer.id);
+
+    getNotificationRecipients(parentDealerId, 'offerDeclined')
+      .then(recipients => {
+        for (const recipient of recipients) {
+          sendDealerOfferDeclinedNotification(
+            recipient.email,
+            recipient.name,
+            customerName,
+            {
+              year: car.year,
+              make: car.make,
+              model: car.model,
+            },
+            negotiation.offeredPrice
+          ).catch(err => console.error('Failed to send dealer decline notification:', err));
+        }
+      })
+      .catch(err => console.error('Failed to get notification recipients:', err));
 
     return NextResponse.json({
       success: true,

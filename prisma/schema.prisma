@@ -58,6 +58,7 @@ model User {
   acceptedDeals AcceptedDeal[]
   customerTestDrives TestDrive[] @relation("CustomerTestDrives")
   dealerTestDrives   TestDrive[] @relation("DealerTestDrives")
+  notificationPreferences NotificationPreference?
 }
 
 model Car {
@@ -285,4 +286,24 @@ model CentrixUser {
   isActive      Boolean   @default(true)
 
   @@map("centrix_users")
+}
+
+// Notification preferences for dealer team member notifications
+model NotificationPreference {
+  id                  String   @id @default(uuid())
+  dealerId            String   @unique  // Parent dealer only
+  dealer              User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Notification type recipients (arrays of team member User IDs)
+  availabilityRecipients  String[]  @default([])
+  dealRequestRecipients   String[]  @default([])
+  offerDeclinedRecipients String[]  @default([])
+  dealCancelledRecipients String[]  @default([])
+
+  alwaysNotifyOwner   Boolean  @default(true)  // Always CC the parent dealer
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("notification_preferences")
 }

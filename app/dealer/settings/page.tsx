@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare, Mail } from 'lucide-react';
+import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare, Mail, Bell, ChevronRight } from 'lucide-react';
 
 export default function DealerSettings() {
   const router = useRouter();
@@ -254,6 +254,29 @@ export default function DealerSettings() {
                   Customer notifications (availability requests, deal requests, offer declines, cancellations) will be sent to this email instead of your login email. Leave blank to use your login email.
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Team Notification Settings */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Bell className="w-6 h-6 text-accent" />
+                <div>
+                  <h2 className="font-bold text-lg text-gray-900">Team Notifications</h2>
+                  <p className="text-sm text-gray-600">
+                    Configure which team members receive notification emails
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/dealer/settings/notifications')}
+                className="flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition"
+              >
+                Configure
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           </div>
 

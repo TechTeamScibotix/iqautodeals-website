@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { sendDealerAvailabilityRequestNotification } from '@/lib/email';
+import { getNotificationRecipients } from '@/lib/notification-recipients';
 
 const prisma = new PrismaClient();
 
@@ -116,28 +117,32 @@ export async function POST(request: NextRequest) {
     // Log for tracking
     console.log(`[Availability Request] ${firstName} ${lastName} (${email}) - Car: ${car.year} ${car.make} ${car.model} - Dealer: ${car.dealer.businessName}`);
 
-    // Send email notification to dealer
+    // Send email notification to dealer and configured team members
     try {
-      await sendDealerAvailabilityRequestNotification(
-        car.dealer.notificationEmail || car.dealer.email,
-        car.dealer.businessName || car.dealer.name || 'Dealer',
-        {
-          year: car.year,
-          make: car.make,
-          model: car.model,
-          vin: car.vin,
-          price: car.salePrice,
-        },
-        {
-          firstName,
-          lastName,
-          email,
-          phone,
-          zipCode,
-          comments: comments || undefined,
-        }
-      );
-      console.log(`[Availability Request] Email sent to dealer: ${car.dealer.email}`);
+      const recipients = await getNotificationRecipients(car.dealer.id, 'availability');
+
+      for (const recipient of recipients) {
+        await sendDealerAvailabilityRequestNotification(
+          recipient.email,
+          recipient.name,
+          {
+            year: car.year,
+            make: car.make,
+            model: car.model,
+            vin: car.vin,
+            price: car.salePrice,
+          },
+          {
+            firstName,
+            lastName,
+            email,
+            phone,
+            zipCode,
+            comments: comments || undefined,
+          }
+        );
+      }
+      console.log(`[Availability Request] Email sent to ${recipients.length} recipient(s): ${recipients.map(r => r.email).join(', ')}`);
     } catch (emailError) {
       // Log email error but don't fail the request
       console.error(`[Availability Request] Failed to send email to dealer:`, emailError);

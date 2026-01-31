@@ -212,8 +212,14 @@ export async function GET(request: NextRequest) {
     let processedCars = cars.map(car => {
       let distance: number | null = null;
 
-      if (userLat !== null && userLon !== null && car.latitude && car.longitude) {
-        distance = calculateDistance(userLat, userLon, car.latitude, car.longitude);
+      if (userLat !== null && userLon !== null) {
+        // Look up car's coordinates from its city/state
+        const carLocation = zipcodes.lookupByName(car.city, car.state);
+        if (carLocation && carLocation.length > 0) {
+          const carLat = carLocation[0].latitude;
+          const carLon = carLocation[0].longitude;
+          distance = calculateDistance(userLat, userLon, carLat, carLon);
+        }
       }
 
       return {

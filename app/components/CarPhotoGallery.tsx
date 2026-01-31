@@ -64,6 +64,14 @@ export default function CarPhotoGallery({ photos, carName, bodyType }: CarPhotoG
             sizes="(max-width: 1024px) 100vw, 66vw"
             priority
           />
+          {photos.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-black/60 to-transparent">
+              <div className="bg-primary text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                IN STOCK
+              </div>
+              <p className="text-white/80 text-sm mt-2">Photos Coming Soon</p>
+            </div>
+          )}
           {photos[selectedIndex] && (
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
               <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white px-4 py-2 rounded-lg text-sm font-medium">

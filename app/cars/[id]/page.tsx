@@ -139,11 +139,6 @@ export default async function CarDetailPage({ params }: PageProps) {
     // Invalid JSON
   }
 
-  // Car has no photos - hide from public (treat same as not found)
-  if (photos.length === 0) {
-    notFound();
-  }
-
   // Car is sold or pending - show sold page with similar cars
   if (car.status === 'sold' || car.status === 'pending') {
     const similarCars = await prisma.car.findMany({
