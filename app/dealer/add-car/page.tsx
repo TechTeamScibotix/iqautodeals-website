@@ -68,7 +68,7 @@ export default function AddCarPage() {
     // Fetch dealer profile to get their location
     const fetchDealerProfile = async () => {
       try {
-        const response = await fetch(`/api/dealer/profile?dealerId=${parsed.id}`);
+        const response = await fetch(`/api/dealer/profile?dealerId=${parsed.effectiveDealerId || parsed.id}`);
         if (response.ok) {
           const data = await response.json();
           if (data.user) {
@@ -285,7 +285,7 @@ export default function AddCarPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          dealerId: user.id,
+          dealerId: user.effectiveDealerId || user.id,
           photos: JSON.stringify(photoUrls),
         }),
       });

@@ -70,7 +70,9 @@ export default function DealerDashboard() {
     }
 
     setUser(parsed);
-    loadCars(parsed.id);
+    // Use effectiveDealerId for team members, fallback to user's own ID
+    const dealerId = parsed.effectiveDealerId || parsed.id;
+    loadCars(dealerId);
   }, [router]);
 
   const loadCars = async (dealerId: string) => {
@@ -103,7 +105,7 @@ export default function DealerDashboard() {
 
       if (response.ok) {
         alert('Car deleted successfully');
-        loadCars(user.id);
+        loadCars(user.effectiveDealerId || user.id);
       } else {
         alert('Failed to delete car');
       }
@@ -141,7 +143,7 @@ export default function DealerDashboard() {
 
       try {
         // First, get the full car details
-        const carResponse = await fetch(`/api/dealer/cars/${car.id}?dealerId=${user.id}`);
+        const carResponse = await fetch(`/api/dealer/cars/${car.id}?dealerId=${user.effectiveDealerId || user.id}`);
         if (!carResponse.ok) {
           failedCount++;
           continue;
@@ -201,7 +203,7 @@ export default function DealerDashboard() {
     setSeoResults({ success: successCount, failed: failedCount });
 
     // Reload cars to show updated descriptions
-    loadCars(user.id);
+    loadCars(user.effectiveDealerId || user.id);
   };
 
   // Compute unique filter options from cars

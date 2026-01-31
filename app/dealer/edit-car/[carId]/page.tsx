@@ -70,7 +70,8 @@ export default function EditCarPage() {
     setUser(parsed);
 
     // Fetch car data (also fetches dealer profile for location fallback)
-    fetchCarData(parsed.id);
+    // Use effectiveDealerId for team members
+    fetchCarData(parsed.effectiveDealerId || parsed.id);
   }, [router, carId]);
 
   const fetchCarData = async (dealerId: string) => {

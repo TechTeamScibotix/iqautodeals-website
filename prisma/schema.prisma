@@ -25,6 +25,9 @@ model User {
   verificationNote   String?  // Admin note for rejection reason
 
   // Dealer specific fields
+  parentDealerId      String?   // If set, this user is a team member of another dealer (for multi-user dealer accounts)
+  parentDealer        User?     @relation("DealerTeam", fields: [parentDealerId], references: [id], onDelete: SetNull)
+  teamMembers         User[]    @relation("DealerTeam")
   notificationEmail   String?   // Override email for customer notifications (availability, deals, offers)
   businessName        String?
   websiteUrl          String?   // Dealer's website URL for SEO backlinks

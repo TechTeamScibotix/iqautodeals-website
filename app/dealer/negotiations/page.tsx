@@ -100,7 +100,8 @@ export default function DealerNegotiations() {
     }
 
     setUser(parsed);
-    loadDealRequests(parsed.id);
+    // Use effectiveDealerId for team members, fallback to user's own ID
+    loadDealRequests(parsed.effectiveDealerId || parsed.id);
   }, [router]);
 
   const loadDealRequests = async (dealerId: string) => {
@@ -127,7 +128,7 @@ export default function DealerNegotiations() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           selectedCarId: offerForm.selectedCarId,
-          dealerId: user.id,
+          dealerId: user.effectiveDealerId || user.id,
           offerPrice: offerForm.offerPrice,
         }),
       });
@@ -137,7 +138,7 @@ export default function DealerNegotiations() {
       if (res.ok) {
         alert('Offer submitted successfully!');
         setOfferForm(null);
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to submit offer');
       }
@@ -158,7 +159,7 @@ export default function DealerNegotiations() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           selectedCarId,
-          dealerId: user.id,
+          dealerId: user.effectiveDealerId || user.id,
           offerPrice: askingPrice.toString(),
           isFirmPrice: true,
         }),
@@ -168,7 +169,7 @@ export default function DealerNegotiations() {
 
       if (res.ok) {
         alert('Firm price submitted! The customer has been notified that this is your best price.');
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to submit firm price');
       }
@@ -200,7 +201,7 @@ export default function DealerNegotiations() {
       if (res.ok) {
         alert('Appointment scheduled successfully!');
         setScheduleForm(null);
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to schedule appointment');
       }
@@ -237,7 +238,7 @@ export default function DealerNegotiations() {
       if (res.ok) {
         alert('Deal marked as sold successfully!');
         setSoldForm(null);
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to mark deal as sold');
       }
@@ -268,7 +269,7 @@ export default function DealerNegotiations() {
 
       if (res.ok) {
         alert('Deal cancelled successfully!');
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to cancel deal');
       }
@@ -294,7 +295,7 @@ export default function DealerNegotiations() {
 
       if (res.ok) {
         alert('Deal cancelled successfully!');
-        loadDealRequests(user.id);
+        loadDealRequests(user.effectiveDealerId || user.id);
       } else {
         alert(data.error || 'Failed to cancel deal');
       }
@@ -308,7 +309,7 @@ export default function DealerNegotiations() {
     for (const dealList of dealLists) {
       const selectedCar = dealList.selectedCars.find((sc) => sc.id === selectedCarId);
       if (selectedCar) {
-        return selectedCar.negotiations.filter((n) => n.dealerId === user.id).length;
+        return selectedCar.negotiations.filter((n) => n.dealerId === (user.effectiveDealerId || user.id)).length;
       }
     }
     return 0;
@@ -425,19 +426,19 @@ export default function DealerNegotiations() {
           <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-yellow-500">
             <div className="text-xs md:text-sm text-gray-600 mb-1">Incoming Requests</div>
             <div className="text-lg md:text-2xl font-bold text-yellow-600">
-              {dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled')).length}
+              {dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status !== 'cancelled')).length}
             </div>
           </div>
           <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-green-500">
             <div className="text-xs md:text-sm text-gray-600 mb-1">Pending</div>
             <div className="text-lg md:text-2xl font-bold text-green-600">
-              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length}
+              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length}
             </div>
           </div>
           <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-gray-500">
             <div className="text-xs md:text-sm text-gray-600 mb-1">Cancelled</div>
             <div className="text-lg md:text-2xl font-bold text-gray-600">
-              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length}
+              {dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length}
             </div>
           </div>
           <div className="bg-white rounded-lg shadow p-3 md:p-4 border-l-4 border-red-500">
@@ -462,7 +463,7 @@ export default function DealerNegotiations() {
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Incoming ({dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled')).length})
+              Incoming ({dealLists.filter(d => d.status === 'active' && d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status !== 'cancelled')).length})
             </button>
             <button
               onClick={() => {
@@ -475,7 +476,7 @@ export default function DealerNegotiations() {
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Pending ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length})
+              Pending ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer)).length})
             </button>
             <button
               onClick={() => {
@@ -488,7 +489,7 @@ export default function DealerNegotiations() {
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              Cancelled ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length})
+              Cancelled ({dealLists.filter(d => d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer))).length})
             </button>
             <button
               onClick={() => {
@@ -509,8 +510,8 @@ export default function DealerNegotiations() {
         {(() => {
           const filteredDeals = dealLists.filter(d => {
             if (activeTab === 'incoming') return d.status === 'active' && d.selectedCars.some(sc => sc.status !== 'cancelled');
-            if (activeTab === 'pending') return d.selectedCars.some(sc => sc.car.dealerId === user.id && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer);
-            if (activeTab === 'deadDeals') return d.selectedCars.some(sc => sc.car.dealerId === user.id && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer));
+            if (activeTab === 'pending') return d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status === 'won' && !sc.car.acceptedDeals?.[0]?.sold && !sc.car.acceptedDeals?.[0]?.deadDeal && !sc.car.acceptedDeals?.[0]?.cancelledByCustomer);
+            if (activeTab === 'deadDeals') return d.selectedCars.some(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && (sc.car.acceptedDeals?.[0]?.deadDeal || sc.car.acceptedDeals?.[0]?.cancelledByCustomer));
             if (activeTab === 'lost') return d.status === 'lost' || d.status === 'expired' || d.status === 'cancelled';
             return false;
           });
@@ -557,7 +558,7 @@ export default function DealerNegotiations() {
                 {customers.map(({ customer, dealLists, totalCars }) => {
                   // Only count non-cancelled cars for incoming tab
                   const yourCars = dealLists.reduce((count, dl) =>
-                    count + dl.selectedCars.filter(sc => sc.car.dealerId === user.id && sc.status !== 'cancelled').length, 0
+                    count + dl.selectedCars.filter(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && sc.status !== 'cancelled').length, 0
                   );
 
                   return (
@@ -651,7 +652,7 @@ export default function DealerNegotiations() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="text-lg font-bold mb-1">
-                        Customer Request - {dealList.selectedCars.filter(sc => activeTab === 'incoming' ? sc.status !== 'cancelled' : true).length} Total Cars ({dealList.selectedCars.filter(sc => sc.car.dealerId === user.id && (activeTab === 'incoming' ? sc.status !== 'cancelled' : true)).length} Yours)
+                        Customer Request - {dealList.selectedCars.filter(sc => activeTab === 'incoming' ? sc.status !== 'cancelled' : true).length} Total Cars ({dealList.selectedCars.filter(sc => sc.car.dealerId === (user.effectiveDealerId || user.id) && (activeTab === 'incoming' ? sc.status !== 'cancelled' : true)).length} Yours)
                       </h3>
                       <p className="text-sm opacity-90">{dealList.customer.name}</p>
                       <p className="text-xs opacity-75">{dealList.customer.email} • {dealList.customer.phone}</p>
@@ -707,7 +708,7 @@ export default function DealerNegotiations() {
 
                       // Check if dealer has a pending offer waiting for customer response
                       const hasPendingOffer = selectedCar.negotiations
-                        .filter(n => n.dealerId === user.id)
+                        .filter(n => n.dealerId === (user.effectiveDealerId || user.id))
                         .some(n => n.status === 'pending');
 
                       // Check if a competitor won this deal request
@@ -896,10 +897,10 @@ export default function DealerNegotiations() {
                               )}
 
                               {/* Show dealer's submitted offers with status */}
-                              {selectedCar.negotiations.filter(n => n.dealerId === user.id).length > 0 && (
+                              {selectedCar.negotiations.filter(n => n.dealerId === (user.effectiveDealerId || user.id)).length > 0 && (
                                 <div className="mb-2 space-y-1">
                                   {selectedCar.negotiations
-                                    .filter(n => n.dealerId === user.id)
+                                    .filter(n => n.dealerId === (user.effectiveDealerId || user.id))
                                     .map((offer) => (
                                       <div
                                         key={offer.id}
@@ -1116,7 +1117,7 @@ export default function DealerNegotiations() {
                   {(() => {
                     // Check if any of our cars have a dead deal
                     const hasDeadDeal = dealList.selectedCars
-                      .filter(sc => sc.car.dealerId === user.id)
+                      .filter(sc => sc.car.dealerId === (user.effectiveDealerId || user.id))
                       .some(sc => sc.car.acceptedDeals?.[0]?.deadDeal);
 
                     if (hasDeadDeal) return null; // Hide competitors if deal is dead

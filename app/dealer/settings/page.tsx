@@ -43,7 +43,8 @@ export default function DealerSettings() {
     }
 
     setUser(parsed);
-    loadProfile(parsed.id);
+    // Use effectiveDealerId for team members to load parent dealer's settings
+    loadProfile(parsed.effectiveDealerId || parsed.id);
   }, [router]);
 
   const loadProfile = async (dealerId: string) => {
@@ -88,7 +89,7 @@ export default function DealerSettings() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          dealerId: user.id,
+          dealerId: user.effectiveDealerId || user.id,
           ...formData,
         }),
       });

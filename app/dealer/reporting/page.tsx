@@ -134,10 +134,12 @@ export default function DealerReporting() {
     }
 
     setUser(parsed);
-    loadReports(parsed.id);
-    loadWeekData(parsed.id);
-    loadMonthData(parsed.id);
-    loadOutbidData(parsed.id);
+    // Use effectiveDealerId for team members, fallback to user's own ID
+    const dealerId = parsed.effectiveDealerId || parsed.id;
+    loadReports(dealerId);
+    loadWeekData(dealerId);
+    loadMonthData(dealerId);
+    loadOutbidData(dealerId);
   }, [router]);
 
   // Extract unique locations when reportData changes
@@ -235,8 +237,8 @@ export default function DealerReporting() {
 
   const handleApplyFilters = () => {
     if (user) {
-      loadReports(user.id, filters);
-      loadOutbidData(user.id, filters);
+      loadReports(user.effectiveDealerId || user.id, filters);
+      loadOutbidData(user.effectiveDealerId || user.id, filters);
     }
   };
 
@@ -252,8 +254,8 @@ export default function DealerReporting() {
     setFilters(clearedFilters);
     setLocationFilters({ state: '', city: '' });
     if (user) {
-      loadReports(user.id, clearedFilters);
-      loadOutbidData(user.id, clearedFilters);
+      loadReports(user.effectiveDealerId || user.id, clearedFilters);
+      loadOutbidData(user.effectiveDealerId || user.id, clearedFilters);
     }
   };
 
@@ -274,7 +276,7 @@ export default function DealerReporting() {
       if (res.ok) {
         alert('Deal marked as dead successfully!');
         if (user) {
-          loadReports(user.id);
+          loadReports(user.effectiveDealerId || user.id);
         }
       } else {
         alert(data.error || 'Failed to mark deal as dead');

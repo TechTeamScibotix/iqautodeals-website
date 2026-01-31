@@ -33,6 +33,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
+    // For team members (parentDealerId set), get the parent dealer info
+    let effectiveDealerId = user.id;
+    let effectiveBusinessName = user.businessName;
+
+    if (user.parentDealerId) {
+      const parentDealer = await prisma.user.findUnique({
+        where: { id: user.parentDealerId },
+        select: { businessName: true },
+      });
+      effectiveDealerId = user.parentDealerId;
+      effectiveBusinessName = parentDealer?.businessName || user.businessName;
+    }
+
     return NextResponse.json({
       user: {
         id: user.id,
@@ -40,7 +53,9 @@ export async function POST(request: NextRequest) {
         name: user.name,
         userType: user.userType,
         verificationStatus: user.verificationStatus,
-        businessName: user.businessName,
+        businessName: effectiveBusinessName,
+        parentDealerId: user.parentDealerId,
+        effectiveDealerId, // The dealer ID to use for inventory/deals
       },
     });
   } catch (error) {
