@@ -76,7 +76,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-dark flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow"></div>
@@ -138,7 +138,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-white py-4 rounded-xl font-bold text-lg hover:bg-primary-dark hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 animate-slide-in"
+            className="w-full bg-primary text-white py-4 rounded-pill font-bold text-lg hover:bg-primary-dark hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 animate-slide-in"
             style={{ animationDelay: '0.3s' }}
           >
             {loading ? (

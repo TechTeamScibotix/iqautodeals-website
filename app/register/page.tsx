@@ -111,17 +111,17 @@ function RegisterForm() {
   const isDealer = formData.userType === 'dealer';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 p-4 py-12 relative overflow-hidden">
+    <div className="min-h-screen bg-black p-4 py-12 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-2xl mx-auto relative z-10 border-2 border-primary/10 animate-slide-up">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-2xl mx-auto relative z-10 border-2 border-primary/20 animate-slide-up">
         {/* Logo and Title */}
         <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-2 bg-gradient-to-r from-primary via-purple to-secondary bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-2 text-primary">
             IQ Auto Deals
           </h1>
           <h2 className="text-2xl font-bold mb-2 text-dark">
@@ -141,9 +141,9 @@ function RegisterForm() {
           <button
             type="button"
             onClick={() => setFormData({ ...formData, userType: 'customer' })}
-            className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`flex-1 py-4 rounded-pill font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
               !isDealer
-                ? 'bg-gradient-to-r from-primary to-purple text-white shadow-lg scale-105'
+                ? 'bg-primary text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
@@ -153,9 +153,9 @@ function RegisterForm() {
           <button
             type="button"
             onClick={() => setFormData({ ...formData, userType: 'dealer' })}
-            className={`flex-1 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
+            className={`flex-1 py-4 rounded-pill font-bold text-lg transition-all duration-300 flex items-center justify-center gap-2 ${
               isDealer
-                ? 'bg-gradient-to-r from-secondary to-orange-600 text-white shadow-lg scale-105'
+                ? 'bg-primary text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
             }`}
           >
@@ -449,7 +449,7 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary via-purple to-secondary text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 hover:scale-105 mt-4 animate-slide-in"
+            className="w-full bg-primary text-white py-4 rounded-pill font-bold text-lg hover:bg-primary-dark hover:shadow-2xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 mt-4 animate-slide-in"
             style={{ animationDelay: '1s' }}
           >
             {loading ? (
@@ -481,8 +481,8 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 p-4 py-12 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen bg-black p-4 py-12 flex items-center justify-center">
+        <div className="text-xl text-white">Loading...</div>
       </div>
     }>
       <RegisterForm />

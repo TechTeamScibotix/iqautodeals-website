@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 export default function PrePurchaseInspectionGuide() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" variant="dark" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
-          <Link href="/" className="text-primary hover:underline font-semibold flex items-center gap-2">
+          <Link href="/" className="text-gray-300 hover:text-white font-semibold flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
@@ -25,17 +25,17 @@ export default function PrePurchaseInspectionGuide() {
       </header>
 
       <article className="container mx-auto px-4 py-12 max-w-4xl">
-        <div className="bg-white rounded-lg shadow-lg p-8 md:p-12">
+        <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-6">
             Pre-Purchase Car Inspection Checklist
           </h1>
 
           <div className="prose prose-lg max-w-none">
-            <p className="text-xl text-gray-700 leading-relaxed mb-8">
+            <p className="text-xl text-gray-300 leading-relaxed mb-8">
               A thorough inspection can save you thousands by revealing hidden problems. Use this comprehensive checklist when evaluating any used car. Print it out and bring it with you!
             </p>
 
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8">
+            <div className="bg-primary/20 border-l-4 border-primary p-6 mb-8">
               <p className="text-gray-800 font-semibold flex items-center gap-2">
                 <AlertTriangle className="w-6 h-6 text-yellow-600" />
                 Important: Always get a professional mechanic inspection ($100-150) before buying!
@@ -47,8 +47,8 @@ export default function PrePurchaseInspectionGuide() {
               Exterior Inspection
             </h2>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Body & Paint</h3>
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Body & Paint</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Look for rust, especially wheel wells and undercarriage</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Check for mismatched paint (sign of accident repair)</span></li>
@@ -58,8 +58,8 @@ export default function PrePurchaseInspectionGuide() {
               </ul>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Tires & Wheels</h3>
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Tires & Wheels</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Tread depth (use penny test - Lincoln's head should be partially covered)</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Even wear across all tires (uneven = alignment issues)</span></li>
@@ -69,8 +69,8 @@ export default function PrePurchaseInspectionGuide() {
               </ul>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Lights & Glass</h3>
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Lights & Glass</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Test all lights (headlights, taillights, brake lights, turn signals)</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Check for condensation inside headlight/taillight housings</span></li>
@@ -84,8 +84,8 @@ export default function PrePurchaseInspectionGuide() {
               Under the Hood
             </h2>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Engine Bay</h3>
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Engine Bay</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Check oil level and condition (should be brownish, not black or milky)</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Inspect for oil leaks around engine and seals</span></li>
@@ -97,9 +97,9 @@ export default function PrePurchaseInspectionGuide() {
               </ul>
             </div>
 
-            <div className="bg-red-50 border-l-4 border-red-400 p-6 mb-6">
-              <p className="font-semibold text-dark mb-2 flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="bg-black border-l-4 border-red-400 p-6 mb-6">
+              <p className="font-semibold text-white mb-2 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
                 Critical Red Flags:
               </p>
               <ul className="text-sm space-y-1">
@@ -112,7 +112,7 @@ export default function PrePurchaseInspectionGuide() {
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Interior Check</h2>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Test all power windows and locks</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Air conditioning and heating work properly</span></li>
@@ -127,8 +127,8 @@ export default function PrePurchaseInspectionGuide() {
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Test Drive Checklist (20+ minutes)</h2>
 
-            <div className="bg-blue-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Engine & Transmission</h3>
+            <div className="bg-black rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Engine & Transmission</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Engine starts easily (no hesitation or rough idle)</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Smooth acceleration with no hesitation</span></li>
@@ -138,8 +138,8 @@ export default function PrePurchaseInspectionGuide() {
               </ul>
             </div>
 
-            <div className="bg-blue-50 rounded-lg p-6 mb-6">
-              <h3 className="text-xl font-bold text-dark mb-4">Handling & Brakes</h3>
+            <div className="bg-black rounded-xl p-6 mb-6">
+              <h3 className="text-xl font-bold text-white mb-4">Handling & Brakes</h3>
               <ul className="space-y-2">
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Steering is responsive (no excessive play)</span></li>
                 <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-primary mt-0.5" /><span>Car doesn't pull to one side while driving</span></li>
@@ -151,24 +151,24 @@ export default function PrePurchaseInspectionGuide() {
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Documents to Request</h2>
 
-            <div className="bg-green-50 rounded-lg p-6 mb-8">
+            <div className="bg-black rounded-xl p-6 mb-8">
               <ul className="space-y-2">
-                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-600 mt-0.5" /><span>Service records (proves regular maintenance)</span></li>
-                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-600 mt-0.5" /><span>Vehicle history report (Carfax/AutoCheck)</span></li>
-                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-600 mt-0.5" /><span>Title (check for "salvage" or "rebuilt")</span></li>
-                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-600 mt-0.5" /><span>Owner's manual and warranty information</span></li>
-                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-600 mt-0.5" /><span>Second key/fob (expensive to replace if missing)</span></li>
+                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-400 mt-0.5" /><span>Service records (proves regular maintenance)</span></li>
+                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-400 mt-0.5" /><span>Vehicle history report (Carfax/AutoCheck)</span></li>
+                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-400 mt-0.5" /><span>Title (check for "salvage" or "rebuilt")</span></li>
+                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-400 mt-0.5" /><span>Owner's manual and warranty information</span></li>
+                <li className="flex gap-2"><CheckSquare className="w-5 h-5 text-green-400 mt-0.5" /><span>Second key/fob (expensive to replace if missing)</span></li>
               </ul>
             </div>
 
-            <div className="bg-primary text-white rounded-lg p-8 mt-12">
+            <div className="bg-black text-white rounded-xl p-8 mt-12">
               <h3 className="text-2xl font-bold mb-4">Find Quality Pre-Inspected Cars</h3>
-              <p className="text-blue-100 mb-6">
+              <p className="text-gray-300 mb-6">
                 Browse thousands of quality used cars on IQ Auto Deals. Many come with inspection reports and warranties for peace of mind.
               </p>
               <Link
                 href="/cars"
-                className="inline-block bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+                className="inline-block bg-primary text-white px-8 py-4 rounded-pill font-bold hover:bg-primary-dark transition-colors"
               >
                 Browse Cars Now
               </Link>

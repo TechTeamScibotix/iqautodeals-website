@@ -21,7 +21,7 @@ export function AnimatedBorder({ children, className = '' }: AnimatedBorderProps
       </div>
 
       {/* Inner content with solid background */}
-      <div className="relative bg-dark rounded-lg px-6 py-3 z-10">
+      <div className="relative bg-black rounded-lg px-6 py-3 z-10">
         {children}
       </div>
     </div>
@@ -44,7 +44,7 @@ export function BorderBeam({ children, className = '' }: AnimatedBorderProps) {
       </div>
 
       {/* Border mask */}
-      <div className="absolute inset-[2px] rounded-[10px] bg-dark z-[1]" />
+      <div className="absolute inset-[2px] rounded-[10px] bg-black z-[1]" />
 
       {/* Content */}
       <div className="relative z-10 px-6 py-3">
@@ -76,7 +76,7 @@ export function GlowingBorder({ children, className = '' }: AnimatedBorderProps)
         />
 
         {/* Inner content */}
-        <div className="relative bg-dark rounded-[10px] px-6 py-3 z-10">
+        <div className="relative bg-black rounded-[10px] px-6 py-3 z-10">
           {children}
         </div>
       </div>

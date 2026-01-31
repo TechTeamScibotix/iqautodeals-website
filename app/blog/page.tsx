@@ -120,26 +120,26 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" variant="dark" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
-          <Link href="/" className="text-primary hover:underline font-semibold">
+          <Link href="/" className="text-gray-300 hover:text-white font-semibold">
             ← Back to Home
           </Link>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary to-blue-700 text-white py-16">
+      <section className="bg-black text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <BookOpen className="w-10 h-10" />
+              <BookOpen className="w-10 h-10 text-primary" />
               <h1 className="text-4xl md:text-5xl font-bold">Car Buying Blog</h1>
             </div>
-            <p className="text-xl text-blue-100">
+            <p className="text-xl text-gray-300">
               Expert tips, guides, and advice to help you buy your next used car with confidence
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function BlogPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow group"
+              className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow group"
             >
               <div className="p-6">
                 <div className="flex items-center gap-2 text-sm text-primary font-semibold mb-3">
@@ -195,7 +195,7 @@ export default function BlogPage() {
             <Link
               key={guide.slug}
               href={`/guides/${guide.slug}`}
-              className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow group"
+              className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow group"
             >
               <div className="p-6">
                 <div className="flex items-center gap-2 text-sm text-primary font-semibold mb-3">
@@ -226,15 +226,15 @@ export default function BlogPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-primary text-white py-12">
+      <section className="bg-black text-white py-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Perfect Car?</h2>
-          <p className="text-xl text-blue-100 mb-6">
+          <p className="text-xl text-gray-300 mb-6">
             Browse thousands of quality used cars and get competitive offers from local dealers
           </p>
           <Link
             href="/cars"
-            className="inline-block bg-white text-primary px-8 py-4 rounded-lg text-lg font-bold hover:bg-gray-100 transition-colors"
+            className="inline-block bg-primary text-white px-8 py-4 rounded-pill text-lg font-bold hover:bg-primary-dark transition-colors"
           >
             Start Shopping Now
           </Link>

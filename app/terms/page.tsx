@@ -9,10 +9,10 @@ export default function TermsOfServicePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden lg:flex gap-6 text-sm font-semibold">
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
@@ -37,7 +37,7 @@ export default function TermsOfServicePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-dark text-white py-12">
+      <section className="bg-black text-white py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">

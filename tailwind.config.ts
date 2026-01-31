@@ -7,28 +7,43 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    fontFamily: {
+      sans: ['"DM Sans"', 'Arial', 'Helvetica', 'sans-serif'],
+    },
     extend: {
       colors: {
-        // Enterprise professional theme - ADA/WCAG AA compliant (4.5:1 contrast ratio)
-        primary: "#2563eb",      // Blue 600 - vibrant professional blue
-        "primary-dark": "#1d4ed8", // Blue 700 for hover
-        "primary-light": "#1e40af", // Blue 800 for better contrast on light bg
-        secondary: "#1e293b",    // Slate 800
-        "secondary-light": "#334155", // Slate 700
-        accent: "#047857",       // Emerald 700 - better contrast than 600
-        "accent-light": "#059669", // Emerald 600
-        dark: "#1e293b",         // Slate 800 - professional dark
-        "dark-light": "#334155", // Slate 700
-        light: "#f8fafc",        // Slate 50 - clean white
-        "light-dark": "#f1f5f9", // Slate 100
-        "text-primary": "#0f172a",   // Slate 900
-        "text-secondary": "#334155", // Slate 700
-        "text-muted": "#475569",     // Slate 600 - darker for better contrast (was 500)
-        "text-light": "#64748b",     // Slate 500 - darker for better contrast (was 400)
-        error: "#dc2626",        // Red 600
-        success: "#047857",      // Emerald 700 - better contrast
-        warning: "#b45309",      // Amber 700 - better contrast (was 600)
-        border: "#e2e8f0",       // Slate 200
+        // TrueCar-inspired theme
+        primary: "#1979c7",      // TrueCar blue
+        "primary-dark": "#0e68ac", // Darker blue for hover
+        "primary-light": "#109de7", // Lighter blue
+        secondary: "#343434",    // TrueCar dark gray
+        "secondary-light": "#707070", // Medium gray
+        accent: "#06aeaa",       // TrueCar teal
+        "accent-light": "#058b88", // Darker teal
+        "accent-orange": "#ff6400", // TrueCar orange
+        "accent-orange-dark": "#cb4f00", // Darker orange
+        dark: "#343434",         // TrueCar dark text
+        "dark-light": "#707070", // Medium gray
+        light: "#ffffff",        // White
+        "light-dark": "#f2f2f2", // Light gray background
+        "light-darker": "#f8f8f8", // Slightly darker
+        "text-primary": "#343434",   // TrueCar dark text
+        "text-secondary": "#707070", // Medium gray
+        "text-muted": "#969696",     // Muted/disabled text
+        "text-light": "#707070",     // Light text
+        error: "#f04124",        // TrueCar red
+        success: "#03806d",      // TrueCar green
+        warning: "#fbbe00",      // TrueCar yellow
+        border: "#e5e5e5",       // TrueCar border
+        "focus-blue": "#0098d1", // TrueCar focus/active cyan
+      },
+      borderRadius: {
+        'pill': '20em',          // TrueCar pill buttons
+        'card': '0.3125rem',     // TrueCar card radius (5px)
+      },
+      boxShadow: {
+        'card': '.125rem .125rem .4375rem 0 rgba(1,1,1,.15)', // TrueCar card shadow
+        'card-hover': '.125rem .125rem .625rem 0 rgba(1,1,1,.25)', // Hover shadow
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

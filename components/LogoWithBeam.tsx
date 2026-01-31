@@ -26,7 +26,7 @@ export function LogoWithBeam({ className = '', variant = 'light' }: LogoWithBeam
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"
         viewBox="0 0 1159 372"
-        preserveAspectRatio="xMidYMid meet"
+        preserveAspectRatio="xMinYMin meet"
       >
         <defs>
           {/* Glow filter */}
@@ -59,7 +59,7 @@ export function LogoWithBeam({ className = '', variant = 'light' }: LogoWithBeam
         </defs>
 
         {/* Spinning Q effect - positioned over the Q in the logo */}
-        <g transform="translate(175, 215)">
+        <g transform="translate(175, 210)">
           {/* Outer spinning ring */}
           <circle
             cx="0"

@@ -184,10 +184,10 @@ export default function BookDemoPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden lg:flex gap-6 text-sm font-semibold">
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
@@ -201,10 +201,10 @@ export default function BookDemoPage() {
             </Link>
           </nav>
           <div className="flex gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold">
+            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold">
               Dealer Login
             </Link>
-            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold">
+            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold">
               Start Free Pilot
             </Link>
           </div>
@@ -314,7 +314,7 @@ export default function BookDemoPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary text-white py-4 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 text-lg"
+                  className="w-full bg-primary text-white py-4 rounded-pill font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 text-lg"
                 >
                   Continue to Select Time
                   <ArrowRight className="w-5 h-5" />
@@ -444,7 +444,7 @@ export default function BookDemoPage() {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setStep(1)}
-                    className="px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    className="px-6 py-3 border border-gray-300 rounded-pill font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     Back
@@ -452,7 +452,7 @@ export default function BookDemoPage() {
                   <button
                     onClick={handleBookDemo}
                     disabled={!selectedSlot || booking}
-                    className="flex-1 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-primary text-white py-3 rounded-pill font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {booking ? (
                       <>
@@ -520,13 +520,13 @@ export default function BookDemoPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   href="/for-dealers"
-                  className="px-8 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="px-8 py-3 border border-gray-300 rounded-pill font-medium hover:bg-gray-50 transition-colors"
                 >
                   Back to For Dealers
                 </Link>
                 <Link
                   href="/register?type=dealer"
-                  className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                  className="bg-primary text-white px-8 py-3 rounded-pill font-bold hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
                 >
                   Start Free Pilot
                   <ArrowRight className="w-5 h-5" />

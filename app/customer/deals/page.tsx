@@ -252,10 +252,10 @@ export default function CustomerDeals() {
   return (
     <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <div className="flex items-center gap-3">
             <button
@@ -311,7 +311,7 @@ export default function CustomerDeals() {
               return (
                 <div key={dealList.id} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
                   {/* Deal Header */}
-                  <div className="bg-dark text-white p-4">
+                  <div className="bg-black text-white p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="text-lg font-bold mb-1 flex items-center gap-2">

@@ -361,7 +361,7 @@ const popularModels = {
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-white">
+    <footer className="bg-black text-white">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
         {/* Browse by Location Section */}

@@ -27,10 +27,10 @@ export default function ForDealersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden lg:flex gap-6 text-sm font-semibold">
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
@@ -44,10 +44,10 @@ export default function ForDealersPage() {
             </Link>
           </nav>
           <div className="flex gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold">
+            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold">
               Dealer Login
             </Link>
-            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold">
+            <Link href="/register?type=dealer" className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold">
               Start Free Pilot
             </Link>
           </div>
@@ -85,14 +85,14 @@ export default function ForDealersPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link
                 href="/for-dealers/book-demo"
-                className="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-primary/25"
+                className="bg-primary text-white px-8 py-4 rounded-pill font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-primary/25"
               >
                 <Rocket className="w-5 h-5" />
                 Book Demo Now
               </Link>
               <Link
                 href="/register?type=dealer"
-                className="bg-white text-dark px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
+                className="bg-white text-dark px-8 py-4 rounded-pill font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Sign Up for 90-Day Free Pilot
                 <ArrowRight className="w-5 h-5" />
@@ -206,7 +206,7 @@ export default function ForDealersPage() {
             <div className="text-center">
               <Link
                 href="/for-dealers/book-demo"
-                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-pill font-bold hover:bg-primary-dark transition-colors"
               >
                 <Rocket className="w-5 h-5" />
                 Book Demo Now
@@ -399,14 +399,14 @@ export default function ForDealersPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/register?type=dealer"
-                className="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-primary/25"
+                className="bg-primary text-white px-8 py-4 rounded-pill font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg shadow-lg shadow-primary/25"
               >
                 Sign Up for 90-Day Pilot Now
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/for-dealers/book-demo"
-                className="border-2 border-primary text-primary px-8 py-4 rounded-lg font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-2 text-lg"
+                className="border-2 border-primary text-primary px-8 py-4 rounded-pill font-bold hover:bg-primary/5 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Book a Quick Demo
               </Link>
@@ -514,14 +514,14 @@ export default function ForDealersPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/register?type=dealer"
-                className="bg-white text-primary px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
+                className="bg-white text-primary px-8 py-4 rounded-pill font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Sign Up for Free Pilot Now
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/for-dealers/book-demo"
-                className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-lg"
+                className="border-2 border-white text-white px-8 py-4 rounded-pill font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-lg"
               >
                 Book a Quick Demo
               </Link>
@@ -531,7 +531,7 @@ export default function ForDealersPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-dark text-white">
+      <section className="py-20 bg-black text-white">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Don't Get Left Behind in the AI Era
@@ -543,14 +543,14 @@ export default function ForDealersPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link
               href="/for-dealers/book-demo"
-              className="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg"
+              className="bg-primary text-white px-8 py-4 rounded-pill font-bold hover:bg-primary-dark transition-all flex items-center justify-center gap-2 text-lg"
             >
               <Rocket className="w-5 h-5" />
               Book Demo Now
             </Link>
             <Link
               href="/register?type=dealer"
-              className="bg-white text-dark px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
+              className="bg-white text-dark px-8 py-4 rounded-pill font-bold hover:bg-gray-100 transition-all flex items-center justify-center gap-2 text-lg"
             >
               Sign Up Now
               <ArrowRight className="w-5 h-5" />

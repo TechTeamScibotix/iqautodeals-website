@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone, Globe, ExternalLink } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import Footer from '../components/Footer';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
@@ -79,6 +79,7 @@ export default function CarsPage() {
     state: searchParams.get('state') || 'all',
     condition: searchParams.get('condition') || 'all',
     fuelType: searchParams.get('fuelType') || 'all',
+    bodyType: searchParams.get('bodyType') || 'all',
     minPrice: searchParams.get('minPrice') || '',
     maxPrice: searchParams.get('maxPrice') || '',
     zipCode: searchParams.get('zipCode') || '',
@@ -87,6 +88,21 @@ export default function CarsPage() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
   const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
+
+  // TrueCar-style filter panel state
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    brand: true,
+    distance: true,
+    price: true,
+    bodyType: false,
+    condition: false,
+  });
+  const [searchRadius, setSearchRadius] = useState(75);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Dynamic filter options from database
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
@@ -151,6 +167,8 @@ export default function CarsPage() {
     const urlMake = searchParams.get('make') || '';
     const urlModel = searchParams.get('model') || '';
     const urlZipCode = searchParams.get('zipCode') || '';
+    const urlBodyType = searchParams.get('bodyType') || 'all';
+    const urlFuelType = searchParams.get('fuelType') || 'all';
 
     // Update state and reload if URL params changed
     const newSearch = {
@@ -160,9 +178,11 @@ export default function CarsPage() {
       make: urlMake,
       model: urlModel,
       zipCode: urlZipCode,
+      bodyType: urlBodyType,
+      fuelType: urlFuelType,
     };
 
-    if (urlQ !== search.q || urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model || urlZipCode !== search.zipCode) {
+    if (urlQ !== search.q || urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model || urlZipCode !== search.zipCode || urlBodyType !== search.bodyType || urlFuelType !== search.fuelType) {
       setSearch(newSearch);
       loadCarsWithParams(newSearch);
     }
@@ -179,6 +199,8 @@ export default function CarsPage() {
       if (currentSearch.model) params.append('model', currentSearch.model);
       if (currentSearch.state && currentSearch.state !== 'all') params.append('state', currentSearch.state);
       if (currentSearch.condition && currentSearch.condition !== 'all') params.append('condition', currentSearch.condition);
+      if (currentSearch.bodyType && currentSearch.bodyType !== 'all') params.append('bodyType', currentSearch.bodyType);
+      if (currentSearch.fuelType && currentSearch.fuelType !== 'all') params.append('fuelType', currentSearch.fuelType);
       if (currentSearch.minPrice) params.append('minPrice', currentSearch.minPrice);
       if (currentSearch.maxPrice) params.append('maxPrice', currentSearch.maxPrice);
       if (currentSearch.zipCode) params.append('zipCode', currentSearch.zipCode);
@@ -198,6 +220,7 @@ export default function CarsPage() {
           model: currentSearch.model,
           state: currentSearch.state,
           condition: currentSearch.condition,
+          fuelType: currentSearch.fuelType,
         },
       });
 
@@ -231,6 +254,8 @@ export default function CarsPage() {
       if (search.model) params.append('model', search.model);
       if (search.state && search.state !== 'all') params.append('state', search.state);
       if (search.condition && search.condition !== 'all') params.append('condition', search.condition);
+      if (search.bodyType && search.bodyType !== 'all') params.append('bodyType', search.bodyType);
+      if (search.fuelType && search.fuelType !== 'all') params.append('fuelType', search.fuelType);
       if (search.minPrice) params.append('minPrice', search.minPrice);
       if (search.maxPrice) params.append('maxPrice', search.maxPrice);
       if (search.zipCode) params.append('zipCode', search.zipCode);
@@ -250,6 +275,8 @@ export default function CarsPage() {
           model: search.model,
           state: search.state,
           condition: search.condition,
+          bodyType: search.bodyType,
+          fuelType: search.fuelType,
         },
       });
 
@@ -263,6 +290,8 @@ export default function CarsPage() {
             model: search.model,
             state: search.state,
             condition: search.condition,
+            bodyType: search.bodyType,
+            fuelType: search.fuelType,
           },
         });
       }
@@ -318,10 +347,12 @@ export default function CarsPage() {
           photoCount: photos.length,
         });
       } else {
-        alert('No photos available for this vehicle');
+        // No photos - navigate to car detail page instead
+        router.push(`/cars/${car.slug || car.id}`);
       }
     } catch (error) {
-      alert('Unable to load photos');
+      // Error parsing photos - navigate to car detail page
+      router.push(`/cars/${car.slug || car.id}`);
     }
   };
 
@@ -385,10 +416,10 @@ export default function CarsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
             <Link href="/cars?condition=new" className={search.condition === 'new' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
@@ -411,7 +442,7 @@ export default function CarsPage() {
             {user ? (
               <Link
                 href={user.userType === 'customer' ? '/customer' : '/dealer'}
-                className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
+                className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold"
               >
                 Dashboard
               </Link>
@@ -419,14 +450,14 @@ export default function CarsPage() {
               <>
                 <Link
                   href="/login"
-                  className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold flex items-center gap-2"
+                  className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" />
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold"
+                  className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold"
                 >
                   Sign Up
                 </Link>
@@ -436,219 +467,437 @@ export default function CarsPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Title */}
-        <h1 className="text-3xl md:text-4xl font-bold text-dark mb-6">
-          {search.condition === 'new'
-            ? 'New Vehicles for Sale - Browse New Cars from Dealers'
-            : search.condition === 'used'
-            ? 'Used Cars for Sale - Browse Quality Pre-Owned Vehicles'
-            : 'Cars for Sale - Browse New & Used Vehicles'}
-        </h1>
+      {/* Mobile Filters Button */}
+      <div className="lg:hidden sticky top-20 z-40 bg-white border-b border-gray-200 px-4 py-3">
+        <button
+          onClick={() => setShowMobileFilters(true)}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-full font-medium text-gray-700 hover:bg-gray-50"
+        >
+          <SlidersHorizontal className="w-5 h-5" />
+          Filters
+        </button>
+      </div>
 
-        {/* Search Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2 text-dark">
-            <Search className="w-6 h-6 text-primary" />
-            Search Inventory
-          </h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Browse thousands of vehicles. {!user && 'Sign up to request deals from dealers.'}
-          </p>
+      {/* Mobile Filters Modal */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileFilters(false)} />
+          <div className="absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold">FILTERS</h2>
+              <button onClick={() => setShowMobileFilters(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-4">
+              {/* Mobile Filter Content - Same as sidebar */}
+              {/* Brand Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('brand')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">Brand</span>
+                  {openSections.brand ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.brand && (
+                  <div className="mt-4 space-y-3">
+                    <select
+                      value={search.make}
+                      onChange={(e) => setSearch(prev => ({ ...prev, make: e.target.value, model: '' }))}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="">All Makes</option>
+                      {filterOptions.makes.map((make) => (
+                        <option key={make} value={make}>{make}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={search.model}
+                      onChange={(e) => setSearch(prev => ({ ...prev, model: e.target.value }))}
+                      disabled={!search.make}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary disabled:bg-gray-100"
+                    >
+                      <option value="">{search.make ? 'All Models' : 'Select Make First'}</option>
+                      {availableModels.map((model) => (
+                        <option key={model} value={model}>{model}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
 
-          {/* Free-text Search */}
-          <div className="mb-4">
-            <input
-              type="text"
-              value={search.q}
-              onChange={(e) => handleFilterChange('q', e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && loadCars()}
-              placeholder="Search by make, model, year, color, body type, VIN..."
-              aria-label="Search vehicles"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            />
-          </div>
+              {/* Distance Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('distance')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">Distance</span>
+                  {openSections.distance ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.distance && (
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">ZIP Code</label>
+                      <input
+                        type="text"
+                        value={search.zipCode}
+                        onChange={(e) => setSearch(prev => ({ ...prev, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                        placeholder="Enter ZIP"
+                        maxLength={5}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-600">Search radius</label>
+                      <div className="text-center font-semibold mt-1">{searchRadius} miles</div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="500"
+                        value={searchRadius}
+                        onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                        className="w-full mt-2 accent-primary"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <div className="grid md:grid-cols-4 gap-4 mb-4">
-            <select
-              value={search.condition}
-              onChange={(e) => handleFilterChange('condition', e.target.value)}
-              aria-label="Select vehicle condition"
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            >
-              <option value="all">New/Used</option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-            </select>
+              {/* Price Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('price')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">Price</span>
+                  {openSections.price ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.price && (
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Min price</label>
+                      <select
+                        value={search.minPrice}
+                        onChange={(e) => setSearch(prev => ({ ...prev, minPrice: e.target.value }))}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      >
+                        <option value="">Any</option>
+                        <option value="5000">$5,000</option>
+                        <option value="10000">$10,000</option>
+                        <option value="15000">$15,000</option>
+                        <option value="20000">$20,000</option>
+                        <option value="25000">$25,000</option>
+                        <option value="30000">$30,000</option>
+                        <option value="40000">$40,000</option>
+                        <option value="50000">$50,000</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Max price</label>
+                      <select
+                        value={search.maxPrice}
+                        onChange={(e) => setSearch(prev => ({ ...prev, maxPrice: e.target.value }))}
+                        className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      >
+                        <option value="">Any</option>
+                        <option value="10000">$10,000</option>
+                        <option value="15000">$15,000</option>
+                        <option value="20000">$20,000</option>
+                        <option value="25000">$25,000</option>
+                        <option value="30000">$30,000</option>
+                        <option value="40000">$40,000</option>
+                        <option value="50000">$50,000</option>
+                        <option value="75000">$75,000</option>
+                        <option value="100000">$100,000</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-            <select
-              value={search.make}
-              onChange={(e) => {
-                handleFilterChange('make', e.target.value);
-                setSearch(prev => ({ ...prev, make: e.target.value, model: '' }));
-              }}
-              aria-label="Select vehicle make"
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            >
-              <option value="">All Makes ({filterOptions.makes.length})</option>
-              {filterOptions.makes.map((make) => (
-                <option key={make} value={make}>
-                  {make}
-                </option>
-              ))}
-            </select>
+              {/* Body Type Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('bodyType')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">Body Type</span>
+                  {openSections.bodyType ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.bodyType && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon', 'Van', 'Crossover'].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSearch(prev => ({ ...prev, bodyType: prev.bodyType === type ? 'all' : type }))}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          search.bodyType === type ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-            <select
-              value={search.model}
-              onChange={(e) => handleFilterChange('model', e.target.value)}
-              disabled={!search.make}
-              aria-label="Select vehicle model"
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white disabled:bg-gray-100 disabled:text-gray-400"
-            >
-              <option value="">
-                {search.make ? `All ${search.make} Models (${availableModels.length})` : 'Select Make First'}
-              </option>
-              {availableModels.map((model) => (
-                <option key={model} value={model}>
-                  {model}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={search.state}
-              onChange={(e) => handleFilterChange('state', e.target.value)}
-              aria-label="Select state"
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            >
-              <option value="all">All States ({filterOptions.states.length})</option>
-              {filterOptions.states.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid md:grid-cols-5 gap-4">
-            <select
-              value={search.fuelType}
-              onChange={(e) => handleFilterChange('fuelType', e.target.value)}
-              aria-label="Select fuel type"
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            >
-              <option value="all">All Fuel Types</option>
-              {filterOptions.fuelTypes.length > 0 ? (
-                filterOptions.fuelTypes.map((fuelType) => (
-                  <option key={fuelType} value={fuelType}>
-                    {fuelType}
-                  </option>
-                ))
-              ) : (
-                <>
-                  <option value="Gasoline">Gasoline</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Electric">Electric</option>
-                  <option value="Hybrid">Hybrid</option>
-                  <option value="Flex Fuel">Flex Fuel</option>
-                </>
-              )}
-            </select>
-
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-              <input
-                type="number"
-                value={search.minPrice}
-                onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                placeholder="Min Price"
-                aria-label="Minimum price"
-                min="0"
-                className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-              />
+              {/* Condition Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('condition')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold text-lg">Condition</span>
+                  {openSections.condition ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.condition && (
+                  <div className="mt-4 flex gap-2">
+                    {['all', 'new', 'used'].map((cond) => (
+                      <button
+                        key={cond}
+                        onClick={() => setSearch(prev => ({ ...prev, condition: cond }))}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                          search.condition === cond ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {cond === 'all' ? 'All' : cond.charAt(0).toUpperCase() + cond.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-              <input
-                type="number"
-                value={search.maxPrice}
-                aria-label="Maximum price"
-                onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                placeholder="Max Price"
-                min="0"
-                className="w-full pl-7 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-              />
-            </div>
-
-            <input
-              type="text"
-              value={search.zipCode}
-              onChange={(e) => handleFilterChange('zipCode', e.target.value.replace(/\D/g, '').slice(0, 5))}
-              placeholder="Search by ZIP Code"
-              aria-label="Search by ZIP code"
-              maxLength={5}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white"
-            />
-
-            <button
-              onClick={loadCars}
-              className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center justify-center gap-2"
-            >
-              <Search className="w-5 h-5" />
-              Show Matches
-            </button>
-          </div>
-        </div>
-
-        {/* Results Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-dark">
-            {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
-          </h2>
-          {search.q && (
-            <p className="text-primary font-medium mt-1">
-              Search results for &quot;{search.q}&quot;
+            {/* Apply Filters Button */}
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex gap-3">
               <button
                 onClick={() => {
-                  setSearch(prev => ({ ...prev, q: '' }));
-                  router.push('/cars');
+                  setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
                 }}
-                className="ml-2 text-gray-500 hover:text-gray-700 text-sm underline"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50"
               >
-                Clear search
+                Clear all
               </button>
-            </p>
-          )}
-          {search.zipCode && filteredCars.length > 0 && (
-            <p className="text-primary font-medium mt-1">
-              Sorted by distance from ZIP code {search.zipCode}
-            </p>
-          )}
-          {!user && filteredCars.length > 0 && (
-            <p className="text-gray-600 mt-2">
-              <Link href="/register?type=customer" className="text-primary font-semibold hover:underline">
-                Create a free account
-              </Link> to request competitive deals from dealers
-            </p>
-          )}
-        </div>
-
-        {/* Cars Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">Loading inventory...</div>
-          </div>
-        ) : filteredCars.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
-            <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-              <Search className="w-8 h-8 text-primary" />
+              <button
+                onClick={() => {
+                  loadCars();
+                  setShowMobileFilters(false);
+                }}
+                className="flex-1 px-4 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800"
+              >
+                Apply filters
+              </button>
             </div>
-            <h3 className="text-xl font-bold mb-2 text-dark">No vehicles found</h3>
-            <p className="text-gray-600">Try adjusting your search filters to see more results</p>
           </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Page Title */}
+        <h1 className="text-2xl md:text-3xl font-bold text-dark mb-2">
+          {search.fuelType && search.fuelType !== 'all'
+            ? `${search.fuelType} Vehicles for Sale`
+            : search.bodyType && search.bodyType !== 'all'
+            ? `${search.bodyType}s for Sale`
+            : search.condition === 'new'
+            ? 'New Vehicles for Sale'
+            : search.condition === 'used'
+            ? 'Used Cars for Sale'
+            : 'Cars for Sale'}
+        </h1>
+
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Desktop Sidebar Filters */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24">
+              {/* Brand Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('brand')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Brand</span>
+                  {openSections.brand ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.brand && (
+                  <div className="mt-3 space-y-2">
+                    <select
+                      value={search.make}
+                      onChange={(e) => {
+                        setSearch(prev => ({ ...prev, make: e.target.value, model: '' }));
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="">All Makes</option>
+                      {filterOptions.makes.map((make) => (
+                        <option key={make} value={make}>{make}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={search.model}
+                      onChange={(e) => setSearch(prev => ({ ...prev, model: e.target.value }))}
+                      disabled={!search.make}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary disabled:bg-gray-100"
+                    >
+                      <option value="">{search.make ? 'All Models' : 'Select Make First'}</option>
+                      {availableModels.map((model) => (
+                        <option key={model} value={model}>{model}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Distance Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('distance')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Distance</span>
+                  {openSections.distance ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.distance && (
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">ZIP Code</label>
+                      <input
+                        type="text"
+                        value={search.zipCode}
+                        onChange={(e) => setSearch(prev => ({ ...prev, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                        placeholder="Enter ZIP"
+                        maxLength={5}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">Search radius</div>
+                      <div className="text-center font-semibold text-sm">{searchRadius} miles</div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="500"
+                        value={searchRadius}
+                        onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                        className="w-full mt-1 accent-primary"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('price')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Price</span>
+                  {openSections.price ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.price && (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Min price</label>
+                      <select
+                        value={search.minPrice}
+                        onChange={(e) => setSearch(prev => ({ ...prev, minPrice: e.target.value }))}
+                        className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      >
+                        <option value="">Any</option>
+                        <option value="5000">$5,000</option>
+                        <option value="10000">$10,000</option>
+                        <option value="15000">$15,000</option>
+                        <option value="20000">$20,000</option>
+                        <option value="25000">$25,000</option>
+                        <option value="30000">$30,000</option>
+                        <option value="40000">$40,000</option>
+                        <option value="50000">$50,000</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Max price</label>
+                      <select
+                        value={search.maxPrice}
+                        onChange={(e) => setSearch(prev => ({ ...prev, maxPrice: e.target.value }))}
+                        className="w-full px-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                      >
+                        <option value="">Any</option>
+                        <option value="10000">$10,000</option>
+                        <option value="15000">$15,000</option>
+                        <option value="20000">$20,000</option>
+                        <option value="25000">$25,000</option>
+                        <option value="30000">$30,000</option>
+                        <option value="40000">$40,000</option>
+                        <option value="50000">$50,000</option>
+                        <option value="75000">$75,000</option>
+                        <option value="100000">$100,000</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Body Type Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('bodyType')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Body Type</span>
+                  {openSections.bodyType ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.bodyType && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon', 'Van', 'Crossover'].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setSearch(prev => ({ ...prev, bodyType: prev.bodyType === type ? 'all' : type }))}
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                          search.bodyType === type ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Condition Section */}
+              <div className="border-b border-gray-200 py-4">
+                <button onClick={() => toggleSection('condition')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Condition</span>
+                  {openSections.condition ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+                {openSections.condition && (
+                  <div className="mt-3 flex gap-1.5">
+                    {['all', 'new', 'used'].map((cond) => (
+                      <button
+                        key={cond}
+                        onClick={() => setSearch(prev => ({ ...prev, condition: cond }))}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          search.condition === cond ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {cond === 'all' ? 'All' : cond.charAt(0).toUpperCase() + cond.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Apply Button */}
+              <div className="py-4">
+                <button
+                  onClick={loadCars}
+                  className="w-full px-4 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition-colors"
+                >
+                  Apply filters
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            {/* Results Count */}
+            <div className="mb-4">
+              <p className="text-lg font-semibold">
+                {loading ? 'Loading...' : `${filteredCars.length} Listings`}
+              </p>
+            </div>
+
+            {/* Cars Grid */}
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-gray-500">Loading inventory...</div>
+              </div>
+            ) : filteredCars.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold mb-2 text-dark">No vehicles found</h3>
+                <p className="text-gray-600">Try adjusting your search filters to see more results</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filteredCars.map((car) => {
               let photoUrl = '';
               try {
@@ -661,7 +910,7 @@ export default function CarsPage() {
               return (
                 <div
                   key={car.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
                     <Image
@@ -671,7 +920,7 @@ export default function CarsPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
-                    <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold backdrop-blur-sm">
+                    <div className="absolute top-2 right-2 bg-black/60 text-white px-3 py-1 rounded-pill text-xs font-semibold backdrop-blur-sm">
                       <Camera className="w-3 h-3 inline mr-1" />
                       View Photos
                     </div>
@@ -709,7 +958,7 @@ export default function CarsPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => handleCheckAvailability(car, e)}
-                        className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                        className="flex-1 bg-primary text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
                       >
                         <Phone className="w-4 h-4" />
                         Check Availability - Test Drive
@@ -719,8 +968,11 @@ export default function CarsPage() {
                 </div>
               );
             })}
-          </div>
-        )}
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
 
       {/* Check Availability Modal */}
       {checkingAvailability && (
@@ -730,7 +982,6 @@ export default function CarsPage() {
           onClose={() => setCheckingAvailability(null)}
         />
       )}
-      </div>
 
       {/* Vehicle Details Modal */}
       {viewingPhotos && (
@@ -882,14 +1133,14 @@ export default function CarsPage() {
                       closePhotoGallery();
                       handleCheckAvailability(viewingPhotos.car, e);
                     }}
-                    className="w-full bg-primary text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                    className="w-full bg-primary text-white px-6 py-4 rounded-pill font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
                   >
                     <Phone className="w-5 h-5" />
                     Check Availability - Schedule Test Drive
                   </button>
                   <Link
                     href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
-                    className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
+                    className="w-full border-2 border-primary text-primary px-6 py-3 rounded-pill font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
                   >
                     View Full Listing
                   </Link>
@@ -911,14 +1162,14 @@ export default function CarsPage() {
                   closePhotoGallery();
                   handleCheckAvailability(viewingPhotos.car, e);
                 }}
-                className="w-full bg-primary text-white px-4 py-3 rounded-lg font-bold text-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-primary text-white px-4 py-3 rounded-pill font-bold text-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
                 Check Availability - Test Drive
               </button>
               <Link
                 href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
-                className="w-full border-2 border-primary text-primary px-4 py-2.5 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
+                className="w-full border-2 border-primary text-primary px-4 py-2.5 rounded-pill font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
               >
                 View Full Listing
               </Link>

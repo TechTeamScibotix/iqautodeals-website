@@ -432,7 +432,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="font-sans">
       <head>
         <meta name="msvalidate.01" content="3BCD417E7943B96A06FC27AF503F3523" />
         <meta name="google-site-verification" content="c3bc0iS_ATQI5PqBRyvuSAjZ8kn1MedWPylEA8O_P_Y" />
@@ -453,7 +453,7 @@ export default function RootLayout({
         <WebsiteSchema />
         <AutoDealerSchema />
       </head>
-      <body className="antialiased">
+      <body className="font-sans antialiased">
         {/* Skip link for keyboard navigation - ADA compliance */}
         <a href="#main-content" className="skip-link">
           Skip to main content

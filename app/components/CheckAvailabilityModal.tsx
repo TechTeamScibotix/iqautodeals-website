@@ -213,7 +213,7 @@ export default function CheckAvailabilityModal({ car, user, onClose }: CheckAvai
 
           <button
             onClick={handleClose}
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors"
+            className="w-full bg-primary text-white py-3 rounded-pill font-semibold hover:bg-primary-dark transition-colors"
           >
             Done
           </button>
@@ -357,7 +357,7 @@ export default function CheckAvailabilityModal({ car, user, onClose }: CheckAvai
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-primary text-white py-3 rounded-pill font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

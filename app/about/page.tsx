@@ -11,10 +11,10 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gray-50">
       <AboutSchema />
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden lg:flex gap-6 text-sm font-semibold">
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
@@ -28,10 +28,10 @@ export default function AboutPage() {
             </Link>
           </nav>
           <div className="flex gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-primary px-5 py-2.5 rounded-lg transition-colors font-semibold">
+            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold">
               Sign In
             </Link>
-            <Link href="/register" className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold">
+            <Link href="/register" className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold">
               Sign Up
             </Link>
           </div>
@@ -39,7 +39,7 @@ export default function AboutPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="bg-dark text-white py-20">
+      <section className="bg-black text-white py-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">

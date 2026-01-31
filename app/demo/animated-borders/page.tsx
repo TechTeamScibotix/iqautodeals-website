@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function AnimatedBordersDemo() {
   return (
-    <div className="min-h-screen bg-dark text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="border-b border-gray-800 p-4">
         <div className="container mx-auto flex justify-between items-center">

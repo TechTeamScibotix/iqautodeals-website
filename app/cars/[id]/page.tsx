@@ -205,10 +205,10 @@ export default async function CarDetailPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+        <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
           <div className="container mx-auto px-4 h-full flex justify-between items-center">
             <Link href="/" className="flex items-center h-full py-1">
-              <LogoWithBeam className="h-full" />
+              <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
             </Link>
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors font-semibold">
               Browse All Cars
@@ -299,7 +299,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           <div className="text-center">
             <Link
               href="/cars"
-              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition"
+              className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-pill font-bold text-lg hover:bg-primary-dark transition"
             >
               Browse All Vehicles
               <ArrowRight className="w-5 h-5" />
@@ -332,10 +332,10 @@ export default async function CarDetailPage({ params }: PageProps) {
       />
 
       {/* Header */}
-      <header className="bg-dark shadow-md sticky top-0 z-50 h-20">
+      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" />
+            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
             <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
@@ -347,7 +347,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           </nav>
           <Link
             href="/register"
-            className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
+            className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
           >
             Sign Up
           </Link>

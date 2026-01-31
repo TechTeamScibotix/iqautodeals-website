@@ -27,6 +27,8 @@ export async function GET(request: NextRequest) {
     const zipCode = searchParams.get('zipCode');
     const radius = searchParams.get('radius'); // Optional radius in miles (default: nationwide)
     const condition = searchParams.get('condition'); // new, used
+    const bodyType = searchParams.get('bodyType'); // SUV, Sedan, Truck, etc.
+    const fuelType = searchParams.get('fuelType'); // Gasoline, Electric, Hybrid, etc.
 
     // Get coordinates from zipcode if provided
     let userLat: number | null = null;
@@ -86,6 +88,96 @@ export async function GET(request: NextRequest) {
     // Filter by condition (new/used)
     if (condition && condition !== 'all') {
       where.condition = { equals: condition, mode: 'insensitive' };
+    }
+
+    // Filter by body type with smart matching
+    // Maps user-friendly names to database patterns, model keywords, and makes
+    if (bodyType && bodyType !== 'all') {
+      const bodyTypeMapping: Record<string, { bodyTypes: string[]; models: string[]; makes: string[] }> = {
+        'truck': {
+          bodyTypes: ['truck', 'cab', 'pickup'],
+          models: ['f-150', 'f-250', 'f-350', 'silverado', 'sierra', '1500', '2500', '3500', '4500', '5500', 'tacoma', 'tundra', 'titan', 'frontier', 'colorado', 'canyon', 'ranger', 'gladiator', 'ridgeline', 'maverick'],
+          makes: []
+        },
+        'suv': {
+          bodyTypes: ['suv', 'sport utility'],
+          models: [],
+          makes: []
+        },
+        'sedan': {
+          bodyTypes: ['sedan'],
+          models: [],
+          makes: []
+        },
+        'coupe': {
+          bodyTypes: ['coupe'],
+          models: [],
+          makes: []
+        },
+        'hatchback': {
+          bodyTypes: ['hatchback'],
+          models: [],
+          makes: []
+        },
+        'convertible': {
+          bodyTypes: ['convertible'],
+          models: [],
+          makes: []
+        },
+        'minivan': {
+          bodyTypes: ['minivan'],
+          models: ['pacifica', 'sienna', 'odyssey', 'carnival', 'grand caravan'],
+          makes: []
+        },
+        'wagon': {
+          bodyTypes: ['wagon'],
+          models: [],
+          makes: []
+        },
+        'van': {
+          bodyTypes: ['van', 'passenger van', 'cargo van'],
+          models: ['promaster', 'transit', 'sprinter', 'metris'],
+          makes: []
+        },
+        'crossover': {
+          bodyTypes: ['crossover', 'sport utility'],
+          models: [],
+          makes: []
+        },
+      };
+
+      const mapping = bodyTypeMapping[bodyType.toLowerCase()] || { bodyTypes: [bodyType], models: [], makes: [] };
+
+      // Build OR conditions for body type patterns, model keywords, and makes
+      const orConditions: any[] = [];
+
+      // Add body type pattern matches
+      mapping.bodyTypes.forEach(pattern => {
+        orConditions.push({ bodyType: { contains: pattern, mode: 'insensitive' } });
+      });
+
+      // Add model keyword matches (for vehicles with null bodyType)
+      mapping.models.forEach(modelKeyword => {
+        orConditions.push({ model: { contains: modelKeyword, mode: 'insensitive' } });
+      });
+
+      // Add make matches (e.g., Ram trucks)
+      mapping.makes.forEach(makeName => {
+        orConditions.push({ make: { equals: makeName, mode: 'insensitive' } });
+      });
+
+      const bodyTypeCondition = { OR: orConditions };
+
+      if (where.AND) {
+        where.AND.push(bodyTypeCondition);
+      } else {
+        where.AND = [bodyTypeCondition];
+      }
+    }
+
+    // Filter by fuel type
+    if (fuelType && fuelType !== 'all') {
+      where.fuelType = { contains: fuelType, mode: 'insensitive' };
     }
 
     // Price range filtering

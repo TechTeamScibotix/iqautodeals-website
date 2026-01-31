@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,6 +19,9 @@ body {
 body {
   color: rgb(var(--foreground-rgb));
   background: white;
+  font-family: "DM Sans", Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer utilities {
@@ -31,6 +36,45 @@ body {
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* TrueCar-inspired component styles */
+@layer components {
+  /* Pill button style */
+  .btn-pill {
+    @apply rounded-[20em] px-9 py-2.5 font-semibold transition-all duration-200;
+  }
+
+  .btn-pill-primary {
+    @apply btn-pill bg-primary text-white hover:bg-primary-dark;
+  }
+
+  .btn-pill-secondary {
+    @apply btn-pill bg-white text-primary border-2 border-primary hover:bg-primary hover:text-white;
+  }
+
+  .btn-pill-accent {
+    @apply btn-pill bg-accent text-white hover:bg-accent-light;
+  }
+
+  .btn-pill-orange {
+    @apply btn-pill bg-accent-orange text-white hover:bg-accent-orange-dark;
+  }
+
+  /* Card styles */
+  .card-truecar {
+    @apply bg-white rounded-card shadow-card border border-border transition-all duration-200 hover:shadow-card-hover;
+  }
+
+  /* Input styles */
+  .input-truecar {
+    @apply w-full px-4 py-3 border border-border rounded-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all;
+  }
+
+  /* Select styles */
+  .select-truecar {
+    @apply w-full px-4 py-3 border border-border rounded-card bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer;
   }
 }
 

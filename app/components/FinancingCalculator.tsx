@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { DollarSign, TrendingUp, Calendar, Percent } from 'lucide-react';
 
-export default function FinancingCalculator() {
+interface FinancingCalculatorProps {
+  darkMode?: boolean;
+}
+
+export default function FinancingCalculator({ darkMode = false }: FinancingCalculatorProps) {
   const [carPrice, setCarPrice] = useState('25000');
   const [downPayment, setDownPayment] = useState('5000');
   const [interestRate, setInterestRate] = useState('6.5');
@@ -43,8 +47,123 @@ export default function FinancingCalculator() {
     }).format(amount);
   };
 
+  if (darkMode) {
+    return (
+      <div className="w-full max-w-full">
+        <h3 className="font-bold text-white mb-6 flex items-center gap-2 text-xl">
+          <DollarSign className="w-6 h-6 text-primary" />
+          Financing Calculator
+        </h3>
+
+        <div className="space-y-5">
+          {/* Car Price */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
+              Car Price
+            </label>
+            <input
+              type="number"
+              value={carPrice}
+              onChange={(e) => setCarPrice(e.target.value)}
+              className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-primary focus:outline-none"
+              placeholder="25000"
+            />
+          </div>
+
+          {/* Down Payment */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
+              Down Payment
+            </label>
+            <input
+              type="number"
+              value={downPayment}
+              onChange={(e) => setDownPayment(e.target.value)}
+              className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-primary focus:outline-none"
+              placeholder="5000"
+            />
+          </div>
+
+          {/* Interest Rate */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
+              Interest Rate (%)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              value={interestRate}
+              onChange={(e) => setInterestRate(e.target.value)}
+              className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white placeholder-gray-400 focus:border-primary focus:outline-none"
+              placeholder="6.5"
+            />
+          </div>
+
+          {/* Loan Term */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
+              Loan Term (months)
+            </label>
+            <select
+              value={loanTerm}
+              onChange={(e) => setLoanTerm(e.target.value)}
+              className="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-xl text-white focus:border-primary focus:outline-none"
+            >
+              <option value="36" className="bg-black text-white">36 months (3 years)</option>
+              <option value="48" className="bg-black text-white">48 months (4 years)</option>
+              <option value="60" className="bg-black text-white">60 months (5 years)</option>
+              <option value="72" className="bg-black text-white">72 months (6 years)</option>
+              <option value="84" className="bg-black text-white">84 months (7 years)</option>
+            </select>
+          </div>
+
+          {/* Results */}
+          <div className="bg-primary/10 rounded-xl p-5 border border-primary/20 space-y-3 mt-6">
+            <div className="flex justify-between items-center gap-2">
+              <span className="text-sm text-gray-300 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                Monthly Payment
+              </span>
+              <span className="text-3xl font-bold text-primary">
+                {formatCurrency(results.monthly)}
+              </span>
+            </div>
+
+            <div className="border-t border-white/10 pt-4 space-y-3">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-sm text-gray-400 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Total Amount
+                </span>
+                <span className="text-base font-semibold text-white">
+                  {formatCurrency(results.total)}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-sm text-gray-400 flex items-center gap-2">
+                  <Percent className="w-4 h-4" />
+                  Total Interest
+                </span>
+                <span className="text-base font-semibold text-white">
+                  {formatCurrency(results.totalInterest)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/5 rounded-xl p-4 mt-4">
+            <p className="text-sm text-gray-300 text-center">
+              <strong className="text-primary">Tip:</strong> A larger down payment reduces your monthly payment and total interest paid.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-3 border border-blue-200 w-full max-w-full overflow-hidden">
+    <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-3 border border-blue-200 w-full max-w-full">
       <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
         <DollarSign className="w-5 h-5 text-primary" />
         Financing Calculator
@@ -60,7 +179,7 @@ export default function FinancingCalculator() {
             type="number"
             value={carPrice}
             onChange={(e) => setCarPrice(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:border-primary focus:outline-none"
             placeholder="25000"
           />
         </div>
@@ -74,7 +193,7 @@ export default function FinancingCalculator() {
             type="number"
             value={downPayment}
             onChange={(e) => setDownPayment(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:border-primary focus:outline-none"
             placeholder="5000"
           />
         </div>
@@ -89,7 +208,7 @@ export default function FinancingCalculator() {
             step="0.1"
             value={interestRate}
             onChange={(e) => setInterestRate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:border-primary focus:outline-none"
             placeholder="6.5"
           />
         </div>
@@ -102,7 +221,7 @@ export default function FinancingCalculator() {
           <select
             value={loanTerm}
             onChange={(e) => setLoanTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:border-primary focus:outline-none"
           >
             <option value="36">36 months (3 years)</option>
             <option value="48">48 months (4 years)</option>
