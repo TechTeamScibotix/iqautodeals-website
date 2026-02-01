@@ -12,10 +12,10 @@ import { PostHogProvider, PostHogPageView } from "./components/PostHogProvider";
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
-    default: "Used Cars for Sale Near You - Compare Prices & Save $5,000 | IQ Auto Deals",
+    default: "Used Cars for Sale Near You - Compare Prices & Save Hundreds",
     template: "%s | IQ Auto Deals"
   },
-  description: "🚗 Shop 1000+ quality used cars online. Compare prices from local dealers instantly, get competing offers & save up to $5,000. ✓ No haggling ✓ Free to use ✓ Trusted dealers. Browse now →",
+  description: "Shop 1000+ quality used cars online. Compare prices from local dealers instantly, get competing offers & save hundreds. ✓ No haggling ✓ Free to use ✓ Trusted dealers. Browse now →",
   keywords: [
     // Core Keywords
     'buy used cars online',
