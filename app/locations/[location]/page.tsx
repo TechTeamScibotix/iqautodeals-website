@@ -307,8 +307,8 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { city, state, stateCode } = locationData;
 
   return {
-    title: `Best Used Cars in ${city}, ${stateCode} (2025) - Compare & Save $5,000`,
-    description: `✓ 500+ quality used cars in ${city}, ${state} ✓ Compare dealer prices instantly ✓ Save up to $5,000 ✓ No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now →`,
+    title: `Best Used Cars in ${city}, ${stateCode} (2025) - Compare & Save Hundreds`,
+    description: `500+ quality used cars in ${city}, ${state}. Compare dealer prices instantly. Save hundreds. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
     keywords: [
       `used cars ${city}`,
       `used cars for sale ${city}`,
@@ -325,7 +325,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     ],
     openGraph: {
       title: `Used Cars in ${city}, ${stateCode}`,
-      description: `Shop quality used cars in ${city}. Compare prices from local dealers and save up to $5,000.`,
+      description: `Shop quality used cars in ${city}. Compare prices from local dealers and save hundreds.`,
       url: `https://iqautodeals.com/locations/${location}`,
     },
     alternates: {
@@ -394,7 +394,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>Save up to $5,000 on your next vehicle</span>
+                <span>Save hundreds on your next vehicle</span>
               </li>
               <li className="flex items-start">
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

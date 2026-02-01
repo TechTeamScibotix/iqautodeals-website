@@ -126,7 +126,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
 
   return {
     title: `Used ${make} ${modelName} for Sale (2025) - Best Prices Near You`,
-    description: `🔥 Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save up to $5,000. ✓ Certified pre-owned available ✓ No haggling required. Browse ${make} ${modelName} inventory now →`,
+    description: `Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save hundreds. Certified pre-owned available. No haggling required. Browse ${make} ${modelName} inventory now.`,
     keywords: [
       `used ${make} ${modelName}`,
       `${make} ${modelName} for sale`,
@@ -142,7 +142,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
     ],
     openGraph: {
       title: `Used ${make} ${modelName} for Sale`,
-      description: `Shop quality used ${make} ${modelName}. Compare prices from local dealers and save up to $5,000.`,
+      description: `Shop quality used ${make} ${modelName}. Compare prices from local dealers and save hundreds.`,
       url: `https://iqautodeals.com/models/${modelSlug}`,
     },
     alternates: {
@@ -215,7 +215,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>Save up to $5,000 on your {make} {modelName} purchase</span>
+                <span>Save hundreds on your {make} {modelName} purchase</span>
               </li>
               <li className="flex items-start">
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

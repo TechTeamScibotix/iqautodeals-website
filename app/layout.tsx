@@ -391,7 +391,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://iqautodeals.com',
     title: 'Buy Used Cars Online - Shop Certified Pre-Owned Vehicles | IQ Auto Deals',
-    description: 'Shop thousands of quality used cars for sale online. Compare prices from local dealers, get instant offers, and save up to $5,000. Browse certified pre-owned vehicles with transparent pricing.',
+    description: 'Shop thousands of quality used cars for sale online. Compare prices from local dealers, get instant offers, and save hundreds. Browse certified pre-owned vehicles with transparent pricing.',
     siteName: 'IQ Auto Deals',
     images: [
       {
@@ -405,7 +405,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Buy Used Cars Online - Compare Dealer Prices | IQ Auto Deals',
-    description: 'Shop thousands of quality used cars. Get instant offers from local dealers and save up to $5,000 on your next vehicle.',
+    description: 'Shop thousands of quality used cars. Get instant offers from local dealers and save hundreds on your next vehicle.',
     images: ['/og-image.jpg'],
   },
   icons: {
