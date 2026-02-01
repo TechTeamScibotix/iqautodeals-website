@@ -342,36 +342,35 @@ export default function CarsPage() {
     e.stopPropagation();
     try {
       const photos = JSON.parse(car.photos || '[]');
-      if (photos.length > 0) {
-        setViewingPhotos({ car, photos });
-        setCurrentPhotoIndex(0);
+      // If no photos, use placeholder image
+      const displayPhotos = photos.length > 0 ? photos : [getPlaceholderImage(car.bodyType)];
 
-        // Track funnel step: car selected
-        trackFunnelStep({
-          step: 'car_selected',
-          previousStep: 'search_started',
-          metadata: {
-            carMake: car.make,
-            carModel: car.model,
-            carYear: car.year,
-            carPrice: car.salePrice,
-          },
-        });
+      setViewingPhotos({ car, photos: displayPhotos });
+      setCurrentPhotoIndex(0);
 
-        // Track gallery opened
-        trackCarGalleryOpened({
-          vin: car.id,
-          make: car.make,
-          model: car.model,
-          photoCount: photos.length,
-        });
-      } else {
-        // No photos - navigate to car detail page instead
-        router.push(`/cars/${car.slug || car.id}`);
-      }
+      // Track funnel step: car selected
+      trackFunnelStep({
+        step: 'car_selected',
+        previousStep: 'search_started',
+        metadata: {
+          carMake: car.make,
+          carModel: car.model,
+          carYear: car.year,
+          carPrice: car.salePrice,
+        },
+      });
+
+      // Track gallery opened
+      trackCarGalleryOpened({
+        vin: car.id,
+        make: car.make,
+        model: car.model,
+        photoCount: photos.length,
+      });
     } catch (error) {
-      // Error parsing photos - navigate to car detail page
-      router.push(`/cars/${car.slug || car.id}`);
+      // Error parsing photos - use placeholder
+      setViewingPhotos({ car, photos: [getPlaceholderImage(car.bodyType)] });
+      setCurrentPhotoIndex(0);
     }
   };
 
