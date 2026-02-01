@@ -976,7 +976,7 @@ export default function CarsPage() {
                   key={car.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
-                  <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => photoUrl ? openPhotoGallery(car, e) : null}>
+                  <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
                     <Image
                       src={photoUrl || getPlaceholderImage(car.bodyType)}
                       alt={`${car.year} ${car.make} ${car.model}`}
