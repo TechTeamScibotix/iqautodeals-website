@@ -8,6 +8,7 @@ import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone
 import Footer from '../components/Footer';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
+import RequestPhotosModal from '../components/RequestPhotosModal';
 import {
   trackSearchPerformed,
   trackSearchNoResults,
@@ -54,6 +55,16 @@ function getPlaceholderImage(bodyType?: string): string {
   return '/placeholder_IQ_Car.png';
 }
 
+// Helper function to check if car has real photos
+function hasRealPhotos(photosJson: string): boolean {
+  try {
+    const photos = JSON.parse(photosJson || '[]');
+    return photos.length > 0 && photos[0];
+  } catch {
+    return false;
+  }
+}
+
 interface FilterOptions {
   makes: string[];
   years: number[];
@@ -88,6 +99,7 @@ export default function CarsPage() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [user, setUser] = useState<any>(null);
   const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
+  const [requestingPhotos, setRequestingPhotos] = useState<CarListing | null>(null);
 
   // TrueCar-style filter panel state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -964,7 +976,7 @@ export default function CarsPage() {
                   key={car.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
-                  <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
+                  <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => photoUrl ? openPhotoGallery(car, e) : null}>
                     <Image
                       src={photoUrl || getPlaceholderImage(car.bodyType)}
                       alt={`${car.year} ${car.make} ${car.model}`}
@@ -972,10 +984,23 @@ export default function CarsPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
-                    <div className="absolute top-2 right-2 bg-black/60 text-white px-3 py-1 rounded-pill text-xs font-semibold backdrop-blur-sm">
-                      <Camera className="w-3 h-3 inline mr-1" />
-                      View Photos
-                    </div>
+                    {photoUrl ? (
+                      <div className="absolute top-2 right-2 bg-black/60 text-white px-3 py-1 rounded-pill text-xs font-semibold backdrop-blur-sm">
+                        <Camera className="w-3 h-3 inline mr-1" />
+                        View Photos
+                      </div>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRequestingPhotos(car);
+                        }}
+                        className="absolute top-2 right-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-pill text-xs font-semibold backdrop-blur-sm transition-colors flex items-center gap-1"
+                      >
+                        <Camera className="w-3 h-3" />
+                        Request Photos
+                      </button>
+                    )}
                   </div>
 
                   <div className="p-4">
@@ -1032,6 +1057,15 @@ export default function CarsPage() {
           car={checkingAvailability}
           user={user}
           onClose={() => setCheckingAvailability(null)}
+        />
+      )}
+
+      {/* Request Photos Modal */}
+      {requestingPhotos && (
+        <RequestPhotosModal
+          car={requestingPhotos}
+          user={user}
+          onClose={() => setRequestingPhotos(null)}
         />
       )}
 
