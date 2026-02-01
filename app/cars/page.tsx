@@ -1024,7 +1024,7 @@ export default function CarsPage() {
                     <div className="flex flex-col gap-2">
                       <button
                         onClick={(e) => handleCheckAvailability(car, e)}
-                        className="w-full bg-primary text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                        className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
                       >
                         <Phone className="w-4 h-4" />
                         Check Availability - Test Drive
@@ -1035,7 +1035,7 @@ export default function CarsPage() {
                             e.stopPropagation();
                             setRequestingPhotos(car);
                           }}
-                          className="w-full bg-orange-500 text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-1"
+                          className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
                         >
                           <Camera className="w-4 h-4" />
                           Request Photos
