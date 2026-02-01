@@ -995,9 +995,9 @@ export default function CarsPage() {
                           e.stopPropagation();
                           setRequestingPhotos(car);
                         }}
-                        className="absolute top-2 right-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-pill text-xs font-semibold backdrop-blur-sm transition-colors flex items-center gap-1"
+                        className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-pill text-sm font-semibold shadow-lg transition-colors flex items-center gap-1.5"
                       >
-                        <Camera className="w-3 h-3" />
+                        <Camera className="w-4 h-4" />
                         Request Photos
                       </button>
                     )}
