@@ -984,22 +984,11 @@ export default function CarsPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     />
-                    {photoUrl ? (
+                    {photoUrl && (
                       <div className="absolute top-2 right-2 bg-black/60 text-white px-3 py-1 rounded-pill text-xs font-semibold backdrop-blur-sm">
                         <Camera className="w-3 h-3 inline mr-1" />
                         View Photos
                       </div>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setRequestingPhotos(car);
-                        }}
-                        className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-pill text-sm font-semibold shadow-lg transition-colors flex items-center gap-1.5"
-                      >
-                        <Camera className="w-4 h-4" />
-                        Request Photos
-                      </button>
                     )}
                   </div>
 
@@ -1032,14 +1021,26 @@ export default function CarsPage() {
                     </div>
                     <p className="text-xs text-gray-500 mb-3">{car.dealer.businessName}</p>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
                       <button
                         onClick={(e) => handleCheckAvailability(car, e)}
-                        className="flex-1 bg-primary text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                        className="w-full bg-primary text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
                       >
                         <Phone className="w-4 h-4" />
                         Check Availability - Test Drive
                       </button>
+                      {!photoUrl && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRequestingPhotos(car);
+                          }}
+                          className="w-full bg-orange-500 text-white px-4 py-2.5 rounded-pill font-semibold hover:bg-orange-600 transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Camera className="w-4 h-4" />
+                          Request Photos
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
