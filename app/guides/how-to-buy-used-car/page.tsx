@@ -3,6 +3,9 @@ import { ArrowLeft, CheckCircle, AlertTriangle, DollarSign } from 'lucide-react'
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'How to Buy a Used Car: Complete Step-by-Step Guide 2025',
   description: 'Expert guide to buying a used car: research, inspection, negotiation, and paperwork. Avoid common pitfalls and get the best deal on your next vehicle.',

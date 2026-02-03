@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle, DollarSign, TrendingUp, AlertTriangle } from 'l
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'How to Maximize Your Car Trade-In Value: Expert Tips 2025',
   description: 'Get the most money for your trade-in. Learn what dealers look for, how to prepare your car, and negotiation strategies to maximize your trade-in value.',

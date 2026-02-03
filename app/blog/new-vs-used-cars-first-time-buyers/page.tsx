@@ -6,6 +6,9 @@ import BlogPostingSchema from '@/app/components/BlogPostingSchema';
 import BreadcrumbSchema from '@/app/components/BreadcrumbSchema';
 import { authors } from '@/lib/authors';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Article metadata
 const article = {
   title: 'New vs Used Cars: The Ultimate Guide for First-Time Buyers',

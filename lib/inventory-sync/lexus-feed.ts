@@ -43,6 +43,7 @@ interface LexusCsvVehicle {
   Model: string;
   Odometer: string;
   Price: string;
+  MSRP: string;
   Colour: string;
   'Interior Color': string;
   Body: string;
@@ -284,6 +285,17 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
         const vehicleCity = vehicle['Dealer City'] || city;
         const vehicleState = vehicle['Dealer Region'] || state;
 
+        // For NEW vehicles, use MSRP as the listing price; for USED vehicles, use Price
+        const isNewVehicle = (vehicle['New/Used'] || '').toLowerCase().trim() === 'n' ||
+                             (vehicle['New/Used'] || '').toLowerCase().trim() === 'new';
+        const msrpPrice = parseFloat(vehicle.MSRP) || 0;
+        const regularPrice = parseFloat(vehicle.Price) || 0;
+        const listingPrice = isNewVehicle && msrpPrice > 0 ? msrpPrice : regularPrice;
+
+        if (isNewVehicle && msrpPrice > 0) {
+          console.log(`[Lexus Sync] NEW vehicle ${vehicle.VIN} - using MSRP $${msrpPrice.toLocaleString()} as listing price`);
+        }
+
         const carData = {
           dealerId,
           vin: vehicle.VIN.trim(),
@@ -293,7 +305,7 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           mileage,
           color: (vehicle.Colour || 'Unknown').trim(),
           transmission: (vehicle.Transmission || 'Automatic').trim(),
-          salePrice: parseFloat(vehicle.Price) || 0,
+          salePrice: listingPrice,
           description: (vehicle.Description || '').trim(),
           photos,
           latitude: coords.latitude,
@@ -315,6 +327,10 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
             vehicleCity,
             vehicleState
           ),
+          // Additional inventory fields
+          interiorColor: vehicle['Interior Color']?.trim() || null,
+          msrp: msrpPrice > 0 ? msrpPrice : null,
+          certified: vehicle.Certified?.toUpperCase() === 'Y' || vehicle.Certified?.toUpperCase() === 'YES',
         };
 
         if (existingVinMap.has(vehicle.VIN)) {

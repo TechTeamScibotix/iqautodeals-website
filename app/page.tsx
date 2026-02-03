@@ -1,5 +1,9 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import HomeClient from './HomeClient';
+
+// Force static generation for SEO
+export const dynamic = 'force-static';
 
 // Server component wrapper - renders SEO content visible to crawlers
 export default function HomePage() {
@@ -7,7 +11,6 @@ export default function HomePage() {
     <>
       {/* SEO content visible to crawlers (server-rendered) */}
       <div className="sr-only">
-        <h1>Shop Used Cars Online - Compare Prices from Local Dealers | IQ Auto Deals</h1>
         <p>
           IQ Auto Deals is a nationwide online car marketplace connecting buyers with certified dealers.
           Browse thousands of quality used cars, compare prices from multiple dealers, and save hundreds
@@ -36,7 +39,9 @@ export default function HomePage() {
       </div>
 
       {/* Interactive client component */}
-      <HomeClient />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HomeClient />
+      </Suspense>
     </>
   );
 }

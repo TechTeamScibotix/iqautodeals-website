@@ -8,6 +8,9 @@ import { models } from '@/lib/data/models';
 import { locations } from '@/lib/data/locations';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Helper to convert model name to URL-friendly slug
 function modelNameToSlug(modelName: string): string {
   return modelName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');

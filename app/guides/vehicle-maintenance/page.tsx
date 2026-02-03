@@ -3,8 +3,10 @@ import { ArrowLeft, CheckCircle, Wrench, Clock, AlertTriangle } from 'lucide-rea
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
-  title: 'Complete Vehicle Maintenance Guide: Schedule & Checklist 2025',
+  title: 'Vehicle Maintenance Guide & Checklist',
   description: 'Essential car maintenance schedule: oil changes, tire rotation, brake checks, and more. Keep your vehicle running smoothly and avoid costly repairs.',
   keywords: 'car maintenance schedule, vehicle maintenance checklist, oil change frequency, tire rotation, brake inspection, car service intervals',
 };

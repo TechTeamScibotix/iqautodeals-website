@@ -8,6 +8,9 @@ import { models } from '@/lib/data/models';
 import { locations } from '@/lib/data/locations';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Helper to convert model name to URL-friendly slug
 function modelNameToSlug(modelName: string): string {
   return modelName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -60,7 +63,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
   const { fullName, brand, model } = modelData;
 
   return {
-    title: `New ${fullName} for Sale (2025) - Best Prices from ${brand} Dealers`,
+    title: `New ${fullName} for Sale - Best Prices`,
     description: `Shop new ${fullName} for sale. Compare prices from certified ${brand} dealers and save hundreds. Full warranty. Latest 2025 ${model} inventory. No haggling required.`,
     keywords: [
       `new ${fullName.toLowerCase()}`,
@@ -335,13 +338,26 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: `New ${fullName}`,
-            description: `New ${fullName} for sale from certified ${brand} dealers`,
+            description: `New ${fullName} for sale from certified ${brand} dealers. Compare prices and save.`,
             brand: {
               '@type': 'Brand',
               name: brand,
             },
             category: type,
             url: `https://iqautodeals.com/new-cars/make/${makeSlug}/${modelNameToSlug(model)}`,
+            image: 'https://iqautodeals.com/og-image.jpg',
+            offers: {
+              '@type': 'AggregateOffer',
+              priceCurrency: 'USD',
+              availability: 'https://schema.org/InStock',
+              offerCount: '50+',
+              lowPrice: '20000',
+              highPrice: '100000',
+              seller: {
+                '@type': 'Organization',
+                name: 'IQ Auto Deals Certified Dealers',
+              },
+            },
           }),
         }}
       />

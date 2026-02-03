@@ -8,6 +8,9 @@ import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Price range configurations for new cars
 const priceRanges = {
   'under-25000': { label: 'Under $25,000', min: 0, max: 25000, slug: 'under-25000' },
@@ -63,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (priceData) {
     const { label } = priceData;
     return {
-      title: `New Cars ${label} in ${city}, ${stateCode} (2025) - Best Deals`,
+      title: `New Cars ${label} in ${city}, ${stateCode}`,
       description: `${label} new cars in ${city}, ${state}. Compare dealer prices and save hundreds. Quality new vehicles. No haggling. Trusted dealers. Browse new cars, SUVs and trucks now.`,
       keywords: [
         `new cars ${label.toLowerCase()} ${city}`,
@@ -87,7 +90,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (bodyTypeData) {
     const { label, singular } = bodyTypeData;
     return {
-      title: `New ${label} for Sale in ${city}, ${stateCode} (2025) - Compare Prices`,
+      title: `New ${label} in ${city}, ${stateCode} - Best Deals`,
       description: `New ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices and save hundreds. Certified new ${singular.toLowerCase()}s. No haggling. Browse now.`,
       keywords: [
         `new ${label.toLowerCase()} ${city}`,
@@ -110,7 +113,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   // Model metadata
   const { brand, model, fullName } = modelData;
   return {
-    title: `New ${fullName} for Sale in ${city}, ${stateCode} (2025) - Best Prices`,
+    title: `New ${fullName} in ${city}, ${stateCode}`,
     description: `New ${fullName} for sale in ${city}, ${state}. Compare ${brand} dealer prices and save hundreds. Full warranty. No haggling. Browse new ${fullName} inventory now.`,
     keywords: [
       `new ${fullName.toLowerCase()} ${city}`,

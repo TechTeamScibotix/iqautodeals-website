@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucid
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'Car Warranty Guide: CPO vs Extended Warranty Explained 2025',
   description: 'Understand car warranties: manufacturer, CPO, and extended warranties compared. Learn what\'s covered, what to avoid, and whether extended warranties are worth it.',

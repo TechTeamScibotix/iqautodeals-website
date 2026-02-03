@@ -1,11 +1,15 @@
 import Link from 'next/link';
 import { Calendar, ArrowLeft, CheckCircle, User } from 'lucide-react';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import FinancingCalculator from '@/app/components/FinancingCalculator';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import BlogPostingSchema from '@/app/components/BlogPostingSchema';
 import BreadcrumbSchema from '@/app/components/BreadcrumbSchema';
 import { authors } from '@/lib/authors';
+
+// Force static generation for SEO
+export const dynamic = 'force-static';
 
 // Article metadata
 const article = {
@@ -215,7 +219,9 @@ export default function FinanceGuideArticle() {
 
             {/* Financing Calculator */}
             <div className="my-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6">
-              <FinancingCalculator />
+              <Suspense fallback={<div className="text-gray-500">Loading calculator...</div>}>
+                <FinancingCalculator />
+              </Suspense>
             </div>
 
             <h3 className="text-2xl font-bold text-dark mt-8 mb-4">4. Make a Larger Down Payment</h3>

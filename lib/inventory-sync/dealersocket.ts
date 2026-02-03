@@ -270,6 +270,10 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
 
         const mileage = parseInt(vehicle.Mileage, 10) || 0;
 
+        // Parse in-stock date if provided
+        const inStockDate = vehicle.InDate ? new Date(vehicle.InDate) : null;
+        const validInStockDate = inStockDate && !isNaN(inStockDate.getTime()) ? inStockDate : null;
+
         const carData = {
           dealerId,
           vin: vehicle.VIN.trim(),
@@ -301,6 +305,16 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
             dealer.city || '',
             dealer.state || ''
           ),
+          // Additional inventory fields
+          interiorColor: vehicle.IntColor?.trim() || null,
+          msrp: parseFloat(vehicle.RetailPrice) || null,
+          dealerCost: parseFloat(vehicle.DealerCost) || null,
+          inStockDate: validInStockDate,
+          mpgCity: parseInt(vehicle.MPGCity, 10) || null,
+          mpgHighway: parseInt(vehicle.MPGHighway, 10) || null,
+          doors: parseInt(vehicle.Doors, 10) || null,
+          cabType: vehicle.CabType?.trim() || null,
+          certified: vehicle.Certified?.toUpperCase() === 'Y' || vehicle.Certified?.toUpperCase() === 'YES' || vehicle.Certified === '1',
         };
 
         if (existingVinMap.has(vehicle.VIN)) {

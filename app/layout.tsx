@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
     default: "Used Cars for Sale Near You - Compare Prices & Save Hundreds",
-    template: "%s | IQ Auto Deals"
+    template: "%s"
   },
   description: "Shop 1000+ quality used cars online. Compare prices from local dealers instantly, get competing offers & save hundreds. ✓ No haggling ✓ Free to use ✓ Trusted dealers. Browse now →",
   keywords: [

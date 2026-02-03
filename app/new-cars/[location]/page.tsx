@@ -8,6 +8,9 @@ import { makes } from '@/lib/data/makes';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export async function generateStaticParams() {
   return Object.keys(locations).map((location) => ({
     location,
@@ -25,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { city, state, stateCode } = locationData;
 
   return {
-    title: `New Cars for Sale in ${city}, ${stateCode} (2025) - Compare Dealer Prices`,
+    title: `New Cars in ${city}, ${stateCode} - Best Prices`,
     description: `Shop new cars for sale in ${city}, ${state}. Compare prices from local dealers and save hundreds. Browse new SUVs, trucks, sedans and more from certified ${city} dealers.`,
     keywords: [
       `new cars ${city}`,

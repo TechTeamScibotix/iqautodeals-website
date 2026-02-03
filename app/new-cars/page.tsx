@@ -6,6 +6,9 @@ import { makes } from '@/lib/data/makes';
 import Image from 'next/image';
 import { ArrowRight, Sparkles, TrendingDown, Car, CheckCircle } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'New Cars for Sale (2025) - Compare Prices from Local Dealers',
   description: 'Shop new cars for sale from certified dealers nationwide. Compare prices, get competing offers, and save hundreds on your new vehicle purchase. Browse new SUVs, trucks, sedans and more.',

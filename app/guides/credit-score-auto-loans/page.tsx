@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle, TrendingUp, AlertTriangle, DollarSign } from 'l
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'Credit Scores & Auto Loans: How to Get the Best Rate 2025',
   description: 'Understand how credit scores affect auto loan rates. Learn what score you need, how to improve your credit, and strategies to get approved with any credit.',

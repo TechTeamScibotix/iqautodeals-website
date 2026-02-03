@@ -3,8 +3,10 @@ import { ArrowLeft, CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucid
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
-  title: 'Car Insurance Basics: Coverage Types & How to Save Money 2025',
+  title: 'Car Insurance Basics: Coverage & Savings',
   description: 'Understand auto insurance: liability, collision, comprehensive coverage explained. Learn how much coverage you need and tips to lower your premium.',
   keywords: 'car insurance, auto insurance coverage, liability insurance, collision insurance, comprehensive coverage, how to save on car insurance',
 };

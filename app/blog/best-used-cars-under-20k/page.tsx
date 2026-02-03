@@ -3,6 +3,9 @@ import { Calendar, ArrowLeft, CheckCircle, Star, Shield } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'Best Used Cars Under $20,000 in 2025',
   description: 'Top 10 most reliable and value-packed used cars under $20k. Expert recommendations for sedans, SUVs, and trucks with proven reliability and low ownership costs.',

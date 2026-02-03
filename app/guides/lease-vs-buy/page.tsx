@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle, XCircle, DollarSign, Calculator } from 'lucide-
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'Lease vs Buy a Car: Complete Comparison Guide 2025',
   description: 'Should you lease or buy your next car? Compare total costs, pros and cons, and find out which option is better for your situation.',

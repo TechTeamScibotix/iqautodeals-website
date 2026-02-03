@@ -93,6 +93,17 @@ model Car {
   engine          String?  // "2.5L 4-Cylinder", "3.5L V6"
   condition       String?  // New, Used, Certified Pre-Owned
 
+  // Additional inventory fields from SFTP feeds
+  interiorColor   String?  // Interior color
+  msrp            Float?   // Manufacturer's Suggested Retail Price
+  dealerCost      Float?   // Dealer's cost/invoice price
+  inStockDate     DateTime? // Date vehicle entered inventory
+  mpgCity         Int?     // City fuel economy
+  mpgHighway      Int?     // Highway fuel economy
+  doors           Int?     // Number of doors
+  cabType         String?  // Truck cab type (Regular, Extended, Crew)
+  certified       Boolean  @default(false) // Certified Pre-Owned flag
+
   dealer          User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   selectedCars    SelectedCar[]
   acceptedDeals   AcceptedDeal[]

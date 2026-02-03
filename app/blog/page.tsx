@@ -3,8 +3,11 @@ import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import type { Metadata } from 'next';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
-  title: 'Car Buying Tips & Guides - Expert Advice | IQ Auto Deals Blog',
+  title: 'Car Buying Tips & Guides - Expert Advice',
   description: 'Expert tips on buying used cars, financing, inspections, and getting the best deals. Free guides to help you make smart car buying decisions.',
   keywords: 'car buying tips, used car guide, car financing advice, pre-purchase inspection, best used cars, car buying checklist',
 };

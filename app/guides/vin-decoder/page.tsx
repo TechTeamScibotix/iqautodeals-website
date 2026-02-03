@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle, Search, AlertTriangle, FileText } from 'lucide-
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'VIN Decoder Guide: How to Read & Check a VIN Number 2025',
   description: 'Learn how to decode a VIN number and what each digit means. Understand vehicle history reports, spot title issues, and verify car details before buying.',

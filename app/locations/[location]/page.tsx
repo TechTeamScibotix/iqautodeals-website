@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Footer from '../../components/Footer';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Location data for all 50 states + major cities
 const locations = {
   // Alabama
@@ -307,7 +310,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { city, state, stateCode } = locationData;
 
   return {
-    title: `Best Used Cars in ${city}, ${stateCode} (2025) - Compare & Save Hundreds`,
+    title: `Used Cars in ${city}, ${stateCode} - Save Thousands`,
     description: `500+ quality used cars in ${city}, ${state}. Compare dealer prices instantly. Save hundreds. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
     keywords: [
       `used cars ${city}`,

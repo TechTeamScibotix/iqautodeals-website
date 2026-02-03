@@ -2,6 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Footer from '../components/Footer';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'Used Cars by Make & Model - Browse Popular Vehicles | IQ Auto Deals',
   description: 'Shop used cars by make and model. Find quality pre-owned vehicles from top brands including Toyota, Honda, Ford, Chevrolet, and more. Compare prices from trusted dealers.',

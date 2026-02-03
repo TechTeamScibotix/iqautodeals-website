@@ -5,6 +5,9 @@ import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Price range configurations
 const priceRanges = {
   'under-5000': { label: 'Under $5,000', min: 0, max: 5000, slug: 'under-5000' },

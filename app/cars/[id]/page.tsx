@@ -10,6 +10,7 @@ import VehicleSchema from '@/app/components/VehicleSchema';
 import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 import CarPhotoGallery from '@/app/components/CarPhotoGallery';
+import ViewTracker from '@/app/components/ViewTracker';
 
 // Force dynamic rendering to ensure redirects work on every request
 export const dynamic = 'force-dynamic';
@@ -325,6 +326,9 @@ export default async function CarDetailPage({ params }: PageProps) {
         city={car.city}
         state={car.state}
       />
+
+      {/* Track view in Scibotix for Price Pulse analytics */}
+      <ViewTracker vin={car.vin} />
 
       {/* Header */}
       <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">

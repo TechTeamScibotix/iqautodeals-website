@@ -3,6 +3,8 @@ import { ArrowLeft, HelpCircle, CheckCircle, AlertTriangle, DollarSign } from 'l
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'First-Time Car Buyer FAQ: 25 Questions Answered 2025',
   description: 'Everything first-time car buyers need to know: financing, negotiation, insurance, and common mistakes to avoid. Expert answers to your top questions.',

@@ -5,6 +5,9 @@ import Footer from '../../components/Footer';
 import { makes } from '@/lib/data/makes';
 import { ArrowRight, Car, CheckCircle, Tag, Percent, Calendar } from 'lucide-react';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 export const metadata: Metadata = {
   title: 'New Car Deals & Specials (2025) - Best Prices from Local Dealers',
   description: 'Find the best new car deals and specials from certified dealers. Compare manufacturer incentives, rebates, and financing offers. Save hundreds on your new vehicle purchase.',

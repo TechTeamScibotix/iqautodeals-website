@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Footer from '../../components/Footer';
 
+// Force static generation for SEO
+export const dynamic = 'force-static';
+
 // Popular car models data
 const models = {
   // Toyota
