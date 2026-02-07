@@ -696,7 +696,7 @@ export default function DealerDashboard() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
 
         {/* Archived Vehicles Section */}
         {viewMode === 'archived' && (
