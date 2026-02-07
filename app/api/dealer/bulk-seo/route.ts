@@ -1,7 +1,12 @@
 import { NextRequest } from 'next/server';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { prisma } from '@/lib/prisma';
+
+// Create Google AI instance with the existing GEMINI_API_KEY
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
+});
 
 // Vercel Pro has 300s max, we'll use streaming to keep alive
 const DELAY_BETWEEN_CARS = 1500; // 1.5 seconds between each car (AI SDK handles rate limits)
