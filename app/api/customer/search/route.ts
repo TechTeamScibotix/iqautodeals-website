@@ -241,15 +241,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Sort by distance if zipcode was provided (closest first)
-    if (userLat !== null) {
-      processedCars.sort((a, b) => {
-        // Cars without distance go to the end
+    // Helper function to check if car has photos
+    const hasPhotos = (car: any): boolean => {
+      return car.photos && car.photos !== '[]' && car.photos !== '' && car.photos !== null;
+    };
+
+    // Sort: Photos first, then by distance (if zipcode) or date (default)
+    processedCars.sort((a, b) => {
+      // Primary sort: Cars with photos first
+      const aHasPhotos = hasPhotos(a);
+      const bHasPhotos = hasPhotos(b);
+      if (aHasPhotos && !bHasPhotos) return -1;
+      if (!aHasPhotos && bHasPhotos) return 1;
+
+      // Secondary sort: Distance (if zipcode provided) or date
+      if (userLat !== null) {
+        // Sort by distance (closest first)
         if (a.distance === null) return 1;
         if (b.distance === null) return -1;
         return a.distance - b.distance;
-      });
-    }
+      } else {
+        // Sort by date (newest first) - already sorted from DB, but maintain consistency
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
 
     return NextResponse.json({ cars: processedCars });
   } catch (error: any) {
