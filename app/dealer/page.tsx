@@ -255,8 +255,11 @@ export default function DealerDashboard() {
     ? [...new Set(cars.filter(c => c.make.toUpperCase() === filterMake).map(c => c.model))].sort()
     : [...new Set(cars.map(c => c.model))].sort();
 
-  // Filter cars based on search and filters
+  // Filter cars based on search and filters - only show active cars in active view
   const filteredCars = cars.filter(car => {
+    // Only include active/pending cars in the active view (exclude sold/removed)
+    if (car.status === 'sold' || car.status === 'removed') return false;
+
     const matchesSearch = !searchQuery ||
       `${car.year} ${car.make} ${car.model} ${car.vin} ${car.color}`.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesYear = !filterYear || car.year === parseInt(filterYear);
