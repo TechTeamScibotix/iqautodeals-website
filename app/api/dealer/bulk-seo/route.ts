@@ -92,7 +92,7 @@ Return ONLY the description text followed by the FAQ section. No other headers, 
 
   // Use Vercel AI SDK with built-in rate limit handling
   const { text } = await generateText({
-    model: google('gemini-2.0-flash-exp'),
+    model: google('gemini-2.0-flash'),
     prompt,
     maxRetries: 5, // Built-in retry with exponential backoff
   });
