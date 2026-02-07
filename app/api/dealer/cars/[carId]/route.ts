@@ -113,17 +113,67 @@ export async function DELETE(
 ) {
   try {
     const { carId } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const wasSold = searchParams.get('sold') === 'true';
 
-    // Delete the car
-    await prisma.car.delete({
+    // Instead of deleting, change status to preserve SEO value
+    const newStatus = wasSold ? 'sold' : 'removed';
+
+    const updatedCar = await prisma.car.update({
       where: { id: carId },
+      data: {
+        status: newStatus,
+        statusChangedAt: new Date(),
+      },
     });
 
-    return NextResponse.json({ message: 'Car deleted successfully' });
+    return NextResponse.json({
+      message: wasSold ? 'Car marked as sold' : 'Car removed from inventory',
+      status: newStatus,
+      car: updatedCar,
+    });
   } catch (error) {
-    console.error('Error deleting car:', error);
+    console.error('Error updating car status:', error);
     return NextResponse.json(
-      { error: 'Failed to delete car' },
+      { error: 'Failed to update car status' },
+      { status: 500 }
+    );
+  }
+}
+
+// New endpoint to relist a car (change status back to active)
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ carId: string }> }
+) {
+  try {
+    const { carId } = await context.params;
+    const body = await request.json();
+    const { action } = body;
+
+    if (action === 'relist') {
+      const updatedCar = await prisma.car.update({
+        where: { id: carId },
+        data: {
+          status: 'active',
+          statusChangedAt: new Date(),
+        },
+      });
+
+      return NextResponse.json({
+        message: 'Car relisted successfully',
+        car: updatedCar,
+      });
+    }
+
+    return NextResponse.json(
+      { error: 'Invalid action' },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('Error relisting car:', error);
+    return NextResponse.json(
+      { error: 'Failed to relist car' },
       { status: 500 }
     );
   }

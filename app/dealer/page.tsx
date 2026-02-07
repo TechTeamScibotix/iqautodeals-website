@@ -42,6 +42,12 @@ export default function DealerDashboard() {
   const [seoProgress, setSeoProgress] = useState({ current: 0, total: 0, currentCar: '' });
   const [seoResults, setSeoResults] = useState<{ success: number; failed: number } | null>(null);
 
+  // Delete/Archive modal state
+  const [deleteModal, setDeleteModal] = useState<{ show: boolean; carId: string; carInfo: string } | null>(null);
+
+  // View toggle for inventory (active vs sold/removed)
+  const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
+
   // Warn user if they try to leave during SEO update
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -93,25 +99,53 @@ export default function DealerDashboard() {
     router.push('/');
   };
 
-  const handleDelete = async (carId: string, carInfo: string) => {
-    if (!confirm(`Are you sure you want to delete ${carInfo}? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDelete = (carId: string, carInfo: string) => {
+    // Show the modal instead of immediate delete
+    setDeleteModal({ show: true, carId, carInfo });
+  };
+
+  const handleArchiveCar = async (wasSold: boolean) => {
+    if (!deleteModal) return;
 
     try {
-      const response = await fetch(`/api/dealer/cars/${carId}`, {
+      const response = await fetch(`/api/dealer/cars/${deleteModal.carId}?sold=${wasSold}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        alert('Car deleted successfully');
+        const data = await response.json();
+        alert(data.message);
         loadCars(user.effectiveDealerId || user.id);
       } else {
-        alert('Failed to delete car');
+        alert('Failed to update car status');
       }
     } catch (error) {
-      console.error('Error deleting car:', error);
-      alert('Error deleting car');
+      console.error('Error updating car status:', error);
+      alert('Error updating car status');
+    } finally {
+      setDeleteModal(null);
+    }
+  };
+
+  const handleRelistCar = async (carId: string) => {
+    if (!confirm('Are you sure you want to relist this vehicle?')) return;
+
+    try {
+      const response = await fetch(`/api/dealer/cars/${carId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'relist' }),
+      });
+
+      if (response.ok) {
+        alert('Car relisted successfully');
+        loadCars(user.effectiveDealerId || user.id);
+      } else {
+        alert('Failed to relist car');
+      }
+    } catch (error) {
+      console.error('Error relisting car:', error);
+      alert('Error relisting car');
     }
   };
 
@@ -383,7 +417,32 @@ export default function DealerDashboard() {
 
         {/* Inventory Header */}
         <div className="mb-4 md:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h2 className="text-lg md:text-2xl font-bold">My Inventory</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg md:text-2xl font-bold">My Inventory</h2>
+            {/* View Toggle */}
+            <div className="flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('active')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                  viewMode === 'active'
+                    ? 'bg-white text-primary shadow'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Active ({cars.filter(c => c.status === 'active').length})
+              </button>
+              <button
+                onClick={() => setViewMode('archived')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition ${
+                  viewMode === 'archived'
+                    ? 'bg-white text-primary shadow'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Archived ({cars.filter(c => c.status === 'sold' || c.status === 'removed').length})
+              </button>
+            </div>
+          </div>
           <div className="flex flex-wrap items-center gap-2">
             {/* Agentix SEO Button */}
             <button
@@ -527,8 +586,8 @@ export default function DealerDashboard() {
           </div>
         )}
 
-        {/* Cars List */}
-        {cars.length === 0 ? (
+        {/* Cars List - Only show when viewing active */}
+        {viewMode === 'active' && cars.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-6 md:p-8 text-center">
             <Car className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3" />
             <h3 className="text-base md:text-lg font-semibold mb-2">No cars listed yet</h3>
@@ -540,7 +599,7 @@ export default function DealerDashboard() {
               List Your First Car
             </Link>
           </div>
-        ) : filteredCars.length === 0 ? (
+        ) : viewMode === 'active' && filteredCars.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-6 md:p-8 text-center">
             <div className="text-3xl md:text-4xl mb-3">🔍</div>
             <h3 className="text-base md:text-lg font-semibold mb-2">No vehicles match your search</h3>
@@ -552,7 +611,7 @@ export default function DealerDashboard() {
               Clear All Filters
             </button>
           </div>
-        ) : (
+        ) : viewMode === 'active' ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
             {filteredCars.map((car) => (
               <div
@@ -638,7 +697,103 @@ export default function DealerDashboard() {
             ))}
           </div>
         )}
+
+        {/* Archived Vehicles Section */}
+        {viewMode === 'archived' && (
+          <div className="mt-8">
+            <h2 className="text-lg md:text-2xl font-bold mb-4">Sold & Removed Vehicles</h2>
+            {cars.filter(c => c.status === 'sold' || c.status === 'removed').length === 0 ? (
+              <div className="bg-white p-8 rounded-lg shadow text-center text-gray-500">
+                No archived vehicles
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                {cars.filter(c => c.status === 'sold' || c.status === 'removed').map(car => (
+                  <div
+                    key={car.id}
+                    className="bg-white rounded-lg shadow overflow-hidden opacity-75"
+                  >
+                    <div className="relative aspect-[4/3] bg-gray-100">
+                      {(() => {
+                        let photoList: string[] = [];
+                        try {
+                          photoList = JSON.parse(car.photos || '[]');
+                        } catch { photoList = []; }
+                        if (photoList.length > 0) {
+                          return (
+                            <Image
+                              src={photoList[0]}
+                              alt={`${car.year} ${car.make} ${car.model}`}
+                              fill
+                              className="object-cover grayscale"
+                            />
+                          );
+                        }
+                        return (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-200">
+                            <Car className="w-12 h-12 text-gray-400" />
+                          </div>
+                        );
+                      })()}
+                      <div className={`absolute top-2 left-2 px-2 py-1 rounded text-xs font-bold text-white ${
+                        car.status === 'sold' ? 'bg-green-600' : 'bg-gray-600'
+                      }`}>
+                        {car.status === 'sold' ? 'SOLD' : 'REMOVED'}
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-bold text-sm mb-1 truncate">
+                        {car.year} {car.make} {car.model}
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-2">VIN: {car.vin}</p>
+                      <button
+                        onClick={() => handleRelistCar(car.id)}
+                        className="w-full bg-primary hover:bg-primary-dark text-white px-3 py-2 rounded-lg transition text-xs font-semibold"
+                      >
+                        Relist Vehicle
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Delete/Archive Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold mb-2">Remove Vehicle</h3>
+            <p className="text-gray-600 mb-6">
+              Was the <strong>{deleteModal.carInfo}</strong> sold?
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => handleArchiveCar(true)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                Yes, it was sold
+              </button>
+              <button
+                onClick={() => handleArchiveCar(false)}
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+              >
+                <XCircle className="w-5 h-5" />
+                No, just remove it
+              </button>
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="w-full bg-white hover:bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold transition border border-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

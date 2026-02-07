@@ -192,8 +192,8 @@ export default async function CarDetailPage({ params }: PageProps) {
     // Invalid JSON
   }
 
-  // Car is sold or pending - show sold page with similar cars
-  if (car.status === 'sold' || car.status === 'pending') {
+  // Car is sold, pending, or removed - show appropriate page with similar cars
+  if (car.status === 'sold' || car.status === 'pending' || car.status === 'removed') {
     const similarCars = await prisma.car.findMany({
       where: {
         status: 'active',
@@ -271,19 +271,30 @@ export default async function CarDetailPage({ params }: PageProps) {
             Back to Search Results
           </Link>
 
-          {/* Sold Notice */}
+          {/* Status Notice */}
           <div className="bg-white rounded-xl shadow-lg p-8 text-center mb-8">
-            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="w-10 h-10 text-amber-600" />
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
+              car.status === 'sold' ? 'bg-green-100' : car.status === 'removed' ? 'bg-gray-100' : 'bg-amber-100'
+            }`}>
+              <AlertCircle className={`w-10 h-10 ${
+                car.status === 'sold' ? 'text-green-600' : car.status === 'removed' ? 'text-gray-600' : 'text-amber-600'
+              }`} />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {car.year} {car.make} {car.model}
             </h1>
-            <p className="text-xl text-amber-600 font-semibold mb-4">
-              This vehicle has been {car.status === 'sold' ? 'sold' : 'reserved'}
-            </p>
+            <div className={`inline-block px-4 py-2 rounded-full text-lg font-semibold mb-4 ${
+              car.status === 'sold' ? 'bg-green-100 text-green-700' : car.status === 'removed' ? 'bg-gray-100 text-gray-700' : 'bg-amber-100 text-amber-700'
+            }`}>
+              {car.status === 'sold' ? 'SOLD' : car.status === 'removed' ? 'No Longer Available' : 'Reserved'}
+            </div>
             <p className="text-gray-600 max-w-lg mx-auto">
-              Great news! This {car.make} found a new home. Browse similar vehicles below or search our full inventory.
+              {car.status === 'sold'
+                ? `Great news! This ${car.make} found a new home. Browse similar vehicles below or search our full inventory.`
+                : car.status === 'removed'
+                ? `This vehicle is no longer available. Browse similar vehicles below or search our full inventory.`
+                : `This vehicle has been reserved. Browse similar vehicles below or search our full inventory.`
+              }
             </p>
           </div>
 

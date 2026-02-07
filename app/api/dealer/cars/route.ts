@@ -25,9 +25,16 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Get actual sold count from AcceptedDeals (source of truth)
-    // Exclude dead deals from sold count
-    const soldCount = await prisma.acceptedDeal.count({
+    // Count cars by status
+    const statusCounts = {
+      active: cars.filter(c => c.status === 'active').length,
+      pending: cars.filter(c => c.status === 'pending').length,
+      sold: cars.filter(c => c.status === 'sold').length,
+      removed: cars.filter(c => c.status === 'removed').length,
+    };
+
+    // Also get sold count from AcceptedDeals (for deals made through the platform)
+    const dealsSoldCount = await prisma.acceptedDeal.count({
       where: {
         sold: true,
         deadDeal: false,
@@ -37,7 +44,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ cars, soldCount });
+    // Total sold = cars marked sold + deals marked sold (avoid double counting)
+    const soldCount = statusCounts.sold + dealsSoldCount;
+
+    return NextResponse.json({ cars, soldCount, statusCounts });
   } catch (error) {
     console.error('Error fetching cars:', error);
     return NextResponse.json({ error: 'Failed to fetch cars' }, { status: 500 });
@@ -71,6 +81,77 @@ export async function POST(request: NextRequest) {
       photos = JSON.stringify(photos);
     } else {
       photos = '[]';
+    }
+
+    // Check if VIN already exists
+    const existingCar = await prisma.car.findUnique({
+      where: { vin: data.vin },
+    });
+
+    if (existingCar) {
+      // If same dealer and car is sold/removed, they can relist it
+      if (existingCar.dealerId === data.dealerId) {
+        if (existingCar.status === 'sold' || existingCar.status === 'removed') {
+          // Relist the existing car with updated data
+          const updatedCar = await prisma.car.update({
+            where: { id: existingCar.id },
+            data: {
+              ...data,
+              photos,
+              status: 'active',
+              statusChangedAt: new Date(),
+            },
+          });
+          return NextResponse.json({ car: updatedCar, relisted: true });
+        } else {
+          return NextResponse.json(
+            { error: 'You already have an active listing for this VIN' },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Different dealer - check if old listing is sold/removed
+      if (existingCar.status === 'sold' || existingCar.status === 'removed') {
+        // Archive the old listing by changing its VIN
+        const archivedVin = `${existingCar.vin}-archived-${Date.now()}`;
+        const archivedSlug = existingCar.slug ? `${existingCar.slug}-archived-${Date.now()}` : null;
+
+        await prisma.car.update({
+          where: { id: existingCar.id },
+          data: {
+            vin: archivedVin,
+            slug: archivedSlug,
+          },
+        });
+
+        // Now create the new listing
+        const slug = generateSlug({
+          year: data.year,
+          make: data.make,
+          model: data.model,
+          city: data.city,
+          state: data.state,
+          vin: data.vin,
+        });
+
+        const car = await prisma.car.create({
+          data: {
+            ...data,
+            photos,
+            slug,
+            listingFeePaid: true,
+          },
+        });
+
+        return NextResponse.json({ car, archivedPreviousListing: true });
+      } else {
+        // VIN is currently active with another dealer
+        return NextResponse.json(
+          { error: 'This VIN is already listed by another dealer' },
+          { status: 400 }
+        );
+      }
     }
 
     // Generate SEO-friendly slug: 2024-toyota-camry-atlanta-ga-vin123
