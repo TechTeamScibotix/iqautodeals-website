@@ -54,7 +54,7 @@ async function notifyDealerHub(
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const { carId, dealerId, firstName, lastName, email, phone, zipCode, comments, userId } = data;
+    const { carId, dealerId, firstName, lastName, email, phone, zipCode, comments, userId, requestType } = data;
 
     // Validation
     if (!carId || !dealerId || !firstName || !lastName || !email || !phone || !zipCode) {
@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
         phone,
         zipCode,
         comments: comments || null,
+        requestType: requestType || 'check_availability', // photo_request, check_availability, test_drive
         userId: userId || null,
         status: 'pending',
       },
@@ -148,8 +149,8 @@ export async function POST(request: NextRequest) {
       console.error(`[Availability Request] Failed to send email to dealer:`, emailError);
     }
 
-    // Notify Scibotix Solutions (fire and forget - don't block the response)
-    notifyDealerHub(
+    // Notify Scibotix Solutions - must await in serverless to prevent early termination
+    await notifyDealerHub(
       dealerId,
       availabilityRequest.id,
       firstName,

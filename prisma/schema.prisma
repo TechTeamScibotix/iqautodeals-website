@@ -192,6 +192,7 @@ model AvailabilityRequest {
   phone       String
   zipCode     String
   comments    String?
+  requestType String?  // photo_request, check_availability, test_drive, etc.
   userId      String?  // Optional - if user is logged in
   status      String   @default("pending") // pending, contacted, closed
   createdAt   DateTime @default(now())

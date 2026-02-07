@@ -125,152 +125,93 @@ export default function DealerDashboard() {
       return;
     }
 
-    if (!confirm(`This will update descriptions for ${activeCars.length} active listing(s) using AI. This may take a few minutes. Continue?`)) {
+    // Calculate estimated time: ~2s per car with AI SDK handling rate limits
+    const estimatedMinutes = Math.ceil((activeCars.length * 2) / 60);
+
+    if (!confirm(`This will update descriptions for ${activeCars.length} active listing(s) using AI.\n\nEstimated time: ${estimatedMinutes}-${estimatedMinutes + 2} minutes\n\nThe process runs on the server with automatic retries (5 attempts per vehicle) to ensure reliability.\n\nContinue?`)) {
       return;
     }
 
     setUpdatingSEO(true);
-    setSeoProgress({ current: 0, total: activeCars.length, currentCar: '' });
+    setSeoProgress({ current: 0, total: activeCars.length, currentCar: 'Starting server-side processing...' });
     setSeoResults(null);
 
-    let successCount = 0;
-    let failedCount = 0;
-    const failedCars: string[] = [];
+    try {
+      // Call the server-side bulk SEO endpoint with streaming
+      const response = await fetch('/api/dealer/bulk-seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dealerId: user.effectiveDealerId || user.id,
+        }),
+      });
 
-    // Helper function to retry with exponential backoff
-    const retryWithBackoff = async <T,>(
-      fn: () => Promise<T>,
-      maxRetries: number = 3,
-      baseDelay: number = 2000
-    ): Promise<T> => {
-      let lastError: Error | null = null;
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          return await fn();
-        } catch (error) {
-          lastError = error as Error;
-          if (attempt < maxRetries - 1) {
-            // Exponential backoff: 2s, 4s, 8s
-            const delay = baseDelay * Math.pow(2, attempt);
-            await new Promise(resolve => setTimeout(resolve, delay));
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Bulk SEO failed');
+      }
+
+      // Read the streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      const decoder = new TextDecoder();
+      let finalResult: { successCount: number; failedCount: number; failedCars: { name: string; vin: string; error: string }[] } | null = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          try {
+            const message = JSON.parse(line);
+
+            if (message.type === 'progress') {
+              setSeoProgress({
+                current: message.current,
+                total: message.total,
+                currentCar: message.car,
+              });
+            } else if (message.type === 'complete') {
+              finalResult = {
+                successCount: message.successCount,
+                failedCount: message.failedCount,
+                failedCars: message.failedCars || [],
+              };
+            }
+          } catch {
+            // Ignore parse errors for incomplete chunks
           }
         }
       }
-      throw lastError;
-    };
 
-    // Helper to fetch with timeout
-    const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout: number = 30000): Promise<Response> => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeout);
-      try {
-        const response = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(timeoutId);
-        return response;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        throw error;
-      }
-    };
+      if (finalResult) {
+        setSeoResults({ success: finalResult.successCount, failed: finalResult.failedCount });
 
-    for (let i = 0; i < activeCars.length; i++) {
-      const car = activeCars[i];
-      const carName = `${car.year} ${car.make} ${car.model}`;
-      setSeoProgress({ current: i + 1, total: activeCars.length, currentCar: carName });
-
-      try {
-        // Retry wrapper for the entire operation
-        await retryWithBackoff(async () => {
-          // First, get the full car details
-          const carResponse = await fetchWithTimeout(
-            `/api/dealer/cars/${car.id}?dealerId=${user.effectiveDealerId || user.id}`,
-            {},
-            15000
-          );
-          if (!carResponse.ok) {
-            throw new Error(`Failed to fetch car details: ${carResponse.status}`);
-          }
-          const carDetails = await carResponse.json();
-
-          // Generate new SEO description with longer timeout for AI
-          const seoResponse = await fetchWithTimeout(
-            '/api/generate-seo',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                make: carDetails.make,
-                model: carDetails.model,
-                year: carDetails.year,
-                mileage: carDetails.mileage,
-                color: carDetails.color,
-                transmission: carDetails.transmission,
-                salePrice: carDetails.salePrice,
-                city: carDetails.city,
-                state: carDetails.state,
-                vin: carDetails.vin,
-              }),
-            },
-            60000 // 60 second timeout for AI generation
-          );
-
-          if (!seoResponse.ok) {
-            const errorText = await seoResponse.text();
-            throw new Error(`SEO generation failed: ${seoResponse.status} - ${errorText}`);
-          }
-
-          const seoData = await seoResponse.json();
-
-          if (!seoData.description || seoData.description.length < 100) {
-            throw new Error('Generated description is empty or too short');
-          }
-
-          // Update the car with the new description
-          const updateResponse = await fetchWithTimeout(
-            `/api/dealer/cars/${car.id}`,
-            {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                ...carDetails,
-                description: seoData.description,
-              }),
-            },
-            15000
-          );
-
-          if (!updateResponse.ok) {
-            const errorText = await updateResponse.text();
-            throw new Error(`Failed to update car: ${updateResponse.status} - ${errorText}`);
-          }
-
-          return true;
-        }, 3, 2000); // 3 retries with 2s base delay
-
-        successCount++;
-      } catch (error) {
-        console.error(`Error updating ${carName} (VIN: ${car.vin}):`, error);
-        failedCount++;
-        failedCars.push(`${carName} (VIN: ${car.vin})`);
+        // Show results
+        if (finalResult.failedCount > 0 && finalResult.failedCars.length > 0) {
+          const failedList = finalResult.failedCars.map(c =>
+            `${c.name} (VIN: ${c.vin})\n  Error: ${c.error}`
+          ).join('\n\n');
+          alert(`SEO Update Complete!\n\n✓ ${finalResult.successCount} updated successfully\n✗ ${finalResult.failedCount} failed\n\nFailed vehicles:\n${failedList}`);
+        } else {
+          alert(`SEO Update Complete!\n\n✓ All ${finalResult.successCount} vehicles updated successfully!`);
+        }
       }
 
-      // Delay between cars to avoid rate limiting (2.5 seconds)
-      if (i < activeCars.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 2500));
-      }
+      // Reload cars to show updated descriptions
+      loadCars(user.effectiveDealerId || user.id);
+    } catch (error) {
+      console.error('Bulk SEO error:', error);
+      alert(`SEO Update Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setUpdatingSEO(false);
     }
-
-    setUpdatingSEO(false);
-    setSeoResults({ success: successCount, failed: failedCount });
-
-    // Log failed cars for debugging
-    if (failedCars.length > 0) {
-      console.error('Failed to update these vehicles:', failedCars);
-      alert(`SEO Update Complete!\n\n✓ ${successCount} updated successfully\n✗ ${failedCount} failed\n\nFailed vehicles:\n${failedCars.join('\n')}`);
-    }
-
-    // Reload cars to show updated descriptions
-    loadCars(user.effectiveDealerId || user.id);
   };
 
   // Compute unique filter options from cars

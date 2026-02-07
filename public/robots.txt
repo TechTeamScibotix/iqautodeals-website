@@ -9,6 +9,12 @@ Disallow: /dealer/
 Disallow: /customer/
 Disallow: /admin/
 
+# ============================================
+# BLOCKED BOTS
+# ============================================
+User-agent: MJ12bot
+Disallow: /
+
 # Crawl-delay for aggressive bots
 User-agent: Bingbot
 Crawl-delay: 1
