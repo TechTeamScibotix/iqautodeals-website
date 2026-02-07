@@ -130,13 +130,22 @@ SEO OPTIMIZATION REQUIREMENTS:
    - Write generic content - this must be UNIQUE to this specific vehicle
 
 5. FORMAT:
-   - 2-3 paragraphs
-   - 200-400 words (longer, more detailed content)
-   - No headers or bullet points (flowing prose only)
+   - 2-3 paragraphs of description (200-350 words)
+   - Then include a FAQ section with EXACTLY these two questions and answers
+   - No bullet points in the description paragraphs (flowing prose only)
+
+6. REQUIRED FAQ SECTION (include at the end):
+   After the description paragraphs, add this FAQ section with the exact format below:
+
+   **Am I getting a good deal?**
+   Yes! [Write 1-2 sentences highlighting THIS vehicle's value - mention specific selling points like low mileage, reliability, features, or brand reputation. Always be positive.]
+
+   **Can I negotiate?**
+   Yes! Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price.
 
 Write content that would rank for searches like "${year} ${make} ${model} for sale" and "${make} ${model} near me".${variationPrompt}
 
-Return ONLY the description text, no headers, labels, or quotes.`;
+Return ONLY the description text followed by the FAQ section. No other headers, labels, or quotes.`;
 
       const model_ai = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await model_ai.generateContent(prompt);

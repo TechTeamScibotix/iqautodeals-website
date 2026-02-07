@@ -7,10 +7,12 @@ import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
+import VehicleFAQSchema from '@/app/components/VehicleFAQSchema';
 import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 import CarPhotoGallery from '@/app/components/CarPhotoGallery';
 import ViewTracker from '@/app/components/ViewTracker';
+import VehicleFAQ from '@/app/components/VehicleFAQ';
 
 // Force dynamic rendering to ensure redirects work on every request
 export const dynamic = 'force-dynamic';
@@ -23,6 +25,56 @@ interface PageProps {
 function isUUID(str: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(str);
+}
+
+// Generate a positive "good deal" answer based on vehicle attributes (for schema)
+function generateGoodDealAnswer(car: { make: string; model: string; year: number; mileage: number; fuelType?: string | null }): string {
+  const currentYear = new Date().getFullYear();
+  const vehicleAge = currentYear - car.year;
+
+  const sellingPoints: string[] = [];
+
+  const avgMilesPerYear = 12000;
+  const expectedMileage = vehicleAge * avgMilesPerYear;
+  if (car.mileage < expectedMileage) {
+    sellingPoints.push('lower-than-average mileage for its age');
+  }
+  if (car.mileage < 50000) {
+    sellingPoints.push('plenty of life left with under 50,000 miles');
+  } else if (car.mileage < 100000) {
+    sellingPoints.push('well within the reliable mileage range');
+  }
+
+  if (vehicleAge <= 3) {
+    sellingPoints.push('nearly new with modern features and technology');
+  } else if (vehicleAge <= 6) {
+    sellingPoints.push('a great balance of value and modern features');
+  }
+
+  if (car.fuelType?.toLowerCase().includes('hybrid')) {
+    sellingPoints.push('excellent fuel efficiency as a hybrid');
+  } else if (car.fuelType?.toLowerCase().includes('electric')) {
+    sellingPoints.push('zero emissions and low operating costs');
+  }
+
+  const reliableMakes = ['toyota', 'honda', 'lexus', 'mazda', 'subaru'];
+  if (reliableMakes.includes(car.make.toLowerCase())) {
+    sellingPoints.push(`${car.make}'s reputation for reliability and strong resale value`);
+  }
+
+  let answer = `Yes! This ${car.year} ${car.make} ${car.model} offers solid value. `;
+  if (sellingPoints.length > 0) {
+    const points = sellingPoints.slice(0, 2);
+    if (points.length === 1) {
+      answer += `It has ${points[0]}.`;
+    } else {
+      answer += `It has ${points[0]} and ${points[1]}.`;
+    }
+  } else {
+    answer += `With ${car.mileage.toLocaleString()} miles, it's priced competitively for the market.`;
+  }
+
+  return answer;
 }
 
 // Helper to find car by ID or slug
@@ -327,6 +379,14 @@ export default async function CarDetailPage({ params }: PageProps) {
         state={car.state}
       />
 
+      {/* FAQ Schema for SEO */}
+      <VehicleFAQSchema
+        make={car.make}
+        model={car.model}
+        year={car.year}
+        goodDealAnswer={generateGoodDealAnswer(car)}
+      />
+
       {/* Track view in Scibotix for Price Pulse analytics */}
       <ViewTracker vin={car.vin} />
 
@@ -423,8 +483,20 @@ export default async function CarDetailPage({ params }: PageProps) {
                 </p>
               </div>
 
+              {/* FAQ Section */}
+              <VehicleFAQ
+                make={car.make}
+                model={car.model}
+                year={car.year}
+                mileage={car.mileage}
+                color={car.color}
+                transmission={car.transmission}
+                fuelType={car.fuelType || undefined}
+                condition={car.condition || undefined}
+              />
+
               {/* VIN */}
-              <div className="border-t pt-4">
+              <div className="border-t pt-4 mt-6">
                 <p className="text-sm text-gray-500 break-all">
                   <span className="font-semibold">VIN:</span> {car.vin}
                 </p>

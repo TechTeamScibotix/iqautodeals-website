@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart, Phone } from 'lucide-react';
+import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart, Phone, SlidersHorizontal, ChevronDown, ChevronUp, Globe, ExternalLink } from 'lucide-react';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import {
@@ -29,6 +29,8 @@ interface Car {
   state: string;
   salePrice: number;
   photos: string;
+  description?: string;
+  transmission?: string;
   fuelType?: string;
   bodyType?: string;
   isDemo?: boolean;
@@ -36,6 +38,7 @@ interface Car {
   distance?: number | null;
   dealer: {
     businessName: string;
+    websiteUrl?: string;
   };
 }
 
@@ -80,6 +83,21 @@ export default function CustomerDashboard() {
   const [dealStatus, setDealStatus] = useState<DealStatus | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<Car | null>(null);
+
+  // TrueCar-style filter panel state
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    brand: true,
+    distance: true,
+    price: true,
+    state: false,
+    condition: false,
+  });
+  const [searchRadius, setSearchRadius] = useState(75);
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   // Dynamic filter options from database
   const [filterOptions, setFilterOptions] = useState<{
@@ -451,144 +469,230 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* Search Filters */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-4 border border-border">
-          <h2 className="text-lg font-bold mb-3 flex items-center gap-2 text-dark">
-            <Search className="w-5 h-5 text-primary" />
-            Search Inventory
-          </h2>
-          <p className="text-sm text-gray-600 mb-3">
-            Browse vehicles and add up to 4 to your deal request.
-          </p>
+        {/* Mobile Filters Button */}
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 mb-4 rounded-lg shadow-md">
+          <button
+            onClick={() => setShowMobileFilters(true)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-full font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <SlidersHorizontal className="w-5 h-5" />
+            Filters
+          </button>
+        </div>
 
-          {/* Free-text Search */}
-          <div className="mb-3">
-            <input
-              type="text"
-              value={search.q}
-              onChange={(e) => setSearch({ ...search, q: e.target.value })}
-              onKeyDown={(e) => e.key === 'Enter' && loadCars()}
-              placeholder="Search by make, model, year, color, body type, VIN..."
-              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            />
+        {/* Mobile Filters Modal */}
+        {showMobileFilters && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowMobileFilters(false)} />
+            <div className="absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-4 flex items-center justify-between">
+                <h2 className="text-lg font-bold">FILTERS</h2>
+                <button onClick={() => setShowMobileFilters(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="p-4">
+                {/* Brand Section */}
+                <div className="border-b border-gray-200 py-4">
+                  <button onClick={() => toggleSection('brand')} className="w-full flex items-center justify-between text-left">
+                    <span className="font-semibold text-lg">Brand</span>
+                    {openSections.brand ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                  {openSections.brand && (
+                    <div className="mt-4 space-y-3">
+                      <select
+                        value={search.make}
+                        onChange={(e) => setSearch(prev => ({ ...prev, make: e.target.value, model: '' }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      >
+                        <option value="">All Makes</option>
+                        {filterOptions.makes.map((make) => (
+                          <option key={make} value={make}>{make}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={search.model}
+                        onChange={(e) => setSearch(prev => ({ ...prev, model: e.target.value }))}
+                        disabled={!search.make}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary disabled:bg-gray-100"
+                      >
+                        <option value="">{search.make ? 'All Models' : 'Select Make First'}</option>
+                        {availableModels.map((model) => (
+                          <option key={model} value={model}>{model}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Distance Section */}
+                <div className="border-b border-gray-200 py-4">
+                  <button onClick={() => toggleSection('distance')} className="w-full flex items-center justify-between text-left">
+                    <span className="font-semibold text-lg">Distance</span>
+                    {openSections.distance ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                  {openSections.distance && (
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <label className="text-xs text-gray-500 uppercase">ZIP Code</label>
+                        <input
+                          type="text"
+                          value={search.zipCode}
+                          onChange={(e) => setSearch(prev => ({ ...prev, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                          placeholder="Enter ZIP"
+                          maxLength={5}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary mt-1"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-600">Search radius</label>
+                        <div className="text-center font-semibold mt-1">{searchRadius} miles</div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="500"
+                          value={searchRadius}
+                          onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                          className="w-full mt-2 accent-primary"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price Section */}
+                <div className="border-b border-gray-200 py-4">
+                  <button onClick={() => toggleSection('price')} className="w-full flex items-center justify-between text-left">
+                    <span className="font-semibold text-lg">Price</span>
+                    {openSections.price ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                  {openSections.price && (
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs text-gray-500 uppercase">Min price</label>
+                        <div className="relative mt-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                          <input
+                            type="text"
+                            value={search.minPrice ? parseInt(search.minPrice).toLocaleString() : ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '');
+                              setSearch(prev => ({ ...prev, minPrice: value }));
+                            }}
+                            placeholder="Min"
+                            className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 uppercase">Max price</label>
+                        <div className="relative mt-1">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                          <input
+                            type="text"
+                            value={search.maxPrice ? parseInt(search.maxPrice).toLocaleString() : ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/[^0-9]/g, '');
+                              setSearch(prev => ({ ...prev, maxPrice: value }));
+                            }}
+                            placeholder="Max"
+                            className="w-full pl-8 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* State Section */}
+                <div className="border-b border-gray-200 py-4">
+                  <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-left">
+                    <span className="font-semibold text-lg">State</span>
+                    {openSections.state ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                  {openSections.state && (
+                    <div className="mt-4">
+                      <select
+                        value={search.state}
+                        onChange={(e) => setSearch(prev => ({ ...prev, state: e.target.value }))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      >
+                        <option value="all">All States</option>
+                        {filterOptions.states.map((state) => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Condition Section */}
+                <div className="border-b border-gray-200 py-4">
+                  <button onClick={() => toggleSection('condition')} className="w-full flex items-center justify-between text-left">
+                    <span className="font-semibold text-lg">Condition</span>
+                    {openSections.condition ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  </button>
+                  {openSections.condition && (
+                    <div className="mt-4 flex gap-2">
+                      {['all', 'new', 'used'].map((cond) => (
+                        <button
+                          key={cond}
+                          onClick={() => setSearch(prev => ({ ...prev, condition: cond }))}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                            search.condition === cond ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {cond === 'all' ? 'All' : cond.charAt(0).toUpperCase() + cond.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Apply Filters Button */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex gap-3">
+                <button
+                  onClick={() => {
+                    setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50"
+                >
+                  Clear all
+                </button>
+                <button
+                  onClick={() => {
+                    loadCars();
+                    setShowMobileFilters(false);
+                  }}
+                  className="flex-1 px-4 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800"
+                >
+                  Apply filters
+                </button>
+              </div>
+            </div>
           </div>
+        )}
 
-          <div className="grid md:grid-cols-4 gap-3 mb-3">
-            <select
-              value={search.condition}
-              onChange={(e) => setSearch({ ...search, condition: e.target.value })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            >
-              <option value="all">New/Used</option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-            </select>
-
-            <select
-              value={search.make}
-              onChange={(e) => setSearch({ ...search, make: e.target.value, model: '' })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            >
-              <option value="">All Makes ({filterOptions.makes.length})</option>
-              {filterOptions.makes.map((make) => (
-                <option key={make} value={make}>
-                  {make}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={search.model}
-              onChange={(e) => setSearch({ ...search, model: e.target.value })}
-              disabled={!search.make}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm disabled:bg-gray-100 disabled:text-gray-400"
-            >
-              <option value="">
-                {search.make ? `All ${search.make} Models (${availableModels.length})` : 'Select Make First'}
-              </option>
-              {availableModels.map((model) => (
-                <option key={model} value={model}>
-                  {model}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={search.state}
-              onChange={(e) => setSearch({ ...search, state: e.target.value })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            >
-              <option value="all">All States ({filterOptions.states.length})</option>
-              {filterOptions.states.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid md:grid-cols-5 gap-3">
-            <select
-              value={search.fuelType}
-              onChange={(e) => setSearch({ ...search, fuelType: e.target.value })}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            >
-              <option value="all">All Fuel Types</option>
-              {filterOptions.fuelTypes.length > 0 ? (
-                filterOptions.fuelTypes.map((fuelType) => (
-                  <option key={fuelType} value={fuelType}>
-                    {fuelType}
-                  </option>
-                ))
-              ) : (
-                <>
-                  <option value="Gasoline">Gasoline</option>
-                  <option value="Diesel">Diesel</option>
-                  <option value="Electric">Electric</option>
-                  <option value="Hybrid">Hybrid</option>
-                </>
-              )}
-            </select>
-
-            <div className="relative">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+        {/* Desktop Search Bar */}
+        <div className="hidden lg:block bg-white rounded-lg shadow-md p-4 mb-4 border border-border">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
               <input
-                type="number"
-                value={search.minPrice}
-                onChange={(e) => setSearch({ ...search, minPrice: e.target.value })}
-                placeholder="Min Price"
-                min="0"
-                className="w-full pl-6 pr-2 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
+                type="text"
+                value={search.q}
+                onChange={(e) => setSearch({ ...search, q: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && loadCars()}
+                placeholder="Search by make, model, year, color, body type, VIN..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-white"
               />
             </div>
-
-            <div className="relative">
-              <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
-              <input
-                type="number"
-                value={search.maxPrice}
-                onChange={(e) => setSearch({ ...search, maxPrice: e.target.value })}
-                placeholder="Max Price"
-                min="0"
-                className="w-full pl-6 pr-2 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-              />
-            </div>
-
-            <input
-              type="text"
-              value={search.zipCode}
-              onChange={(e) => setSearch({ ...search, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
-              placeholder="ZIP Code"
-              maxLength={5}
-              className="px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-white text-sm"
-            />
-
             <button
               onClick={loadCars}
-              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center justify-center gap-2 text-sm"
+              className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center gap-2"
             >
-              <Search className="w-4 h-4" />
-              Show Matches
+              <Search className="w-5 h-5" />
+              Search
             </button>
           </div>
         </div>
@@ -627,18 +731,207 @@ export default function CustomerDashboard() {
           </div>
         )}
 
-        {/* Cars Grid */}
-        <div className="mb-3">
-          <h2 className="text-xl font-bold mb-2 text-dark flex items-center gap-2">
-            <Car className="w-5 h-5 text-primary" />
-            {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
-          </h2>
-          {search.zipCode && filteredCars.length > 0 && (
-            <p className="text-primary text-sm font-medium">
-              Sorted by distance from ZIP code {search.zipCode}
-            </p>
-          )}
-        </div>
+        {/* Main Content with Sidebar */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Desktop Sidebar Filters */}
+          <aside className="hidden lg:block w-72 flex-shrink-0">
+            <div className="sticky top-24 bg-white rounded-lg shadow-md p-4 border border-border">
+              <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                <SlidersHorizontal className="w-5 h-5 text-primary" />
+                Filters
+              </h3>
+
+              {/* Brand Section */}
+              <div className="border-b border-gray-200 py-3">
+                <button onClick={() => toggleSection('brand')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Brand</span>
+                  {openSections.brand ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openSections.brand && (
+                  <div className="mt-3 space-y-2">
+                    <select
+                      value={search.make}
+                      onChange={(e) => setSearch(prev => ({ ...prev, make: e.target.value, model: '' }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="">All Makes</option>
+                      {filterOptions.makes.map((make) => (
+                        <option key={make} value={make}>{make}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={search.model}
+                      onChange={(e) => setSearch(prev => ({ ...prev, model: e.target.value }))}
+                      disabled={!search.make}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary disabled:bg-gray-100"
+                    >
+                      <option value="">{search.make ? 'All Models' : 'Select Make First'}</option>
+                      {availableModels.map((model) => (
+                        <option key={model} value={model}>{model}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Distance Section */}
+              <div className="border-b border-gray-200 py-3">
+                <button onClick={() => toggleSection('distance')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Distance</span>
+                  {openSections.distance ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openSections.distance && (
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label className="block text-xs text-gray-500 uppercase mb-1">ZIP Code</label>
+                      <input
+                        type="text"
+                        value={search.zipCode}
+                        onChange={(e) => setSearch(prev => ({ ...prev, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                        placeholder="Enter ZIP"
+                        maxLength={5}
+                        className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600">Search radius</div>
+                      <div className="text-center font-semibold text-sm">{searchRadius} miles</div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="500"
+                        value={searchRadius}
+                        onChange={(e) => setSearchRadius(parseInt(e.target.value))}
+                        className="w-full mt-1 accent-primary"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Section */}
+              <div className="border-b border-gray-200 py-3">
+                <button onClick={() => toggleSection('price')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Price</span>
+                  {openSections.price ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openSections.price && (
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Min</label>
+                      <div className="relative mt-1">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                        <input
+                          type="text"
+                          value={search.minPrice ? parseInt(search.minPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, minPrice: value }));
+                          }}
+                          placeholder="Min"
+                          className="w-full pl-6 pr-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 uppercase">Max</label>
+                      <div className="relative mt-1">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                        <input
+                          type="text"
+                          value={search.maxPrice ? parseInt(search.maxPrice).toLocaleString() : ''}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^0-9]/g, '');
+                            setSearch(prev => ({ ...prev, maxPrice: value }));
+                          }}
+                          placeholder="Max"
+                          className="w-full pl-6 pr-2 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* State Section */}
+              <div className="border-b border-gray-200 py-3">
+                <button onClick={() => toggleSection('state')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">State</span>
+                  {openSections.state ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openSections.state && (
+                  <div className="mt-3">
+                    <select
+                      value={search.state}
+                      onChange={(e) => setSearch(prev => ({ ...prev, state: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
+                    >
+                      <option value="all">All States</option>
+                      {filterOptions.states.map((state) => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {/* Condition Section */}
+              <div className="border-b border-gray-200 py-3">
+                <button onClick={() => toggleSection('condition')} className="w-full flex items-center justify-between text-left">
+                  <span className="font-semibold">Condition</span>
+                  {openSections.condition ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+                {openSections.condition && (
+                  <div className="mt-3 flex gap-1.5">
+                    {['all', 'new', 'used'].map((cond) => (
+                      <button
+                        key={cond}
+                        onClick={() => setSearch(prev => ({ ...prev, condition: cond }))}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          search.condition === cond ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {cond === 'all' ? 'All' : cond.charAt(0).toUpperCase() + cond.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Apply & Clear Buttons */}
+              <div className="py-3 space-y-2">
+                <button
+                  onClick={loadCars}
+                  className="w-full px-4 py-2.5 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition-colors text-sm"
+                >
+                  Apply filters
+                </button>
+                <button
+                  onClick={() => {
+                    setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
+                  }}
+                  className="w-full px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            {/* Cars Grid Header */}
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-dark flex items-center gap-2">
+                <Car className="w-5 h-5 text-primary" />
+                {loading ? 'Loading...' : `${filteredCars.length} Cars Available`}
+              </h2>
+              {search.zipCode && filteredCars.length > 0 && (
+                <p className="text-primary text-sm font-medium">
+                  Sorted by distance from {search.zipCode}
+                </p>
+              )}
+            </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -653,7 +946,7 @@ export default function CustomerDashboard() {
             <p className="text-gray-600 text-sm">Try adjusting your search filters to find more vehicles</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredCars.map((car, index) => {
               const isSelected = selectedCars.has(car.id);
               const isInDeal = dealStatus?.carIdsInDeal.includes(car.id) || false;
@@ -673,7 +966,7 @@ export default function CustomerDashboard() {
                   }`}
                   onClick={() => !isInDeal && toggleCar(car.id)}
                 >
-                  <div className="relative h-32 bg-gray-200 overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-gray-200 overflow-hidden">
                     {(() => {
                       try {
                         const photoUrls = JSON.parse(car.photos || '[]');
@@ -684,7 +977,7 @@ export default function CustomerDashboard() {
                             alt={`${car.year} ${car.make} ${car.model}`}
                             fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                           />
                         );
                       } catch (e) {
@@ -695,53 +988,45 @@ export default function CustomerDashboard() {
                             alt={`${car.year} ${car.make} ${car.model}`}
                             fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                           />
                         );
                       }
                     })()}
                   </div>
-                  <div className="p-3">
-                    <div className="flex items-start justify-between gap-1 mb-1">
-                      <h3 className="font-bold text-sm text-dark">
-                        {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
-                      </h3>
-                      {car.isDemo && (
-                        <span className="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                          Sample
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                      <Car className="w-3 h-3" />
+                  <div className="p-2">
+                    <h3 className="font-bold text-xs md:text-sm text-dark line-clamp-2 mb-1">
+                      {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                    </h3>
+                    <div className="text-[10px] md:text-xs text-gray-600 mb-1">
                       {car.color} • {car.mileage.toLocaleString()} mi
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-                      <MapPin className="w-3 h-3" />
+                    <div className="text-[10px] md:text-xs text-gray-600 mb-2">
                       {car.city}, {car.state}
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setCheckingAvailability(car);
                         }}
-                        className="w-full px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-xs bg-primary text-white hover:bg-primary-dark"
+                        className="w-full px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-[10px] md:text-xs bg-primary text-white hover:bg-primary-dark"
                       >
                         <Phone className="w-3 h-3" />
-                        Check Availability - Test Drive
+                        <span className="hidden sm:inline">Check Availability</span>
+                        <span className="sm:hidden">Availability</span>
                       </button>
-                      <div className="flex gap-2 items-center">
+                      <div className="flex gap-1.5 items-center">
                         <button
                           onClick={(e) => openPhotoGallery(car, e)}
-                          className="flex-1 px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-xs bg-gray-600 text-white hover:bg-gray-700"
+                          className="flex-1 px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center justify-center gap-1 text-[10px] md:text-xs bg-gray-600 text-white hover:bg-gray-700"
                         >
                           <Camera className="w-3 h-3" />
-                          View Photos
+                          Photos
                         </button>
                         <button
                           disabled={isInDeal || (!isSelected && !canAdd)}
-                          className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 text-xs ${
+                          className={`px-2 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 text-[10px] md:text-xs ${
                             isInDeal
                               ? 'bg-blue-500 text-white cursor-not-allowed'
                               : isSelected
@@ -753,13 +1038,13 @@ export default function CustomerDashboard() {
                         >
                           {isInDeal ? (
                             <>
-                              <Check className="w-4 h-4" />
-                              In Deal
+                              <Check className="w-3 h-3" />
+                              <span className="hidden sm:inline">In Deal</span>
                             </>
                           ) : isSelected ? (
                             <>
-                              <Check className="w-4 h-4" />
-                              Selected
+                              <Check className="w-3 h-3" />
+                              <span className="hidden sm:inline">Selected</span>
                             </>
                           ) : canAdd ? (
                             'Add'
@@ -775,92 +1060,194 @@ export default function CustomerDashboard() {
             })}
           </div>
         )}
+          </main>
+        </div>
       </div>
 
-      {/* Photo Gallery Modal */}
+      {/* Vehicle Details Modal */}
       {viewingPhotos && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 z-50 lg:flex lg:items-center lg:justify-center lg:p-4"
           onClick={closePhotoGallery}
         >
-          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative w-full h-full lg:h-auto lg:max-h-[90vh] lg:max-w-7xl bg-white lg:rounded-xl overflow-hidden flex flex-col lg:block"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Close Button */}
             <button
               onClick={closePhotoGallery}
-              className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition"
+              className="absolute top-4 right-4 z-20 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition"
             >
               <X className="w-6 h-6" />
             </button>
 
-            {/* Car Info */}
-            <div className="absolute top-4 left-4 z-10 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur-sm">
-              <h3 className="font-bold text-lg">
-                {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
-              </h3>
-              <p className="text-sm opacity-90">
-                {viewingPhotos.car.city}, {viewingPhotos.car.state} • {viewingPhotos.car.mileage.toLocaleString()} mi
-              </p>
-            </div>
+            <div className="flex-1 overflow-y-auto lg:overflow-visible lg:grid lg:grid-cols-5">
+              {/* Left: Photo Gallery - takes 3 columns */}
+              <div className="relative bg-gray-900 lg:col-span-3">
+                <div className="relative aspect-[16/10]">
+                  <Image
+                    src={viewingPhotos.photos[currentPhotoIndex]}
+                    alt={`${viewingPhotos.car.year} ${viewingPhotos.car.make} ${viewingPhotos.car.model} - Photo ${currentPhotoIndex + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    priority
+                  />
 
-            {/* Photo Counter */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10 bg-black/60 text-white px-4 py-2 rounded-full backdrop-blur-sm">
-              <p className="text-sm font-medium">
-                {currentPhotoIndex + 1} / {viewingPhotos.photos.length}
-              </p>
-            </div>
+                  {/* Photo Counter */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm">
+                    {currentPhotoIndex + 1} / {viewingPhotos.photos.length}
+                  </div>
 
-            {/* Main Photo */}
-            <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-              <Image
-                src={viewingPhotos.photos[currentPhotoIndex]}
-                alt={`${viewingPhotos.car.year} ${viewingPhotos.car.make} ${viewingPhotos.car.model} - Photo ${currentPhotoIndex + 1}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 1280px) 100vw, 1280px"
-                priority
-              />
-            </div>
+                  {/* Navigation Arrows */}
+                  {viewingPhotos.photos.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevPhoto}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={nextPhoto}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white p-2 rounded-full transition"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    </>
+                  )}
+                </div>
 
-            {/* Navigation Buttons */}
-            {viewingPhotos.photos.length > 1 && (
-              <>
-                <button
-                  onClick={prevPhoto}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
-                >
-                  <ChevronLeft className="w-8 h-8" />
-                </button>
-                <button
-                  onClick={nextPhoto}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition"
-                >
-                  <ChevronRight className="w-8 h-8" />
-                </button>
-              </>
-            )}
-
-            {/* Thumbnail Strip */}
-            {viewingPhotos.photos.length > 1 && (
-              <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-                {viewingPhotos.photos.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPhotoIndex(index)}
-                    className={`relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition ${
-                      index === currentPhotoIndex ? 'ring-2 ring-white' : 'opacity-60 hover:opacity-100'
-                    }`}
-                  >
-                    <Image
-                      src={photo}
-                      alt={`Thumbnail ${index + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="80px"
-                    />
-                  </button>
-                ))}
+                {/* Thumbnail Strip */}
+                {viewingPhotos.photos.length > 1 && (
+                  <div className="flex gap-1 p-2 overflow-x-auto bg-gray-800">
+                    {viewingPhotos.photos.map((photo, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentPhotoIndex(index)}
+                        className={`relative flex-shrink-0 w-16 h-16 rounded overflow-hidden transition ${
+                          index === currentPhotoIndex ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <Image
+                          src={photo}
+                          alt={`Thumbnail ${index + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Right: Vehicle Details - takes 2 columns */}
+              <div className="p-4 pb-24 lg:pb-8 lg:p-8 lg:overflow-y-auto lg:max-h-[80vh] lg:col-span-2">
+                {/* Title & Price */}
+                <div className="mb-4">
+                  <h2 className="text-xl lg:text-3xl font-bold text-dark mb-2">
+                    {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
+                  </h2>
+                  <p className="text-2xl lg:text-4xl font-bold text-primary">
+                    {formatPrice(viewingPhotos.car.salePrice)}
+                  </p>
+                </div>
+
+                {/* Quick Specs */}
+                <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Mileage</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.mileage.toLocaleString()} mi</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Transmission</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.transmission || 'Automatic'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Exterior Color</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.color}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wide">Location</p>
+                    <p className="font-semibold text-dark">{viewingPhotos.car.city}, {viewingPhotos.car.state}</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {viewingPhotos.car.description && (
+                  <div className="mb-4">
+                    <h3 className="text-base font-bold text-dark mb-2">About This Vehicle</h3>
+                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                      {viewingPhotos.car.description}
+                    </p>
+                  </div>
+                )}
+
+                {/* Dealer Info */}
+                <div className="mb-4 p-3 border border-gray-200 rounded-lg">
+                  <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-1">Sold By</p>
+                  <p className="font-semibold text-dark">{viewingPhotos.car.dealer.businessName}</p>
+                  <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                    <MapPin className="w-4 h-4" />
+                    {viewingPhotos.car.city}, {viewingPhotos.car.state}
+                  </p>
+                  {viewingPhotos.car.dealer.websiteUrl && (
+                    <a
+                      href={viewingPhotos.car.dealer.websiteUrl}
+                      target="_blank"
+                      rel="noopener"
+                      className="text-sm text-primary hover:text-primary-dark flex items-center gap-1 mt-2 font-medium"
+                    >
+                      <Globe className="w-4 h-4" />
+                      Visit Dealer Website
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+
+                {/* CTA Buttons - Desktop only (mobile has fixed bottom bar) */}
+                <div className="hidden lg:block space-y-3">
+                  <button
+                    onClick={(e) => {
+                      closePhotoGallery();
+                      setCheckingAvailability(viewingPhotos.car);
+                    }}
+                    className="w-full bg-primary text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Phone className="w-5 h-5" />
+                    Check Availability - Test Drive
+                  </button>
+                  <Link
+                    href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
+                    className="w-full border-2 border-primary text-primary px-6 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
+                  >
+                    View Full Listing
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Fixed Bottom CTA */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-2 safe-area-bottom">
+              <button
+                onClick={(e) => {
+                  closePhotoGallery();
+                  setCheckingAvailability(viewingPhotos.car);
+                }}
+                className="w-full bg-primary text-white px-4 py-3 rounded-lg font-bold text-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+              >
+                <Phone className="w-5 h-5" />
+                Check Availability - Test Drive
+              </button>
+              <Link
+                href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
+                className="w-full border-2 border-primary text-primary px-4 py-2.5 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
+              >
+                View Full Listing
+              </Link>
+            </div>
           </div>
         </div>
       )}

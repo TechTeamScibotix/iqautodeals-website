@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, LogIn, Phone, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Phone, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import Footer from '../components/Footer';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
@@ -112,6 +112,10 @@ export default function CarsClient() {
     condition: false,
   });
   const [searchRadius, setSearchRadius] = useState(75);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(24);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -432,6 +436,61 @@ export default function CarsClient() {
     const distanceMatch = !search.zipCode || car.distance === null || car.distance === undefined || car.distance <= searchRadius;
     return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch && distanceMatch;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCars = filteredCars.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search.make, search.model, search.state, search.condition, search.fuelType, search.bodyType, search.minPrice, search.maxPrice, search.zipCode, searchRadius]);
+
+  // Page navigation handlers
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    // Scroll to top of results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (currentPage > 3) {
+        pages.push('...');
+      }
+
+      // Show pages around current
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (currentPage < totalPages - 2) {
+        pages.push('...');
+      }
+
+      // Always show last page
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -940,10 +999,15 @@ export default function CarsClient() {
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             {/* Results Count */}
-            <div className="mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-semibold">
                 {loading ? 'Loading...' : `${filteredCars.length} Listings`}
               </p>
+              {!loading && totalPages > 1 && (
+                <p className="text-sm text-gray-500">
+                  Page {currentPage} of {totalPages}
+                </p>
+              )}
             </div>
 
             {/* Cars Grid */}
@@ -960,8 +1024,9 @@ export default function CarsClient() {
                 <p className="text-gray-600">Try adjusting your search filters to see more results</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredCars.map((car) => {
+              <>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+            {paginatedCars.map((car) => {
               let photoUrl = '';
               try {
                 const photos = JSON.parse(car.photos || '[]');
@@ -975,58 +1040,51 @@ export default function CarsClient() {
                   key={car.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
-                  <div className="relative h-48 bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
+                  <div className="relative aspect-[4/3] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
                     <Image
                       src={photoUrl || getPlaceholderImage(car.bodyType)}
                       alt={`${car.year} ${car.make} ${car.model}`}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                     />
                     {photoUrl && (
-                      <div className="absolute top-2 right-2 bg-black/60 text-white px-3 py-1 rounded-pill text-xs font-semibold backdrop-blur-sm">
+                      <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded-pill text-[10px] md:text-xs font-semibold backdrop-blur-sm">
                         <Camera className="w-3 h-3 inline mr-1" />
-                        View Photos
+                        <span className="hidden sm:inline">View Photos</span>
+                        <span className="sm:hidden">Photos</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-bold text-lg text-dark">
-                        {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
-                      </h3>
-                      {car.isDemo && (
-                        <span className="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                          Sample
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-2xl font-bold text-primary mb-2">
+                  <div className="p-2 md:p-4">
+                    <h3 className="font-bold text-xs md:text-lg text-dark line-clamp-2 mb-1">
+                      {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                    </h3>
+                    <p className="text-lg md:text-2xl font-bold text-primary mb-1 md:mb-2">
                       {formatPrice(car.salePrice)}
                     </p>
-                    <div className="text-sm text-gray-600 mb-1">
-                      <Car className="w-4 h-4 inline mr-1" />
+                    <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">
                       {car.color} • {car.mileage.toLocaleString()} mi
                     </div>
-                    <div className="text-sm text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 inline mr-1" />
+                    <div className="text-[10px] md:text-sm text-gray-600 mb-1 md:mb-3">
                       {car.city}, {car.state}
                       {car.distance !== null && car.distance !== undefined && (
-                        <span className="ml-2 text-primary font-medium">
-                          ({car.distance} mi away)
+                        <span className="ml-1 text-primary font-medium">
+                          ({car.distance} mi)
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mb-3">{car.dealer.businessName}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3 line-clamp-1">{car.dealer.businessName}</p>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5 md:gap-2">
                       <button
                         onClick={(e) => handleCheckAvailability(car, e)}
-                        className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
+                        className="w-full bg-black text-white px-2 md:px-4 py-1.5 md:py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-[10px] md:text-sm"
                       >
-                        <Phone className="w-4 h-4" />
-                        Check Availability - Test Drive
+                        <Phone className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="hidden sm:inline">Check Availability - Test Drive</span>
+                        <span className="sm:hidden">Availability</span>
                       </button>
                       {!photoUrl && (
                         <button
@@ -1034,10 +1092,11 @@ export default function CarsClient() {
                             e.stopPropagation();
                             setRequestingPhotos(car);
                           }}
-                          className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
+                          className="w-full bg-black text-white px-2 md:px-4 py-1.5 md:py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-[10px] md:text-sm"
                         >
-                          <Camera className="w-4 h-4" />
-                          Request Photos
+                          <Camera className="w-3 h-3 md:w-4 md:h-4" />
+                          <span className="hidden sm:inline">Request Photos</span>
+                          <span className="sm:hidden">Photos</span>
                         </button>
                       )}
                     </div>
@@ -1046,6 +1105,104 @@ export default function CarsClient() {
               );
             })}
               </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex flex-col items-center gap-4">
+                  {/* Results info */}
+                  <p className="text-sm text-gray-600">
+                    Showing {startIndex + 1}-{Math.min(endIndex, filteredCars.length)} of {filteredCars.length} vehicles
+                  </p>
+
+                  {/* Page controls */}
+                  <div className="flex items-center gap-1">
+                    {/* First page */}
+                    <button
+                      onClick={() => goToPage(1)}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="First page"
+                    >
+                      <ChevronsLeft className="w-5 h-5" />
+                    </button>
+
+                    {/* Previous page */}
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Previous page"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    {/* Page numbers */}
+                    <div className="flex items-center gap-1 mx-2">
+                      {getPageNumbers().map((page, index) => (
+                        typeof page === 'number' ? (
+                          <button
+                            key={index}
+                            onClick={() => goToPage(page)}
+                            className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+                              currentPage === page
+                                ? 'bg-primary text-white'
+                                : 'border border-gray-300 hover:bg-gray-100'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ) : (
+                          <span key={index} className="px-2 text-gray-400">
+                            {page}
+                          </span>
+                        )
+                      ))}
+                    </div>
+
+                    {/* Next page */}
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Next page"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+
+                    {/* Last page */}
+                    <button
+                      onClick={() => goToPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      title="Last page"
+                    >
+                      <ChevronsRight className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Items per page selector */}
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-600">Show:</span>
+                    {[12, 24, 48, 96].map((count) => (
+                      <button
+                        key={count}
+                        onClick={() => {
+                          setItemsPerPage(count);
+                          setCurrentPage(1);
+                        }}
+                        className={`px-3 py-1 rounded-full transition-colors ${
+                          itemsPerPage === count
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                        }`}
+                      >
+                        {count}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              </>
             )}
           </main>
         </div>
