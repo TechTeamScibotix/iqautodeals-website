@@ -22,17 +22,22 @@ export async function GET(request: NextRequest) {
     sftpTest: {},
   };
 
-  // 1. Check environment variables (mask passwords)
+  // 1. Check environment variables (mask passwords, show if trimming was needed)
+  const rawHost = process.env.DEALERSOCKET_SFTP_HOST || '';
+  const rawPort = process.env.DEALERSOCKET_SFTP_PORT || '';
+
   results.environment = {
-    DEALERSOCKET_SFTP_HOST: process.env.DEALERSOCKET_SFTP_HOST || '(not set)',
-    DEALERSOCKET_SFTP_PORT: process.env.DEALERSOCKET_SFTP_PORT || '(not set)',
+    DEALERSOCKET_SFTP_HOST: rawHost.trim() || '(not set)',
+    DEALERSOCKET_SFTP_HOST_needed_trim: rawHost !== rawHost.trim(),
+    DEALERSOCKET_SFTP_PORT: rawPort.trim() || '(not set)',
+    DEALERSOCKET_SFTP_PORT_needed_trim: rawPort !== rawPort.trim(),
     DEALERSOCKET_SFTP_USERNAME: process.env.DEALERSOCKET_SFTP_USERNAME ? '(set)' : '(not set)',
     DEALERSOCKET_SFTP_PASSWORD: process.env.DEALERSOCKET_SFTP_PASSWORD ? '(set)' : '(not set)',
     LEXUS_SFTP_USERNAME: process.env.LEXUS_SFTP_USERNAME ? '(set)' : '(not set)',
     LEXUS_SFTP_PASSWORD: process.env.LEXUS_SFTP_PASSWORD ? '(set)' : '(not set)',
   };
 
-  const host = process.env.DEALERSOCKET_SFTP_HOST || '';
+  const host = rawHost.trim();
 
   // 2. Test DNS/IP resolution
   try {
@@ -62,9 +67,9 @@ export async function GET(request: NextRequest) {
   // 3. Test SFTP connection
   const sftp = new SftpClient();
   try {
-    const port = parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10);
-    const username = process.env.LEXUS_SFTP_USERNAME || '';
-    const password = process.env.LEXUS_SFTP_PASSWORD || '';
+    const port = parseInt((process.env.DEALERSOCKET_SFTP_PORT || '22').trim(), 10);
+    const username = (process.env.LEXUS_SFTP_USERNAME || '').trim();
+    const password = (process.env.LEXUS_SFTP_PASSWORD || '').trim();
 
     results.sftpTest.attemptingConnection = {
       host,

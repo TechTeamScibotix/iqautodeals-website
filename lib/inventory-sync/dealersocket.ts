@@ -6,10 +6,10 @@ import { uploadVehiclePhotos } from '@/lib/sync/photo-uploader';
 // SFTP Configuration - read at call time so env vars are available after dotenv loads
 function getSftpConfig() {
   return {
-    host: process.env.DEALERSOCKET_SFTP_HOST || '',
-    port: parseInt(process.env.DEALERSOCKET_SFTP_PORT || '22', 10),
-    username: process.env.DEALERSOCKET_SFTP_USERNAME || '',
-    password: process.env.DEALERSOCKET_SFTP_PASSWORD || '',
+    host: (process.env.DEALERSOCKET_SFTP_HOST || '').trim(),
+    port: parseInt((process.env.DEALERSOCKET_SFTP_PORT || '22').trim(), 10),
+    username: (process.env.DEALERSOCKET_SFTP_USERNAME || '').trim(),
+    password: (process.env.DEALERSOCKET_SFTP_PASSWORD || '').trim(),
     // OpenSSH 9.6 requires explicit algorithm negotiation with ssh2 library
     algorithms: {
       kex: [
