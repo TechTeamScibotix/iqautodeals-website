@@ -115,11 +115,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Get all active cars for this dealer
+    // Get active cars that haven't been SEO'd yet
     const cars = await prisma.car.findMany({
       where: {
         dealerId: dealerId,
         status: 'active',
+        seoDescriptionGenerated: false,
       },
       select: {
         id: true,
@@ -137,7 +138,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (cars.length === 0) {
-      return new Response(JSON.stringify({ error: 'No active cars found' }), {
+      return new Response(JSON.stringify({ error: 'All active vehicles already have SEO descriptions. To regenerate, edit a vehicle first.' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });

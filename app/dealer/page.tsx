@@ -20,6 +20,7 @@ interface Car {
   salePrice: number;
   status: string;
   photos: string;
+  seoDescriptionGenerated?: boolean;
   acceptedDeals?: { sold: boolean }[];
 }
 
@@ -153,21 +154,21 @@ export default function DealerDashboard() {
   const handleBulkSEOUpdate = async () => {
     if (!user || cars.length === 0) return;
 
-    const activeCars = cars.filter(c => c.status === 'active');
-    if (activeCars.length === 0) {
-      alert('No active listings to update');
+    const needsSEO = cars.filter(c => c.status === 'active' && !c.seoDescriptionGenerated);
+    if (needsSEO.length === 0) {
+      alert('All active listings already have SEO descriptions. To regenerate a description, edit the vehicle first.');
       return;
     }
 
     // Calculate estimated time: ~2s per car with AI SDK handling rate limits
-    const estimatedMinutes = Math.ceil((activeCars.length * 2) / 60);
+    const estimatedMinutes = Math.ceil((needsSEO.length * 2) / 60);
 
-    if (!confirm(`This will update descriptions for ${activeCars.length} active listing(s) using AI.\n\nEstimated time: ${estimatedMinutes}-${estimatedMinutes + 2} minutes\n\nThe process runs on the server with automatic retries (5 attempts per vehicle) to ensure reliability.\n\nContinue?`)) {
+    if (!confirm(`This will generate AI-optimized SEO descriptions for ${needsSEO.length} vehicle(s) that don't have one yet.\n\nEstimated time: ${estimatedMinutes}-${estimatedMinutes + 2} minutes\n\nThe process runs on the server with automatic retries (5 attempts per vehicle) to ensure reliability.\n\nContinue?`)) {
       return;
     }
 
     setUpdatingSEO(true);
-    setSeoProgress({ current: 0, total: activeCars.length, currentCar: 'Starting server-side processing...' });
+    setSeoProgress({ current: 0, total: needsSEO.length, currentCar: 'Starting server-side processing...' });
     setSeoResults(null);
 
     try {
@@ -450,7 +451,7 @@ export default function DealerDashboard() {
             {/* Agentix SEO Button */}
             <button
               onClick={handleBulkSEOUpdate}
-              disabled={updatingSEO || cars.filter(c => c.status === 'active').length === 0}
+              disabled={updatingSEO || cars.filter(c => c.status === 'active' && !c.seoDescriptionGenerated).length === 0}
               className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 md:px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {updatingSEO ? (
