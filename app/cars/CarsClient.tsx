@@ -18,6 +18,42 @@ import {
   trackFunnelStep,
 } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
+import {
+  generateStandsOutPoints,
+  generateBuyerPersonas,
+  parseStructuredDescription,
+  parseOldFormatQuestions,
+  toVehicleSpecificHeading,
+  isNegotiateSection,
+} from '../components/AIDealSummary';
+
+/**
+ * Extract a clean preview paragraph from a car description.
+ * Strips ## headings (new format) and **bold** patterns (old format)
+ * so the modal shows a concise summary without raw markdown artifacts.
+ */
+function getDescriptionPreview(description: string): string {
+  // New structured format: extract first section content only
+  if (description.includes('## ')) {
+    const parts = description.split(/^## /m).filter(Boolean);
+    if (parts.length >= 3) {
+      const firstPart = parts[0];
+      const newlineIndex = firstPart.indexOf('\n');
+      if (newlineIndex !== -1) {
+        return firstPart.slice(newlineIndex + 1).trim();
+      }
+    }
+  }
+
+  // Old format with **bold questions**: show only the prose before first question
+  const questionMatch = description.match(/\*\*[^*]+\?\*\*/);
+  if (questionMatch && questionMatch.index !== undefined) {
+    const prose = description.slice(0, questionMatch.index).trim();
+    if (prose) return prose;
+  }
+
+  return description;
+}
 
 interface CarListing {
   id: string;
@@ -1337,15 +1373,121 @@ export default function CarsClient() {
                   </div>
                 </div>
 
-                {/* Description */}
+                {/* Why This Vehicle Stands Out */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-dark mb-2">Why This {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model} Stands Out</h3>
+                  <ul className="space-y-1.5 text-gray-700 text-sm">
+                    {generateStandsOutPoints(
+                      viewingPhotos.car.year,
+                      viewingPhotos.car.make,
+                      viewingPhotos.car.model,
+                      viewingPhotos.car.mileage,
+                      viewingPhotos.car.fuelType,
+                      viewingPhotos.car.bodyType,
+                    ).map((point, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-primary mt-0.5 text-xs">&#9679;</span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Description Preview */}
                 {viewingPhotos.car.description && (
                   <div className="mb-6">
                     <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                      {viewingPhotos.car.description}
+                    <p className="text-gray-700 leading-relaxed text-sm">
+                      {getDescriptionPreview(viewingPhotos.car.description)}
                     </p>
                   </div>
                 )}
+
+                {/* Who This Vehicle Is Best For */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-dark mb-2">Who This {viewingPhotos.car.make} {viewingPhotos.car.model} Is Best For</h3>
+                  <ul className="space-y-1.5 text-gray-700 text-sm">
+                    {generateBuyerPersonas(
+                      viewingPhotos.car.make,
+                      viewingPhotos.car.model,
+                      viewingPhotos.car.bodyType,
+                      viewingPhotos.car.fuelType,
+                    ).map((persona, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-primary mt-0.5 text-xs">&#9679;</span>
+                        <span>{persona}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Buying & Decision Guide */}
+                {viewingPhotos.car.description && (() => {
+                  const desc = viewingPhotos.car.description;
+                  const car = viewingPhotos.car;
+
+                  // New structured format
+                  const structured = parseStructuredDescription(desc);
+                  if (structured) {
+                    const guideSections = structured.filter(s => {
+                      const lower = s.heading.toLowerCase();
+                      return !lower.includes('good deal') && !lower.includes('best for');
+                    });
+                    if (guideSections.length > 0) {
+                      return (
+                        <div className="mb-6">
+                          <h3 className="text-lg font-bold text-dark mb-3">Buying &amp; Decision Guide</h3>
+                          <div className="space-y-4">
+                            {guideSections.map((section, i) => (
+                              <div key={i}>
+                                <h4 className="font-semibold text-dark text-sm mb-1">{section.heading}</h4>
+                                <p className="text-gray-700 text-sm leading-relaxed">{section.content}</p>
+                                {isNegotiateSection(section.heading) && (
+                                  <Link
+                                    href="/register?type=customer"
+                                    className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-primary-dark transition-colors mt-2"
+                                  >
+                                    Create Free Account
+                                  </Link>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+                  }
+
+                  // Old format with **bold questions**
+                  const parsed = parseOldFormatQuestions(desc);
+                  if (parsed && parsed.questions.length > 0) {
+                    return (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-bold text-dark mb-3">Buying &amp; Decision Guide</h3>
+                        <div className="space-y-4">
+                          {parsed.questions.map((q, i) => (
+                            <div key={i}>
+                              <h4 className="font-semibold text-dark text-sm mb-1">
+                                {toVehicleSpecificHeading(q.heading, car.year, car.make, car.model)}
+                              </h4>
+                              <p className="text-gray-700 text-sm leading-relaxed">{q.content}</p>
+                              {isNegotiateSection(q.heading) && (
+                                <Link
+                                  href="/register?type=customer"
+                                  className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-primary-dark transition-colors mt-2"
+                                >
+                                  Create Free Account
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return null;
+                })()}
 
                 {/* Dealer Info */}
                 <div className="mb-6 p-4 border border-gray-200 rounded-lg">
@@ -1395,6 +1537,76 @@ export default function CarsClient() {
                     </p>
                   )}
                 </div>
+
+                {/* Similar Vehicle Recommendations */}
+                {(() => {
+                  const cur = viewingPhotos.car;
+                  const others = cars.filter(c => c.id !== cur.id);
+
+                  const similarVehicles = others.filter(c => c.make === cur.make).slice(0, 4);
+                  const sameModel = others.filter(c => c.make === cur.make && c.model === cur.model).slice(0, 2);
+                  const sameCategory = others.filter(c =>
+                    c.id !== cur.id &&
+                    c.bodyType === cur.bodyType &&
+                    c.salePrice >= cur.salePrice * 0.7 &&
+                    c.salePrice <= cur.salePrice * 1.3 &&
+                    !similarVehicles.some(sv => sv.id === c.id)
+                  ).slice(0, 2);
+
+                  const renderTile = (car: CarListing) => {
+                    let photo = '';
+                    try { photo = JSON.parse(car.photos || '[]')[0] || ''; } catch {}
+                    return (
+                      <Link
+                        key={car.id}
+                        href={`/cars/${car.slug || car.id}`}
+                        className="block"
+                        onClick={closePhotoGallery}
+                      >
+                        <div className="relative aspect-[4/3] bg-gray-200 rounded-lg overflow-hidden">
+                          <Image
+                            src={photo || getPlaceholderImage(car.bodyType)}
+                            alt={`${car.year} ${car.make} ${car.model}`}
+                            fill
+                            className="object-cover"
+                            sizes="120px"
+                          />
+                        </div>
+                        <p className="font-semibold text-xs text-dark mt-1 line-clamp-1">{car.year} {car.make} {car.model}</p>
+                        <p className="text-xs text-primary font-bold">{formatPrice(car.salePrice)}</p>
+                      </Link>
+                    );
+                  };
+
+                  return (
+                    <>
+                      {similarVehicles.length > 0 && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <h3 className="font-bold text-dark text-sm mb-3">Similar Vehicles You Might Like</h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            {similarVehicles.map(renderTile)}
+                          </div>
+                        </div>
+                      )}
+                      {sameModel.length > 0 && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <h3 className="font-bold text-dark text-sm mb-3">More {cur.make} {cur.model}s</h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            {sameModel.map(renderTile)}
+                          </div>
+                        </div>
+                      )}
+                      {sameCategory.length > 0 && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <h3 className="font-bold text-dark text-sm mb-3">Other {cur.bodyType || 'Vehicle'}s in This Price Range</h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            {sameCategory.map(renderTile)}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
 

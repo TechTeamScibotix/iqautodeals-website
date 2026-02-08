@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
-import { Car, MapPin, Gauge, Calendar, Palette, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel } from 'lucide-react';
+import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import VehicleFAQSchema from '@/app/components/VehicleFAQSchema';
@@ -12,7 +12,7 @@ import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 import CarPhotoGallery from '@/app/components/CarPhotoGallery';
 import ViewTracker from '@/app/components/ViewTracker';
-import VehicleFAQ from '@/app/components/VehicleFAQ';
+import AIDealSummary from '@/app/components/AIDealSummary';
 
 // Force dynamic rendering to ensure redirects work on every request
 export const dynamic = 'force-dynamic';
@@ -191,6 +191,56 @@ export default async function CarDetailPage({ params }: PageProps) {
   } catch (e) {
     // Invalid JSON
   }
+
+  // Sidebar vehicle recommendations (only for active cars, fetched in parallel)
+  const sidebarSelect = {
+    id: true,
+    slug: true,
+    year: true,
+    make: true,
+    model: true,
+    trim: true,
+    salePrice: true,
+    photos: true,
+  } as const;
+
+  const sidebarWhere = {
+    status: 'active' as const,
+    id: { not: car.id },
+    dealer: { verificationStatus: 'approved' as const },
+  };
+
+  const [similarVehicles, sameModelVehicles, sameCategoryVehicles] = car.status === 'active'
+    ? await Promise.all([
+        prisma.car.findMany({
+          where: { ...sidebarWhere, make: car.make },
+          select: sidebarSelect,
+          take: 4,
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.car.findMany({
+          where: { ...sidebarWhere, make: car.make, model: car.model },
+          select: sidebarSelect,
+          take: 2,
+          orderBy: { createdAt: 'desc' },
+        }),
+        car.bodyType && car.salePrice
+          ? prisma.car.findMany({
+              where: {
+                ...sidebarWhere,
+                bodyType: car.bodyType,
+                salePrice: {
+                  gte: car.salePrice * 0.7,
+                  lte: car.salePrice * 1.3,
+                },
+              },
+              select: sidebarSelect,
+              take: 2,
+              orderBy: { createdAt: 'desc' },
+            })
+          : Promise.resolve([]),
+      ])
+    : [[], [], []];
 
   // Car is sold, pending, or removed - show appropriate page with similar cars
   if (car.status === 'sold' || car.status === 'pending' || car.status === 'removed') {
@@ -450,52 +500,13 @@ export default async function CarDetailPage({ params }: PageProps) {
 
             {/* Vehicle Info */}
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
                 {car.year} {car.make} {car.model}
               </h1>
-              <p className="text-3xl sm:text-4xl font-bold text-primary mb-6">
-                {formatPrice(car.salePrice)}
-              </p>
 
-              {/* Quick Specs Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mb-8">
-                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
-                  <Gauge className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Mileage</p>
-                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.mileage.toLocaleString()} mi</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
-                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Trans.</p>
-                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.transmission}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
-                  <Fuel className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Fuel Type</p>
-                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.fuelType || 'Gasoline'}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
-                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Color</p>
-                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.color}</p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-2 sm:p-4 text-center min-w-0">
-                  <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1 sm:mb-2" />
-                  <p className="text-[10px] sm:text-xs text-gray-500 uppercase">Location</p>
-                  <p className="font-bold text-gray-900 text-xs sm:text-base truncate">{car.city}, {car.state}</p>
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">About This Vehicle</h2>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
-                  {car.description}
-                </p>
-              </div>
-
-              {/* FAQ Section */}
-              <VehicleFAQ
+              {/* AI Deal Summary or legacy About This Vehicle + FAQ */}
+              <AIDealSummary
+                description={car.description}
                 make={car.make}
                 model={car.model}
                 year={car.year}
@@ -504,6 +515,8 @@ export default async function CarDetailPage({ params }: PageProps) {
                 transmission={car.transmission}
                 fuelType={car.fuelType || undefined}
                 condition={car.condition || undefined}
+                bodyType={car.bodyType || undefined}
+                salePrice={car.salePrice}
               />
 
               {/* VIN */}
@@ -515,14 +528,35 @@ export default async function CarDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          {/* Right: Dealer Card & CTA */}
+          {/* Right: Dealer Card & Recommendations */}
           <div className="space-y-6 min-w-0">
             {/* Dealer Card */}
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Sold By</h3>
-              <div className="mb-6">
-                <p className="font-semibold text-gray-900 text-lg">{car.dealer.businessName}</p>
-                <p className="text-gray-600 flex items-center gap-1 mt-1">
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              {/* Price */}
+              <p className="text-3xl font-bold text-primary mb-3">
+                {formatPrice(car.salePrice)}
+              </p>
+
+              {/* Key Specs */}
+              <div className="flex flex-wrap gap-2 mb-4 text-sm">
+                <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                  <Gauge className="w-3.5 h-3.5 text-primary" />
+                  {car.mileage.toLocaleString()} mi
+                </span>
+                <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                  <Settings className="w-3.5 h-3.5 text-primary" />
+                  {car.transmission}
+                </span>
+                <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                  <Fuel className="w-3.5 h-3.5 text-primary" />
+                  {car.fuelType || 'Gasoline'}
+                </span>
+              </div>
+
+              <div className="border-t pt-4 mb-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Sold By</h3>
+                <p className="font-semibold text-gray-900">{car.dealer.businessName}</p>
+                <p className="text-gray-600 flex items-center gap-1 mt-1 text-sm">
                   <MapPin className="w-4 h-4" />
                   {car.city}, {car.state}
                 </p>
@@ -574,6 +608,93 @@ export default async function CarDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Similar Vehicles */}
+            {similarVehicles.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Similar Vehicles You Might Like</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {similarVehicles.map((v) => {
+                    let photoUrl = '';
+                    try { photoUrl = JSON.parse(v.photos || '[]')[0] || ''; } catch {}
+                    return (
+                      <Link key={v.id} href={`/cars/${v.slug || v.id}`} className="group">
+                        <div className="relative h-32 bg-gray-200 rounded-lg overflow-hidden mb-2">
+                          {photoUrl ? (
+                            <Image src={photoUrl} alt={`${v.year} ${v.make} ${v.model}`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="150px" />
+                          ) : (
+                            <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                              <span className="text-gray-400 text-xs">No Photo</span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="font-semibold text-sm text-gray-900 truncate">{v.year} {v.make} {v.model}</p>
+                        {v.trim && <p className="text-xs text-gray-500 truncate">{v.trim}</p>}
+                        <p className="text-sm font-bold text-primary">{formatPrice(v.salePrice)}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* More Same Model */}
+            {sameModelVehicles.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">More {car.make} {car.model}s</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {sameModelVehicles.map((v) => {
+                    let photoUrl = '';
+                    try { photoUrl = JSON.parse(v.photos || '[]')[0] || ''; } catch {}
+                    return (
+                      <Link key={v.id} href={`/cars/${v.slug || v.id}`} className="group">
+                        <div className="relative h-32 bg-gray-200 rounded-lg overflow-hidden mb-2">
+                          {photoUrl ? (
+                            <Image src={photoUrl} alt={`${v.year} ${v.make} ${v.model}`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="150px" />
+                          ) : (
+                            <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                              <span className="text-gray-400 text-xs">No Photo</span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="font-semibold text-sm text-gray-900 truncate">{v.year} {v.make} {v.model}</p>
+                        {v.trim && <p className="text-xs text-gray-500 truncate">{v.trim}</p>}
+                        <p className="text-sm font-bold text-primary">{formatPrice(v.salePrice)}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Same Category / Price Range */}
+            {sameCategoryVehicles.length > 0 && car.bodyType && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Other {car.bodyType}s in This Price Range</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {sameCategoryVehicles.map((v) => {
+                    let photoUrl = '';
+                    try { photoUrl = JSON.parse(v.photos || '[]')[0] || ''; } catch {}
+                    return (
+                      <Link key={v.id} href={`/cars/${v.slug || v.id}`} className="group">
+                        <div className="relative h-32 bg-gray-200 rounded-lg overflow-hidden mb-2">
+                          {photoUrl ? (
+                            <Image src={photoUrl} alt={`${v.year} ${v.make} ${v.model}`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="150px" />
+                          ) : (
+                            <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                              <span className="text-gray-400 text-xs">No Photo</span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="font-semibold text-sm text-gray-900 truncate">{v.year} {v.make} {v.model}</p>
+                        {v.trim && <p className="text-xs text-gray-500 truncate">{v.trim}</p>}
+                        <p className="text-sm font-bold text-primary">{formatPrice(v.salePrice)}</p>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

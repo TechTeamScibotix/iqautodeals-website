@@ -106,10 +106,10 @@ export default function VehicleFAQ(props: VehicleFAQProps) {
 
   return (
     <div className="border-t border-gray-200 pt-6 mt-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
         <HelpCircle className="w-5 h-5 text-primary" />
-        Common Questions
-      </h3>
+        Decision Q&A
+      </h2>
       <div className="space-y-3">
         {faqs.map((faq, index) => (
           <div
@@ -120,7 +120,7 @@ export default function VehicleFAQ(props: VehicleFAQProps) {
               onClick={() => toggleFAQ(index)}
               className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
             >
-              <span className="font-medium text-gray-900">{faq.question}</span>
+              <h3 className="font-medium text-gray-900">{faq.question}</h3>
               {openIndex === index ? (
                 <ChevronUp className="w-5 h-5 text-gray-500 flex-shrink-0" />
               ) : (

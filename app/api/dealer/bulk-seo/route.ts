@@ -37,58 +37,43 @@ ${car.salePrice ? `Price: $${car.salePrice.toLocaleString()}` : 'Contact for pri
 VIN: ${car.vin || 'N/A'}
 `.trim();
 
-  const prompt = `You are an SEO expert and experienced automotive copywriter creating a vehicle listing that will rank well in Google search results. Write a description optimized for search engines while remaining compelling for buyers.
+  const prompt = `You are an SEO expert and experienced automotive copywriter. Write a structured vehicle description with 5 sections that will rank well in Google search results and get featured in AI Overviews.
 
 ${vehicleInfo}
 
-SEO OPTIMIZATION REQUIREMENTS:
-1. NATURALLY INCLUDE these high-value keywords in the text (don't force them):
-   - "${car.year} ${car.make} ${car.model} for sale"
-   - "${car.make} ${car.model}" (repeat 2-3 times naturally)
-   - "used ${car.make}" or "pre-owned ${car.make}"
-   - Location terms like "${car.city}" and "${car.state}" if provided
+FORMAT: Write EXACTLY 5 sections. Each section MUST start with "## " followed by the heading on its own line, then the content below it. Do NOT use any other markdown formatting (no bold **, no italic, no ###). Bullet points are allowed.
 
-2. STRUCTURE for SEO:
-   - Start with the primary keyword phrase in the first sentence
-   - Use short paragraphs (2-3 sentences each)
-   - Include specific numbers (mileage, year, price if available)
-   - Mention year, make, and model in the opening and closing
-   - Reference the specific color: "${car.color}"
+SECTION 1:
+## Is this ${car.year} ${car.make} ${car.model} a good deal?
+Write 2-3 sentences analyzing the price and value. Mention specific details like mileage (${car.mileage?.toLocaleString() || 'low'} miles), the ${car.color || ''} exterior color, and location (${car.city}, ${car.state}). Naturally include "${car.year} ${car.make} ${car.model} for sale" and "used ${car.make}" or "pre-owned ${car.make}".
 
-3. CONTENT REQUIREMENTS:
-   - Write in second person addressing the buyer ("You'll love...", "Imagine yourself...")
-   - Highlight key features and benefits with specifics
-   - Include a compelling value proposition
-   - Address common buyer concerns (reliability, condition, value)
-   - End with a soft call-to-action that encourages inquiry
-   - BE SPECIFIC to THIS exact vehicle - mention the color, mileage, and location
+SECTION 2:
+## Can you negotiate the price of this ${car.make} ${car.model}?
+Write 2-3 sentences about negotiation possibilities. ALWAYS end this section with exactly: "Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price."
 
-4. DO NOT:
-   - Mention any dealership name or business name
-   - Include website URLs
-   - Use generic filler phrases that could apply to any car
-   - Keyword stuff (must read naturally)
-   - Use "click here" or similar web-only CTAs
-   - Use emojis or special characters
-   - Write generic content - this must be UNIQUE to this specific vehicle
+SECTION 3:
+## Who is this vehicle best for?
+Write 2-3 buyer personas as bullet points (e.g., Families, Commuters, First-time buyers). Include why this specific ${car.year} ${car.make} ${car.model} suits each persona.
 
-5. FORMAT:
-   - 2-3 paragraphs of description (200-350 words)
-   - Then include a FAQ section with EXACTLY these two questions and answers
-   - No bullet points in the description paragraphs (flowing prose only)
+SECTION 4:
+## What are good alternatives to this vehicle?
+List 3 competitor vehicles with brief 1-sentence comparisons to this ${car.make} ${car.model}.
 
-6. REQUIRED FAQ SECTION (include at the end):
-   After the description paragraphs, add this FAQ section with the exact format below:
+SECTION 5:
+## What should buyers know before purchasing?
+Write 2-3 practical tips specific to buying this ${car.year} ${car.make} ${car.model}. Mention things like checking the vehicle history, scheduling a test drive, and comparing offers.
 
-   **Am I getting a good deal?**
-   Yes! [Write 1-2 sentences highlighting THIS vehicle's value - mention specific selling points like low mileage, reliability, features, or brand reputation. Always be positive.]
+RULES:
+- Total length: 400-600 words across all 5 sections
+- No markdown bold (**), no italic, no ### sub-headings
+- Bullet points are allowed within sections
+- Be specific to THIS vehicle — reference the color, mileage, location, and price
+- Do NOT mention any dealership name or business name
+- Do NOT include website URLs
+- Write naturally, no keyword stuffing
+- Each section heading must start with exactly "## " on its own line
 
-   **Can I negotiate?**
-   Yes! Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price.
-
-Write content that would rank for searches like "${car.year} ${car.make} ${car.model} for sale" and "${car.make} ${car.model} near me".
-
-Return ONLY the description text followed by the FAQ section. No other headers, labels, or quotes.`;
+Return ONLY the 5 sections. No intro text, no closing text, no quotes around the output.`;
 
   // Use Vercel AI SDK with built-in rate limit handling
   const { text } = await generateText({
