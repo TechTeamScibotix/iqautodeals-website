@@ -41,14 +41,13 @@ async function main() {
       model: true,
       condition: true,
       createdAt: true,
-      updatedAt: true,
     },
   });
 
   console.log('\n--- Cars with $0 Price ---');
   console.log('Total:', zeroPriceCars.length);
   zeroPriceCars.forEach((c) => {
-    console.log(`  ${c.vin} | ${c.year} ${c.make} ${c.model} | ${c.condition} | Updated: ${c.updatedAt?.toISOString()}`);
+    console.log(`  ${c.vin} | ${c.year} ${c.make} ${c.model} | ${c.condition} | Created: ${c.createdAt?.toISOString()}`);
   });
 
   await prisma.$disconnect();
