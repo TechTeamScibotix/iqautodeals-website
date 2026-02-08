@@ -104,8 +104,8 @@ export async function GET() {
       _max: { salePrice: true },
     });
 
-    // Normalize makes to uppercase and remove duplicates
-    const uniqueMakes = [...new Set(makes.map((m) => m.make.toUpperCase()))].sort();
+    // Normalize makes to uppercase, trim whitespace, fix common data issues, and remove duplicates
+    const uniqueMakes = [...new Set(makes.map((m) => m.make.trim().replace(/=/g, '-').toUpperCase()))].sort();
 
     // Get unique fuel types, filter out null/empty and sort
     const uniqueFuelTypes = [...new Set(fuelTypes.map((f) => f.fuelType).filter(Boolean))].sort() as string[];
