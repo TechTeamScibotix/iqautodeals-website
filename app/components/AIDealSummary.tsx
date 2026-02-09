@@ -181,7 +181,7 @@ export function getCompetitors(make: string, model: string, bodyType?: string): 
 }
 
 /**
- * Generate bullet points for "Why This Vehicle Stands Out" with comparative context.
+ * Generate bullet points for "Why Buyers Consider This Vehicle" with comparative context.
  */
 export function generateStandsOutPoints(year: number, make: string, model: string, mileage: number, fuelType?: string, bodyType?: string): string[] {
   const points: string[] = [];
@@ -298,7 +298,7 @@ export default function AIDealSummary({
 
     const StandsOutSection = () => (
       <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-3">Why This {year} {make} {model} Stands Out</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-3">Why Buyers Consider This {year} {make} {model}</h2>
         <ul className="space-y-1.5 text-gray-700">
           {standsOutPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-2">
@@ -402,9 +402,9 @@ export default function AIDealSummary({
 
   return (
     <>
-      {/* H2 #1: Why This Vehicle Stands Out — static comparative context */}
+      {/* H2 #1: Why Buyers Consider This Vehicle — static comparative context */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-3">Why This {year} {make} {model} Stands Out</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-3">Why Buyers Consider This {year} {make} {model}</h2>
         <ul className="space-y-1.5 text-gray-700">
           {standsOutPoints.map((point, i) => (
             <li key={i} className="flex items-start gap-2">

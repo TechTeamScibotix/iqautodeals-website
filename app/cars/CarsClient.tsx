@@ -1407,9 +1407,9 @@ export default function CarsClient() {
                   }
                 })()}
 
-                {/* Why This Vehicle Stands Out */}
+                {/* Why Buyers Consider This Vehicle */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-dark mb-2">Why This {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model} Stands Out</h3>
+                  <h3 className="text-lg font-bold text-dark mb-2">Why Buyers Consider This {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}</h3>
                   <ul className="space-y-1.5 text-gray-700 text-sm">
                     {generateStandsOutPoints(
                       viewingPhotos.car.year,
