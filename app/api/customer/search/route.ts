@@ -213,12 +213,15 @@ export async function GET(request: NextRequest) {
       let distance: number | null = null;
 
       if (userLat !== null && userLon !== null) {
-        // Look up car's coordinates from its city/state
-        const carLocation = zipcodes.lookupByName(car.city, car.state);
-        if (carLocation && carLocation.length > 0) {
-          const carLat = carLocation[0].latitude;
-          const carLon = carLocation[0].longitude;
-          distance = calculateDistance(userLat, userLon, carLat, carLon);
+        // Use stored coordinates if available and valid (not 0,0)
+        if (car.latitude && car.longitude && !(car.latitude === 0 && car.longitude === 0)) {
+          distance = calculateDistance(userLat, userLon, car.latitude, car.longitude);
+        } else {
+          // Fallback: look up coordinates from city/state name
+          const carLocation = zipcodes.lookupByName(car.city?.trim(), car.state?.trim());
+          if (carLocation && carLocation.length > 0) {
+            distance = calculateDistance(userLat, userLon, carLocation[0].latitude, carLocation[0].longitude);
+          }
         }
       }
 
