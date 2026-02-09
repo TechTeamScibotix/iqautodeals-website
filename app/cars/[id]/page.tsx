@@ -242,7 +242,7 @@ export default async function CarDetailPage({ params }: PageProps) {
       ])
     : [[], [], []];
 
-  // Car is sold, pending, or removed - show appropriate page with similar cars
+  // Car is sold, pending, or removed - show full content page with status banner
   if (car.status === 'sold' || car.status === 'pending' || car.status === 'removed') {
     const similarCars = await prisma.car.findMany({
       where: {
@@ -259,14 +259,12 @@ export default async function CarDetailPage({ params }: PageProps) {
         year: true,
         make: true,
         model: true,
+        trim: true,
         salePrice: true,
         mileage: true,
         city: true,
         state: true,
         photos: true,
-        dealer: {
-          select: { businessName: true },
-        },
       },
       take: 4,
       orderBy: { createdAt: 'desc' },
@@ -287,125 +285,245 @@ export default async function CarDetailPage({ params }: PageProps) {
         year: true,
         make: true,
         model: true,
+        trim: true,
         salePrice: true,
         mileage: true,
         city: true,
         state: true,
         photos: true,
-        dealer: {
-          select: { businessName: true },
-        },
       },
       take: 4,
       orderBy: { createdAt: 'desc' },
     });
 
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+        {/* Vehicle Schema for SEO (still valuable for sold pages) */}
+        <VehicleSchema
+          make={car.make}
+          model={car.model}
+          year={car.year}
+          mileage={car.mileage}
+          color={car.color}
+          price={car.salePrice}
+          description={car.description}
+          imageUrl={photos[0]}
+          vin={car.vin}
+          dealerName={car.dealer.businessName || undefined}
+          city={car.city}
+          state={car.state}
+          features={car.features || undefined}
+          fuelType={car.fuelType || undefined}
+          numberOfDoors={car.doors || undefined}
+          mpgCity={car.mpgCity || undefined}
+          mpgHighway={car.mpgHighway || undefined}
+          drivetrain={car.drivetrain || undefined}
+          condition={car.condition || undefined}
+        />
+
+        {/* FAQ Schema for SEO */}
+        <VehicleFAQSchema
+          make={car.make}
+          model={car.model}
+          year={car.year}
+          goodDealAnswer={generateGoodDealAnswer(car)}
+        />
+
         {/* Header */}
         <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
           <div className="container mx-auto px-4 h-full flex justify-between items-center">
             <Link href="/" className="flex items-center h-full py-1">
               <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
             </Link>
-            <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors font-semibold">
-              Browse All Cars
+            <nav className="hidden md:flex gap-6 text-sm font-semibold">
+              <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
+                Cars for Sale
+              </Link>
+              <Link href="/locations" className="text-gray-300 hover:text-primary transition-colors">
+                Locations
+              </Link>
+            </nav>
+            <Link
+              href="/register"
+              className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
+            >
+              Sign Up
             </Link>
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          {/* Back Link */}
-          <Link href="/cars" className="inline-flex items-center gap-2 text-primary hover:underline mb-6">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Search Results
-          </Link>
+        <div className="container mx-auto px-4 py-8 max-w-7xl overflow-x-hidden">
+          {/* Breadcrumb */}
+          <nav className="mb-6 text-sm overflow-x-auto">
+            <ol className="flex items-center gap-2 text-gray-600 whitespace-nowrap">
+              <li><Link href="/" className="hover:text-primary">Home</Link></li>
+              <li>/</li>
+              <li><Link href="/cars" className="hover:text-primary">Cars</Link></li>
+              <li>/</li>
+              <li><Link href={`/locations/${car.city.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-primary">{car.city}</Link></li>
+              <li>/</li>
+              <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}</li>
+            </ol>
+          </nav>
 
-          {/* Status Notice */}
-          <div className="bg-white rounded-xl shadow-lg p-8 text-center mb-8">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 ${
-              car.status === 'sold' ? 'bg-green-100' : car.status === 'removed' ? 'bg-gray-100' : 'bg-amber-100'
+          {/* Compact SOLD banner */}
+          <div className={`rounded-lg px-4 py-3 mb-6 flex items-center gap-3 ${
+            car.status === 'sold' ? 'bg-green-50 border border-green-200' : car.status === 'removed' ? 'bg-gray-50 border border-gray-200' : 'bg-amber-50 border border-amber-200'
+          }`}>
+            <AlertCircle className={`w-5 h-5 flex-shrink-0 ${
+              car.status === 'sold' ? 'text-green-600' : car.status === 'removed' ? 'text-gray-600' : 'text-amber-600'
+            }`} />
+            <p className={`text-sm font-medium ${
+              car.status === 'sold' ? 'text-green-800' : car.status === 'removed' ? 'text-gray-800' : 'text-amber-800'
             }`}>
-              <AlertCircle className={`w-10 h-10 ${
-                car.status === 'sold' ? 'text-green-600' : car.status === 'removed' ? 'text-gray-600' : 'text-amber-600'
-              }`} />
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {car.year} {car.make} {car.model}
-            </h1>
-            <div className={`inline-block px-4 py-2 rounded-full text-lg font-semibold mb-4 ${
-              car.status === 'sold' ? 'bg-green-100 text-green-700' : car.status === 'removed' ? 'bg-gray-100 text-gray-700' : 'bg-amber-100 text-amber-700'
-            }`}>
-              {car.status === 'sold' ? 'SOLD' : car.status === 'removed' ? 'No Longer Available' : 'Reserved'}
-            </div>
-            <p className="text-gray-600 max-w-lg mx-auto">
               {car.status === 'sold'
-                ? `Great news! This ${car.make} found a new home. Browse similar vehicles below or search our full inventory.`
+                ? 'This vehicle has been sold. Browse similar vehicles below.'
                 : car.status === 'removed'
-                ? `This vehicle is no longer available. Browse similar vehicles below or search our full inventory.`
-                : `This vehicle has been reserved. Browse similar vehicles below or search our full inventory.`
+                ? 'This vehicle is no longer available. Browse similar vehicles below.'
+                : 'This vehicle has been reserved. Browse similar vehicles below.'
               }
             </p>
+            <Link href="/cars" className="ml-auto text-sm font-semibold text-primary hover:text-primary-dark whitespace-nowrap">
+              Browse Similar
+            </Link>
           </div>
 
-          {/* Similar Cars */}
-          {carsToShow.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Similar Vehicles Available
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                {carsToShow.map((similarCar) => {
-                  let photoUrl = '';
-                  try {
-                    const carPhotos = JSON.parse(similarCar.photos || '[]');
-                    photoUrl = carPhotos[0] || '';
-                  } catch (e) {}
+          <div className="grid lg:grid-cols-3 gap-8 w-full max-w-full">
+            {/* Left: Photos & Details */}
+            <div className="lg:col-span-2 space-y-6 min-w-0">
+              {/* Photo Gallery */}
+              <CarPhotoGallery
+                photos={photos}
+                carName={`${car.year} ${car.make} ${car.model}`}
+                bodyType={car.bodyType || undefined}
+              />
 
-                  return (
-                    <Link
-                      key={similarCar.id}
-                      href={`/cars/${similarCar.slug || similarCar.id}`}
-                      className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition group"
-                    >
-                      <div className="relative h-48 bg-gray-200">
-                        {photoUrl ? (
-                          <Image
-                            src={photoUrl}
-                            alt={`${similarCar.year} ${similarCar.make} ${similarCar.model}`}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                        ) : (
-                          <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
-                            <div className="bg-primary/90 text-white px-4 py-1.5 rounded-full text-sm font-bold tracking-wide shadow-lg">
-                              IN STOCK
-                            </div>
-                            <p className="text-gray-400 text-xs mt-1">Photos Coming Soon</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg text-gray-900">
-                          {similarCar.year} {similarCar.make} {similarCar.model}
-                        </h3>
-                        <p className="text-2xl font-bold text-primary">
-                          {formatPrice(similarCar.salePrice)}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {similarCar.mileage.toLocaleString()} mi • {similarCar.city}, {similarCar.state}
-                        </p>
-                      </div>
-                    </Link>
-                  );
-                })}
+              {/* Vehicle Info */}
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
+                  {car.year} {car.make} {car.model}
+                </h1>
+
+                {/* AI Deal Summary or legacy About This Vehicle + FAQ */}
+                <AIDealSummary
+                  description={car.description}
+                  make={car.make}
+                  model={car.model}
+                  year={car.year}
+                  mileage={car.mileage}
+                  color={car.color}
+                  transmission={car.transmission}
+                  fuelType={car.fuelType || undefined}
+                  condition={car.condition || undefined}
+                  bodyType={car.bodyType || undefined}
+                  salePrice={car.salePrice}
+                  features={car.features || undefined}
+                />
+
+                {/* VIN */}
+                <div className="border-t pt-4 mt-6">
+                  <p className="text-sm text-gray-500 break-all">
+                    <span className="font-semibold">VIN:</span> {car.vin}
+                  </p>
+                </div>
               </div>
             </div>
-          )}
 
-          {/* CTA */}
-          <div className="text-center">
+            {/* Right: Vehicle Info Card & Similar */}
+            <div className="space-y-6 min-w-0">
+              {/* Vehicle Info Card (no CTA for sold) */}
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                {/* Status Badge */}
+                <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-3 ${
+                  car.status === 'sold' ? 'bg-green-100 text-green-700' : car.status === 'removed' ? 'bg-gray-100 text-gray-700' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {car.status === 'sold' ? 'SOLD' : car.status === 'removed' ? 'No Longer Available' : 'Reserved'}
+                </div>
+
+                {/* Price */}
+                <p className="text-3xl font-bold text-gray-400 line-through mb-3">
+                  {formatPrice(car.salePrice)}
+                </p>
+
+                {/* Key Specs */}
+                <div className="flex flex-wrap gap-2 mb-4 text-sm">
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Gauge className="w-3.5 h-3.5 text-primary" />
+                    {car.mileage.toLocaleString()} mi
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Settings className="w-3.5 h-3.5 text-primary" />
+                    {car.transmission}
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Fuel className="w-3.5 h-3.5 text-primary" />
+                    {car.fuelType || 'Gasoline'}
+                  </span>
+                  {car.mpgCity && car.mpgHighway && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <Zap className="w-3.5 h-3.5 text-primary" />
+                      {car.mpgCity}/{car.mpgHighway} MPG
+                    </span>
+                  )}
+                  {car.doors && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <DoorOpen className="w-3.5 h-3.5 text-primary" />
+                      {car.doors} Door
+                    </span>
+                  )}
+                </div>
+
+                <div className="border-t pt-4 mb-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Sold By</h3>
+                  <p className="font-semibold text-gray-900">{car.dealer.businessName}</p>
+                  <p className="text-gray-600 flex items-center gap-1 mt-1 text-sm">
+                    <MapPin className="w-4 h-4" />
+                    {car.city}, {car.state}
+                  </p>
+                </div>
+
+                {/* Browse similar instead of Check Availability */}
+                <Link
+                  href={`/cars?make=${encodeURIComponent(car.make)}`}
+                  className="block w-full text-center bg-primary text-white py-3 rounded-pill font-semibold hover:bg-primary-dark transition"
+                >
+                  Browse Similar {car.make} Vehicles
+                </Link>
+              </div>
+
+              {/* Similar Vehicles */}
+              {carsToShow.length > 0 && (
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Similar Vehicles Available</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {carsToShow.map((v) => {
+                      let photoUrl = '';
+                      try { photoUrl = JSON.parse(v.photos || '[]')[0] || ''; } catch {}
+                      return (
+                        <Link key={v.id} href={`/cars/${v.slug || v.id}`} className="group">
+                          <div className="relative h-32 bg-gray-200 rounded-lg overflow-hidden mb-2">
+                            {photoUrl ? (
+                              <Image src={photoUrl} alt={`${v.year} ${v.make} ${v.model}`} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="150px" />
+                            ) : (
+                              <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-800 to-gray-900">
+                                <span className="text-gray-400 text-xs">No Photo</span>
+                              </div>
+                            )}
+                          </div>
+                          <p className="font-semibold text-sm text-gray-900 truncate">{v.year} {v.make} {v.model}</p>
+                          {v.trim && <p className="text-xs text-gray-500 truncate">{v.trim}</p>}
+                          <p className="text-sm font-bold text-primary">{formatPrice(v.salePrice)}</p>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Browse All CTA */}
+          <div className="text-center mt-12">
             <Link
               href="/cars"
               className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-pill font-bold text-lg hover:bg-primary-dark transition"

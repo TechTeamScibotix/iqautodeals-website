@@ -2,6 +2,9 @@ import SftpClient from 'ssh2-sftp-client';
 import { parse } from 'csv-parse/sync';
 import { prisma } from '@/lib/prisma';
 import { uploadVehiclePhotos } from '@/lib/sync/photo-uploader';
+import { generateSEODescription, isValidSEODescription } from '@/lib/seo/generate-description';
+
+const SEO_DELAY_MS = 1500; // 1.5s between Gemini calls to respect rate limits
 
 // SFTP Configuration - read at call time so env vars are available after dotenv loads
 function getSftpConfig() {
@@ -348,12 +351,18 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           doors: parseInt(vehicle['Body Door Ct'], 10) || null,
         };
 
+        let carId: string;
+        let needsSEO = false;
+
         if (existingVinMap.has(vehicle.VIN)) {
           // Update existing — preserve description if it was customized via Agentix SEO or manual edit
           const existing = existingVinMap.get(vehicle.VIN)!;
+          carId = existing.id;
           const updateData = { ...carData };
           if (existing.seoDescriptionGenerated) {
             delete (updateData as any).description;
+          } else {
+            needsSEO = true;
           }
           await prisma.car.update({
             where: { id: existing.id },
@@ -362,10 +371,34 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           result.updated++;
         } else {
           // Create new
-          await prisma.car.create({
+          const created = await prisma.car.create({
             data: carData,
           });
+          carId = created.id;
+          needsSEO = true;
           result.created++;
+        }
+
+        // Generate SEO description inline if needed
+        if (needsSEO) {
+          try {
+            const seoDescription = await generateSEODescription(carData);
+            if (isValidSEODescription(seoDescription)) {
+              await prisma.car.update({
+                where: { id: carId },
+                data: {
+                  description: seoDescription,
+                  seoDescriptionGenerated: true,
+                },
+              });
+              console.log(`[Lexus Sync] SEO description generated for ${vehicle.VIN}`);
+            }
+          } catch (seoErr: any) {
+            console.error(`[Lexus Sync] SEO generation failed for ${vehicle.VIN}:`, seoErr.message);
+            // Continue — the vehicle still has the CSV description as fallback
+          }
+          // Rate limit delay between Gemini calls
+          await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
         }
       } catch (err: any) {
         result.errors.push(`VIN ${vehicle.VIN}: ${err.message}`);
