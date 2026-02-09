@@ -74,6 +74,7 @@ interface CarListing {
   vin: string;
   isDemo?: boolean;
   dealerId: string;
+  features?: string;
   distance?: number | null; // Distance in miles from searched zipcode
   dealer: {
     businessName: string;
@@ -1372,6 +1373,39 @@ export default function CarsClient() {
                     <p className="font-semibold text-dark">{viewingPhotos.car.city}, {viewingPhotos.car.state}</p>
                   </div>
                 </div>
+
+                {/* Key Features Preview */}
+                {viewingPhotos.car.features && (() => {
+                  try {
+                    const allFeatures: string[] = JSON.parse(viewingPhotos.car.features);
+                    if (allFeatures.length === 0) return null;
+                    const preview = allFeatures.slice(0, 6);
+                    return (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-bold text-dark mb-2">{viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model} Features &amp; Equipment Highlights</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                          {preview.map((feature, i) => (
+                            <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                              <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span>
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {allFeatures.length > 6 && (
+                          <Link
+                            href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}
+                            className="inline-block mt-2 text-sm text-primary font-semibold hover:underline"
+                            onClick={closePhotoGallery}
+                          >
+                            View all {allFeatures.length} features &rarr;
+                          </Link>
+                        )}
+                      </div>
+                    );
+                  } catch {
+                    return null;
+                  }
+                })()}
 
                 {/* Why This Vehicle Stands Out */}
                 <div className="mb-6">

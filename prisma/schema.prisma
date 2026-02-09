@@ -103,6 +103,7 @@ model Car {
   doors           Int?     // Number of doors
   cabType         String?  // Truck cab type (Regular, Extended, Crew)
   certified       Boolean  @default(false) // Certified Pre-Owned flag
+  features        String?  // JSON array of feature strings from SFTP feed
 
   dealer          User     @relation(fields: [dealerId], references: [id], onDelete: Cascade)
   selectedCars    SelectedCar[]

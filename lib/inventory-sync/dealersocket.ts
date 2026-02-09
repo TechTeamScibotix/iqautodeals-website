@@ -92,6 +92,24 @@ function generateSlug(vin: string, year: number, make: string, model: string, ci
   return parts.join('-');
 }
 
+// Parse pipe-separated features from Options + StandardEquipment into JSON array string
+function parseFeatures(options: string, standardEquipment: string): string | null {
+  const combined = [options, standardEquipment]
+    .filter(s => s && s.trim())
+    .join('|');
+  if (!combined) return null;
+  const list = combined.split('|').map(f => f.trim()).filter(f => f);
+  // Deduplicate (case-insensitive)
+  const seen = new Set<string>();
+  const unique = list.filter(f => {
+    const lower = f.toLowerCase();
+    if (seen.has(lower)) return false;
+    seen.add(lower);
+    return true;
+  });
+  return unique.length > 0 ? JSON.stringify(unique) : null;
+}
+
 // Parse pipe-separated image URLs into array
 function parseImageUrls(imageUrlsString: string): string[] {
   if (!imageUrlsString) return [];
@@ -315,6 +333,7 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
           doors: parseInt(vehicle.Doors, 10) || null,
           cabType: vehicle.CabType?.trim() || null,
           certified: vehicle.Certified?.toUpperCase() === 'Y' || vehicle.Certified?.toUpperCase() === 'YES' || vehicle.Certified === '1',
+          features: parseFeatures(vehicle.Options, vehicle.StandardEquipment),
         };
 
         if (existingVinMap.has(vehicle.VIN)) {

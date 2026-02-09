@@ -59,6 +59,10 @@ interface LexusCsvVehicle {
   'Photo Url List': string;
   'Dealer City': string;
   'Dealer Region': string;
+  Features: string;
+  'City MPG': string;
+  'Highway MPG': string;
+  'Body Door Ct': string;
 }
 
 interface SyncResult {
@@ -79,6 +83,13 @@ function generateSlug(vin: string, year: number, make: string, model: string, ci
     .map(p => String(p).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''))
     .filter(p => p);
   return parts.join('-');
+}
+
+// Parse pipe-separated features string into JSON array string
+function parseFeatures(features: string): string | null {
+  if (!features) return null;
+  const list = features.split('|').map(f => f.trim()).filter(f => f);
+  return list.length > 0 ? JSON.stringify(list) : null;
 }
 
 // Parse pipe-separated photo URLs into array
@@ -331,6 +342,10 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           interiorColor: vehicle['Interior Color']?.trim() || null,
           msrp: msrpPrice > 0 ? msrpPrice : null,
           certified: vehicle.Certified?.toUpperCase() === 'Y' || vehicle.Certified?.toUpperCase() === 'YES',
+          features: parseFeatures(vehicle.Features),
+          mpgCity: parseInt(vehicle['City MPG'], 10) || null,
+          mpgHighway: parseInt(vehicle['Highway MPG'], 10) || null,
+          doors: parseInt(vehicle['Body Door Ct'], 10) || null,
         };
 
         if (existingVinMap.has(vehicle.VIN)) {

@@ -1,84 +1,45 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function main() {
-  // Find Turpin Dodge dealership
-  const dealership = await prisma.dealership.findFirst({
-    where: {
-      OR: [
-        { name: { contains: 'Turpin', mode: 'insensitive' } },
-        { name: { contains: 'Dodge', mode: 'insensitive' } },
-      ]
+async function check() {
+  const cars = await prisma.car.findMany({
+    where: { status: 'active' },
+    select: {
+      id: true,
+      description: true,
+      seoDescriptionGenerated: true,
+      dealer: { select: { businessName: true, id: true } }
     }
   });
-  
-  if (!dealership) {
-    console.log('Turpin Dodge dealership not found');
-    return;
+
+  const dealers = {};
+  for (const car of cars) {
+    const name = car.dealer.businessName || 'Unknown';
+    const did = car.dealer.id;
+    if (!dealers[name]) {
+      dealers[name] = { id: did, total: 0, seoTrue: 0, seoFalse: 0, hasNewFormat: 0 };
+    }
+    dealers[name].total++;
+    if (car.seoDescriptionGenerated) {
+      dealers[name].seoTrue++;
+    } else {
+      dealers[name].seoFalse++;
+    }
+    if (car.description && car.description.includes('## ')) {
+      dealers[name].hasNewFormat++;
+    }
   }
-  
-  console.log('Found dealership:', dealership.name, '(ID:', dealership.id, ')');
-  
-  // Get all vehicles/appraisals for this dealership
-  const appraisals = await prisma.appraisal.findMany({
-    where: { dealershipId: dealership.id },
-    include: {
-      vehicle: { select: { vin: true, year: true, make: true, model: true } },
-      aiGeneratedContent: { 
-        where: { contentType: 'LISTING_DESCRIPTION' },
-        orderBy: { createdAt: 'desc' },
-        take: 1
-      }
-    }
-  });
-  
-  console.log('\n=== VEHICLES WITHOUT SEO DESCRIPTION ===');
-  const withoutSeo = appraisals.filter(a => !a.aiGeneratedContent || a.aiGeneratedContent.length === 0);
-  withoutSeo.forEach(a => {
-    console.log(`${a.vehicle?.year} ${a.vehicle?.make} ${a.vehicle?.model} | VIN: ${a.vehicle?.vin?.slice(-8)}`);
-  });
-  console.log(`Total without SEO: ${withoutSeo.length}`);
-  
-  console.log('\n=== VEHICLES WITH SEO DESCRIPTION ===');
-  const withSeo = appraisals.filter(a => a.aiGeneratedContent && a.aiGeneratedContent.length > 0);
-  console.log(`Total with SEO: ${withSeo.length}`);
-  
-  // Check for recent AI content generation errors (last 24 hours)
-  console.log('\n=== RECENT AI GENERATED CONTENT (Last 24h) ===');
-  const recentContent = await prisma.aIGeneratedContent.findMany({
-    where: {
-      dealershipId: dealership.id,
-      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    },
-    include: {
-      appraisal: { 
-        include: { 
-          vehicle: { select: { vin: true, year: true, make: true, model: true } }
-        }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  });
-  
-  console.log(`Generated in last 24h: ${recentContent.length}`);
-  recentContent.forEach(c => {
-    const v = c.appraisal?.vehicle;
-    console.log(`${c.createdAt.toISOString().substring(0, 16)} | ${c.contentType} | ${v?.year} ${v?.make} ${v?.model}`);
-  });
-  
-  // Check usage logs for errors
-  console.log('\n=== RECENT SHOWROOM AI USAGE LOGS ===');
-  const usageLogs = await prisma.usageLog.findMany({
-    where: {
-      dealershipId: dealership.id,
-      product: 'SHOWROOM_AI',
-      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 20
-  });
-  
-  console.log(`Usage logs in last 24h: ${usageLogs.length}`);
+
+  console.log('=== SEO Status by Dealer ===\n');
+  for (const [name, stats] of Object.entries(dealers).sort((a, b) => b[1].total - a[1].total)) {
+    console.log(name + ' (ID: ' + stats.id + ')');
+    console.log('  Total: ' + stats.total);
+    console.log('  seoGenerated=true: ' + stats.seoTrue);
+    console.log('  seoGenerated=false: ' + stats.seoFalse + ' (eligible for bulk SEO)');
+    console.log('  New ## format: ' + stats.hasNewFormat + '\n');
+  }
+
+  await prisma.$disconnect();
 }
 
-main().finally(() => prisma.$disconnect());
+check().catch(e => { console.error(e); process.exit(1); });

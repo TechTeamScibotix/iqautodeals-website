@@ -4,9 +4,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
-import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel } from 'lucide-react';
+import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel, DoorOpen, Zap } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
+import { parseFeatures, categorizeFeatures } from '@/lib/vehicle-features';
 import VehicleFAQSchema from '@/app/components/VehicleFAQSchema';
 import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
@@ -438,6 +439,13 @@ export default async function CarDetailPage({ params }: PageProps) {
         dealerName={car.dealer.businessName || undefined}
         city={car.city}
         state={car.state}
+        features={car.features || undefined}
+        fuelType={car.fuelType || undefined}
+        numberOfDoors={car.doors || undefined}
+        mpgCity={car.mpgCity || undefined}
+        mpgHighway={car.mpgHighway || undefined}
+        drivetrain={car.drivetrain || undefined}
+        condition={car.condition || undefined}
       />
 
       {/* FAQ Schema for SEO */}
@@ -526,6 +534,33 @@ export default async function CarDetailPage({ params }: PageProps) {
                 </p>
               </div>
             </div>
+
+            {/* Features & Options */}
+            {(() => {
+              const features = parseFeatures(car.features);
+              if (features.length === 0) return null;
+              const grouped = categorizeFeatures(features);
+              return (
+                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">{car.year} {car.make} {car.model} Features &amp; Equipment Highlights</h2>
+                  <div className="space-y-5">
+                    {Array.from(grouped.entries()).map(([category, items]) => (
+                      <div key={category}>
+                        <h3 className="font-semibold text-gray-800 mb-2 text-sm uppercase tracking-wide">{category}</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                          {items.map((feature, i) => (
+                            <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                              <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span>
+                              <span>{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Right: Dealer Card & Recommendations */}
@@ -551,6 +586,18 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <Fuel className="w-3.5 h-3.5 text-primary" />
                   {car.fuelType || 'Gasoline'}
                 </span>
+                {car.mpgCity && car.mpgHighway && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Zap className="w-3.5 h-3.5 text-primary" />
+                    {car.mpgCity}/{car.mpgHighway} MPG
+                  </span>
+                )}
+                {car.doors && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <DoorOpen className="w-3.5 h-3.5 text-primary" />
+                    {car.doors} Door
+                  </span>
+                )}
               </div>
 
               <div className="border-t pt-4 mb-4">
