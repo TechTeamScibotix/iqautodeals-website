@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Bot, UserPlus } from 'lucide-react';
 import VehicleFAQ from './VehicleFAQ';
+import { parseFeatures, categorizeFeatures } from '@/lib/vehicle-features';
 
 interface AIDealSummaryProps {
   description: string;
@@ -14,6 +15,7 @@ interface AIDealSummaryProps {
   condition?: string;
   bodyType?: string;
   salePrice?: number;
+  features?: string;
 }
 
 interface Section {
@@ -286,7 +288,35 @@ export default function AIDealSummary({
   condition,
   bodyType,
   salePrice,
+  features: featuresJson,
 }: AIDealSummaryProps) {
+  // Features section rendered after "Why Buyers Consider" for AI content priority
+  const featuresList = parseFeatures(featuresJson);
+  const FeaturesSection = () => {
+    if (featuresList.length === 0) return null;
+    const grouped = categorizeFeatures(featuresList);
+    return (
+      <div className="border-t border-gray-200 pt-6 mt-6 mb-8">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">{year} {make} {model} Features &amp; Equipment Highlights</h2>
+        <div className="space-y-5">
+          {Array.from(grouped.entries()).map(([category, items]) => (
+            <div key={category}>
+              <h3 className="font-semibold text-gray-800 mb-2 text-sm uppercase tracking-wide">{category}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                {items.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                    <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span>
+                    <span>{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const sections = parseStructuredDescription(description);
 
   // Unstructured (old format) — parse **bold questions** or fall back to VehicleFAQ accordion
@@ -329,6 +359,7 @@ export default function AIDealSummary({
       return (
         <>
           <StandsOutSection />
+          <FeaturesSection />
 
           <div className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">About This Vehicle</h2>
@@ -367,6 +398,7 @@ export default function AIDealSummary({
     return (
       <>
         <StandsOutSection />
+        <FeaturesSection />
 
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">About This Vehicle</h2>
@@ -415,7 +447,10 @@ export default function AIDealSummary({
         </ul>
       </div>
 
-      {/* H2 #2: About This Vehicle — Gemini section 1 (good deal analysis) */}
+      {/* H2 #2: Features & Equipment — evidence backing the decision summary */}
+      <FeaturesSection />
+
+      {/* H2 #3: About This Vehicle — Gemini section 1 (good deal analysis) */}
       {goodDealSection && (
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">About This Vehicle</h2>
