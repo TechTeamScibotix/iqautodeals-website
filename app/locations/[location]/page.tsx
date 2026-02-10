@@ -443,7 +443,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
         </div>
 
         {/* Popular Vehicle Types */}
-        <div className="mb-16">
+        <div className="mb-16" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
           <h2 className="text-3xl font-bold mb-8">Popular Used Vehicles in {city}</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
@@ -477,7 +477,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
         </div>
 
         {/* CTA Section */}
-        <div className="bg-blue-50 rounded-lg p-8 text-center">
+        <div className="bg-blue-50 rounded-lg p-8 text-center" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
           <h2 className="text-3xl font-bold mb-4">Ready to Find Your Perfect Car in {city}?</h2>
           <p className="text-xl text-gray-700 mb-6">
             Browse quality used cars from trusted dealers in {city}, {state}.
@@ -492,7 +492,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
       </section>
 
       {/* Browse Popular Models Section */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-gray-50 py-16" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-8 text-center">Popular Used Cars in {city}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -542,7 +542,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
       </section>
 
       {/* Nearby Cities Section */}
-      <section className="py-16">
+      <section className="py-16" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-8 text-center">Used Cars in Other {state} Cities</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -563,7 +563,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
       </section>
 
       {/* Browse Other Major Cities */}
-      <section className="bg-gray-50 py-16">
+      <section className="bg-gray-50 py-16" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 500px' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold mb-8 text-center">Browse Used Cars in Major Cities</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">

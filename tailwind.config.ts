@@ -8,7 +8,7 @@ export default {
   ],
   theme: {
     fontFamily: {
-      sans: ['"DM Sans"', 'Arial', 'Helvetica', 'sans-serif'],
+      sans: ['var(--font-dm-sans)', '"DM Sans"', 'Arial', 'Helvetica', 'sans-serif'],
     },
     extend: {
       colors: {

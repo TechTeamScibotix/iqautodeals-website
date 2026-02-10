@@ -1,6 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-dm-sans",
+});
 import OrganizationSchema from "./components/OrganizationSchema";
 import LocalBusinessSchema from "./components/LocalBusinessSchema";
 import WebsiteSchema from "./components/WebsiteSchema";
@@ -432,7 +439,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="font-sans">
+    <html lang="en" className={`${dmSans.variable} font-sans`}>
       <head>
         <meta name="msvalidate.01" content="3BCD417E7943B96A06FC27AF503F3523" />
         <meta name="google-site-verification" content="c3bc0iS_ATQI5PqBRyvuSAjZ8kn1MedWPylEA8O_P_Y" />

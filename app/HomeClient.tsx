@@ -250,6 +250,8 @@ export default function HomeClient() {
           loop
           muted
           playsInline
+          preload="none"
+          poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src="/New.mp4" type="video/mp4" />
