@@ -256,119 +256,130 @@ export default function HomeClient() {
         </video>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-5 gap-8 items-start">
-            {/* Left: TrueCar-style Search Panel */}
-            <div className="lg:col-span-2 flex flex-col justify-center">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-lg">
-                Shop Cars. Compare Offers. Save More.
-              </h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white drop-shadow-lg">
+            Shop Cars. Compare Offers. Save More.
+          </h1>
+          <p className="text-sm md:text-base text-gray-300 mb-6 drop-shadow-lg">
+            AI-powered vehicle comparisons, market insights, and competitive dealer offers — <span className="font-bold text-white">all in one place.</span>
+          </p>
 
-              {/* Search Bar - TrueCar style */}
-              <div className="bg-white rounded-pill shadow-xl p-1 mb-8 max-w-md">
-                <div className="flex items-center">
-                  <Search className="w-5 h-5 text-gray-400 ml-4" />
-                  <input
-                    type="text"
-                    value={quickSearch}
-                    onChange={(e) => setQuickSearch(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Search make, model, or type"
-                    aria-label="Search for vehicles"
-                    className="flex-1 px-4 py-3 bg-transparent border-none focus:outline-none text-text-primary placeholder-gray-400"
-                  />
-                  <button
-                    onClick={handleSearch}
-                    className="bg-primary text-white px-6 py-3 rounded-pill font-semibold hover:bg-primary-dark transition-colors"
-                  >
-                    Search
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Action Tiles - TrueCar style */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <Link
-                  href="/cars?condition=new"
-                  className="bg-black/50 backdrop-blur-sm rounded-lg p-3 hover:bg-black/60 transition-all group text-center"
+          {/* Search Bar + Stats Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+            <div className="bg-white rounded-pill shadow-xl p-1 w-full sm:w-96">
+              <div className="flex items-center">
+                <Search className="w-4 h-4 text-gray-400 ml-4 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={quickSearch}
+                  onChange={(e) => setQuickSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Search make, model, or type"
+                  aria-label="Search for vehicles"
+                  className="flex-1 min-w-0 px-3 py-2.5 bg-transparent border-none focus:outline-none text-text-primary placeholder-gray-400 text-sm"
+                />
+                <button
+                  onClick={handleSearch}
+                  className="bg-primary text-white px-6 py-2.5 rounded-pill font-semibold hover:bg-primary-dark transition-colors text-sm flex-shrink-0"
                 >
-                  <div className="w-9 h-9 mb-1 mx-auto flex items-center justify-center">
-                    <Car className="w-7 h-7 text-amber-400" />
-                  </div>
-                  <div className="text-white text-sm font-semibold flex items-center justify-center gap-1">
-                    Shop New <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-
-                <Link
-                  href="/cars?condition=used"
-                  className="bg-black/50 backdrop-blur-sm rounded-lg p-3 hover:bg-black/60 transition-all group text-center"
-                >
-                  <div className="w-9 h-9 mb-1 mx-auto flex items-center justify-center">
-                    <Car className="w-7 h-7 text-pink-400" />
-                  </div>
-                  <div className="text-white text-sm font-semibold flex items-center justify-center gap-1">
-                    Shop Used <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-
-                <Link
-                  href="/cars?fuelType=Electric"
-                  className="bg-black/50 backdrop-blur-sm rounded-lg p-3 hover:bg-black/60 transition-all group text-center"
-                >
-                  <div className="w-9 h-9 mb-1 mx-auto flex items-center justify-center">
-                    <Sparkles className="w-7 h-7 text-teal-400" />
-                  </div>
-                  <div className="text-white text-sm font-semibold flex items-center justify-center gap-1">
-                    Shop Electric <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
-
-                <Link
-                  href="/cars"
-                  className="bg-black/50 backdrop-blur-sm rounded-lg p-3 hover:bg-black/60 transition-all group text-center relative"
-                >
-                  <div className="absolute -top-1.5 -right-1.5 bg-accent text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                    NEW
-                  </div>
-                  <div className="w-9 h-9 mb-1 mx-auto flex items-center justify-center">
-                    <CheckCircle className="w-7 h-7 text-cyan-400" />
-                  </div>
-                  <div className="text-white text-sm font-semibold flex items-center justify-center gap-1">
-                    Buy Online <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
+                  Search
+                </button>
               </div>
             </div>
 
-            {/* Right: Value Proposition Text */}
-            <div className="lg:col-span-3 flex flex-col justify-center text-white">
-              <p className="text-xl md:text-2xl text-gray-100 leading-relaxed drop-shadow-lg max-w-lg">
-                Compare prices and receive competitive offers from verified dealers nationwide. Save <span className="font-bold text-accent">hundreds</span> on your next vehicle.
-              </p>
-
-              {/* Stats */}
-              <div className="flex flex-wrap gap-8 mt-8">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">50+</div>
-                  <div className="text-sm text-gray-200">States</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">1000+</div>
-                  <div className="text-sm text-gray-200">Vehicles</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent drop-shadow-lg uppercase">Nationwide Shipping</div>
-                </div>
+            <div className="flex items-center gap-3 text-white drop-shadow-lg">
+              <div className="text-center">
+                <div className="text-xl sm:text-2xl font-bold leading-none">50+</div>
+                <div className="text-[10px] text-gray-300">States</div>
               </div>
+              <div className="text-center">
+                <div className="text-xl sm:text-2xl font-bold leading-none">1000+</div>
+                <div className="text-[10px] text-gray-300">Vehicles</div>
+              </div>
+              <div className="text-sm sm:text-lg font-bold text-accent uppercase leading-tight whitespace-nowrap">
+                Nationwide Shipping
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Action Tiles */}
+          <div className="flex gap-2">
+            <Link
+              href="/cars?condition=new"
+              className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
+            >
+              <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
+                <Car className="w-6 h-6 text-amber-400" />
+              </div>
+              <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
+                Shop New <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/cars?condition=used"
+              className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
+            >
+              <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
+                <Car className="w-6 h-6 text-pink-400" />
+              </div>
+              <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
+                Shop Used <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/cars?fuelType=Electric"
+              className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
+            >
+              <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-teal-400" />
+              </div>
+              <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
+                Shop Electric <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/cars"
+              className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center relative"
+            >
+              <div className="absolute -top-1.5 -right-1.5 bg-accent text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                NEW
+              </div>
+              <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-cyan-400" />
+              </div>
+              <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
+                Buy Online <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Strip - Below Hero */}
+      <section className="bg-black py-1">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm md:text-base text-white mb-1">
+            Compare prices and receive competitive offers from verified dealers nationwide. Save <span className="font-bold text-accent">hundreds</span> on your next vehicle.
+          </p>
+          <div className="flex items-baseline justify-center gap-6 sm:gap-8">
+            <div>
+              <span className="text-xl sm:text-3xl font-bold text-white">50+</span>
+              <span className="text-xs sm:text-sm text-gray-400 ml-1">Sources</span>
+            </div>
+            <div>
+              <span className="text-xl sm:text-3xl font-bold text-white">1000+</span>
+              <span className="text-xs sm:text-sm text-accent font-semibold uppercase ml-1">Nationwide Shipping</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Browse by Body Type - Simple Text Pills */}
-      <section className="bg-black py-10">
+      <section className="bg-black py-4">
         <div className="container mx-auto px-4">
-          <h3 className="text-2xl font-bold text-white mb-6 text-center">Browse by Body Type</h3>
+          <h3 className="text-2xl font-bold text-white mb-4 text-center">Browse by Body Type</h3>
           <div className="flex flex-wrap justify-center gap-3">
             {['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon', 'Van', 'Crossover'].map((type) => (
               <Link
