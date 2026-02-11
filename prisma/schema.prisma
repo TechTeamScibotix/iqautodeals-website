@@ -320,3 +320,17 @@ model NotificationPreference {
 
   @@map("notification_preferences")
 }
+
+model DealerWebsiteClick {
+  id           String   @id @default(uuid())
+  dealerId     String
+  carId        String
+  clickedAt    DateTime @default(now())
+  userAgent    String?
+  ipHash       String?
+  referrerPage String?
+
+  @@index([dealerId, clickedAt])
+  @@index([carId, clickedAt])
+  @@map("dealer_website_clicks")
+}

@@ -8,6 +8,7 @@ import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft
 import Footer from '../components/Footer';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
+import DealerWebsiteLink from '../components/DealerWebsiteLink';
 import RequestPhotosModal from '../components/RequestPhotosModal';
 import {
   trackSearchPerformed,
@@ -1530,16 +1531,12 @@ export default function CarsClient() {
                     {viewingPhotos.car.city}, {viewingPhotos.car.state}
                   </p>
                   {viewingPhotos.car.dealer.websiteUrl && (
-                    <a
-                      href={viewingPhotos.car.dealer.websiteUrl}
-                      target="_blank"
-                      rel="noopener"
-                      className="text-sm text-primary hover:text-primary-dark flex items-center gap-1 mt-2 font-medium"
-                    >
-                      <Globe className="w-4 h-4" />
-                      Visit Dealer Website
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <DealerWebsiteLink
+                      websiteUrl={viewingPhotos.car.dealer.websiteUrl}
+                      dealerId={viewingPhotos.car.dealerId}
+                      carId={viewingPhotos.car.id}
+                      referrerPage="/cars"
+                    />
                   )}
                 </div>
 

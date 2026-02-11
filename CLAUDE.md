@@ -16,10 +16,36 @@
 
 ### SHARED DATABASE WARNING
 This project shares a PostgreSQL database with Scibotix Solutions (`/Users/joeduran/scibotix-solutions`).
-- **NEVER run `prisma db push --accept-data-loss`** without checking both schemas
+- **NEVER run `prisma db push`** — it will DROP 134+ Scibotix tables that aren't in this schema
+- **NEVER run `prisma db push --accept-data-loss`** — same problem, even worse
 - Schema changes in one project can break the other
 - Both projects must have compatible schemas for shared tables (User, Car, etc.)
 - Key shared tables: `User`, `Car`, `AcceptedDeal`, `DealList`, `SelectedCar`
+
+### Safe Schema Change Procedure
+Since `prisma db push` would destroy Scibotix tables, always use raw SQL for schema changes:
+
+```bash
+# 1. Add the model to prisma/schema.prisma (so Prisma client knows about it)
+
+# 2. Preview the SQL diff (read-only, doesn't change anything)
+npx prisma migrate diff \
+  --from-schema-datasource prisma/schema.prisma \
+  --to-schema-datamodel prisma/schema.prisma
+
+# 3. Run ONLY the additive SQL (CREATE TABLE, CREATE INDEX, ALTER TABLE ADD COLUMN)
+#    NEVER run the destructive parts (DROP TABLE, DROP COLUMN, etc.)
+npx prisma db execute --schema prisma/schema.prisma --stdin <<'SQL'
+CREATE TABLE IF NOT EXISTS "my_new_table" (...);
+CREATE INDEX IF NOT EXISTS "my_index" ON "my_new_table"(...);
+SQL
+
+# 4. Regenerate the Prisma client
+npx prisma generate
+
+# 5. Deploy code (no DB impact)
+vercel --prod
+```
 
 ---
 

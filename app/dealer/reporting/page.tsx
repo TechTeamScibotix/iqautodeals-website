@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, DollarSign, Calendar, Filter, FileText, Car, User, Phone, Mail } from 'lucide-react';
+import { TrendingUp, DollarSign, Calendar, Filter, FileText, Car, User, Phone, Mail, Globe, MousePointerClick, Eye } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 interface Sale {
@@ -43,6 +43,26 @@ interface ReportData {
     models: string[];
     years: number[];
   };
+}
+
+interface WebsiteClicksData {
+  totalClicks: number;
+  uniqueVisitors: number;
+  from: string;
+  to: string;
+  period: string;
+  vehicleBreakdown: Array<{
+    carId: string;
+    clicks: number;
+    car: {
+      id: string;
+      make: string;
+      model: string;
+      year: number;
+      vin: string;
+      slug: string | null;
+    } | null;
+  }>;
 }
 
 interface OutbidData {
@@ -97,6 +117,7 @@ export default function DealerReporting() {
   const [monthData, setMonthData] = useState<ReportData | null>(null);
   const [outbidData, setOutbidData] = useState<OutbidData | null>(null);
   const [showOutbidReport, setShowOutbidReport] = useState(false);
+  const [websiteClicks, setWebsiteClicks] = useState<{ week: WebsiteClicksData | null; month: WebsiteClicksData | null }>({ week: null, month: null });
 
   // Filter state
   const [filters, setFilters] = useState({
@@ -140,6 +161,7 @@ export default function DealerReporting() {
     loadWeekData(dealerId);
     loadMonthData(dealerId);
     loadOutbidData(dealerId);
+    loadWebsiteClicks(dealerId);
   }, [router]);
 
   // Extract unique locations when reportData changes
@@ -232,6 +254,19 @@ export default function DealerReporting() {
       setOutbidData(data);
     } catch (error) {
       console.error('Failed to load outbid data:', error);
+    }
+  };
+
+  const loadWebsiteClicks = async (dealerId: string) => {
+    try {
+      const [weekRes, monthRes] = await Promise.all([
+        fetch(`/api/dealer/website-clicks?dealerId=${dealerId}&period=week`),
+        fetch(`/api/dealer/website-clicks?dealerId=${dealerId}&period=month`),
+      ]);
+      const [weekData, monthData] = await Promise.all([weekRes.json(), monthRes.json()]);
+      setWebsiteClicks({ week: weekData, month: monthData });
+    } catch (error) {
+      console.error('Failed to load website clicks:', error);
     }
   };
 
@@ -479,6 +514,90 @@ export default function DealerReporting() {
             </div>
           </div>
         </div>
+
+        {/* Website Traffic Section */}
+        {(websiteClicks.week || websiteClicks.month) && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-4 mb-6 border-l-4 border-indigo-500">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-lg font-bold text-dark">Website Traffic from IQ Auto Deals</h3>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">Clicks on &quot;Visit Dealer Website&quot; from your vehicle listings</p>
+
+            <div className="grid md:grid-cols-2 gap-4 mb-4">
+              {/* Week clicks */}
+              <div className="bg-white rounded-lg p-4 shadow">
+                <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Last 7 Days</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-1 text-gray-600 text-xs mb-1">
+                      <MousePointerClick className="w-3 h-3" /> Total Clicks
+                    </div>
+                    <div className="text-2xl font-bold text-indigo-600">{websiteClicks.week?.totalClicks ?? 0}</div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1 text-gray-600 text-xs mb-1">
+                      <Eye className="w-3 h-3" /> Unique Visitors
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">{websiteClicks.week?.uniqueVisitors ?? 0}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Month clicks */}
+              <div className="bg-white rounded-lg p-4 shadow">
+                <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Last 30 Days</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-1 text-gray-600 text-xs mb-1">
+                      <MousePointerClick className="w-3 h-3" /> Total Clicks
+                    </div>
+                    <div className="text-2xl font-bold text-indigo-600">{websiteClicks.month?.totalClicks ?? 0}</div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1 text-gray-600 text-xs mb-1">
+                      <Eye className="w-3 h-3" /> Unique Visitors
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">{websiteClicks.month?.uniqueVisitors ?? 0}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Per-vehicle breakdown (month) */}
+            {websiteClicks.month && websiteClicks.month.vehicleBreakdown.length > 0 && (
+              <div className="bg-white rounded-lg p-4 shadow">
+                <h4 className="font-bold text-sm mb-3">Clicks by Vehicle (Last 30 Days)</h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left p-2">Vehicle</th>
+                        <th className="text-left p-2">VIN</th>
+                        <th className="text-right p-2">Clicks</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {websiteClicks.month.vehicleBreakdown.map((item) => (
+                        <tr key={item.carId} className="border-b hover:bg-gray-50">
+                          <td className="p-2 font-semibold">
+                            {item.car
+                              ? `${item.car.year} ${item.car.make} ${item.car.model}`
+                              : 'Deleted vehicle'}
+                          </td>
+                          <td className="p-2 text-xs text-gray-500">
+                            {item.car?.vin || item.carId.slice(0, 8) + '...'}
+                          </td>
+                          <td className="p-2 text-right font-bold text-indigo-600">{item.clicks}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Outbid Report Section */}
         {outbidData && outbidData.totalOutbid > 0 && (filters.bidStatus === 'all' || filters.bidStatus === 'lost') && (

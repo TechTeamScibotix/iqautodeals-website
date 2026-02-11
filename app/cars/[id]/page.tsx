@@ -12,6 +12,7 @@ import Footer from '@/app/components/Footer';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 import CarPhotoGallery from '@/app/components/CarPhotoGallery';
 import ViewTracker from '@/app/components/ViewTracker';
+import DealerWebsiteLink from '@/app/components/DealerWebsiteLink';
 import AIDealSummary from '@/app/components/AIDealSummary';
 
 // Force dynamic rendering to ensure redirects work on every request
@@ -700,16 +701,12 @@ export default async function CarDetailPage({ params }: PageProps) {
                   {car.city}, {car.state}
                 </p>
                 {car.dealer.websiteUrl && (
-                  <a
-                    href={car.dealer.websiteUrl}
-                    target="_blank"
-                    rel="noopener"
-                    className="text-sm text-primary hover:text-primary-dark flex items-center gap-1 mt-2 font-medium"
-                  >
-                    <Globe className="w-4 h-4" />
-                    Visit Dealer Website
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <DealerWebsiteLink
+                    websiteUrl={car.dealer.websiteUrl}
+                    dealerId={car.dealerId}
+                    carId={car.id}
+                    referrerPage={`/cars/${car.slug || car.id}`}
+                  />
                 )}
               </div>
 
