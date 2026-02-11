@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, CheckCircle, Loader2, Phone } from 'lucide-react';
+import { X, CheckCircle, Loader2 } from 'lucide-react';
 import TCPAConsent from './TCPAConsent';
 import {
   trackCheckAvailabilityOpened,
@@ -366,7 +366,6 @@ export default function CheckAvailabilityModal({ car, user, onClose }: CheckAvai
               </>
             ) : (
               <>
-                <Phone className="w-5 h-5" />
                 Check Availability - Test Drive
               </>
             )}

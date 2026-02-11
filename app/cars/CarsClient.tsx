@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Phone, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import Footer from '../components/Footer';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
@@ -1119,9 +1119,7 @@ export default function CarsClient() {
                         onClick={(e) => handleCheckAvailability(car, e)}
                         className="w-full bg-black text-white px-2 md:px-4 py-1.5 md:py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-[10px] md:text-sm"
                       >
-                        <Phone className="w-3 h-3 md:w-4 md:h-4" />
-                        <span className="hidden sm:inline">Check Availability - Test Drive</span>
-                        <span className="sm:hidden">Availability</span>
+                        Check Availability - Test Drive
                       </button>
                       {!photoUrl && (
                         <button
@@ -1554,7 +1552,6 @@ export default function CarsClient() {
                     }}
                     className="w-full bg-primary text-white px-6 py-4 rounded-pill font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
                   >
-                    <Phone className="w-5 h-5" />
                     Check Availability - Schedule Test Drive
                   </button>
                   <Link
@@ -1653,7 +1650,6 @@ export default function CarsClient() {
                 }}
                 className="w-full bg-primary text-white px-4 py-3 rounded-pill font-bold text-base hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
               >
-                <Phone className="w-5 h-5" />
                 Check Availability - Test Drive
               </button>
               <Link

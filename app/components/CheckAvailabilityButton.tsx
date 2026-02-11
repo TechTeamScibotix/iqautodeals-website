@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Phone } from 'lucide-react';
 import CheckAvailabilityModal from './CheckAvailabilityModal';
 
 interface CarInfo {
@@ -42,7 +41,6 @@ export default function CheckAvailabilityButton({ car }: CheckAvailabilityButton
         onClick={() => setShowModal(true)}
         className="w-full bg-black text-white px-6 py-4 rounded-pill font-bold text-lg hover:bg-gray-800 transition flex items-center justify-center gap-2"
       >
-        <Phone className="w-5 h-5" />
         Check Availability
       </button>
 
