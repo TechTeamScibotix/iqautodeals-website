@@ -1,5 +1,9 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { makes as makesData } from '@/lib/data/makes'
+import { models as modelsData } from '@/lib/data/models'
+import { bodyTypes as bodyTypesData } from '@/lib/data/bodyTypes'
+import { locations as locationsData } from '@/lib/data/locations'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://iqautodeals.com'
@@ -7,9 +11,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all active cars from database for individual vehicle pages
   let carPages: MetadataRoute.Sitemap = []
   try {
-    const activeCars = await prisma.car.findMany({
+    const allCars = await prisma.car.findMany({
       where: {
-        status: 'active',
+        status: { in: ['active', 'sold'] },
         dealer: {
           verificationStatus: 'approved',
         },
@@ -17,16 +21,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: {
         id: true,
         slug: true,
+        status: true,
         createdAt: true,
+        statusChangedAt: true,
       },
       orderBy: { createdAt: 'desc' },
     })
 
-    carPages = activeCars.map((car) => ({
+    carPages = allCars.map((car) => ({
       url: `${baseUrl}/cars/${car.slug || car.id}`,
-      lastModified: car.createdAt,
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
+      lastModified: car.statusChangedAt || car.createdAt,
+      changeFrequency: car.status === 'sold' ? 'monthly' as const : 'daily' as const,
+      priority: car.status === 'sold' ? 0.6 : 0.9,
     }))
   } catch (error) {
     console.error('Error fetching cars for sitemap:', error)
@@ -329,5 +335,102 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   })
 
-  return [...staticPages, ...carPages, ...locationPages, ...modelPages, ...priceRangePages, ...bodyTypePages, ...modelLocationPages]
+  // ============================================
+  // NEW CARS PAGES
+  // ============================================
+
+  // Helper to convert model name to URL slug (matches new-cars page logic)
+  function modelNameToSlug(modelName: string): string {
+    return modelName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  }
+
+  // /new-cars and /new-cars/deals
+  const newCarsStaticPages: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/new-cars`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/new-cars/deals`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
+  ]
+
+  // /new-cars/make/[make] — 21 makes
+  const newCarsMakePages: MetadataRoute.Sitemap = Object.keys(makesData).map((makeSlug) => ({
+    url: `${baseUrl}/new-cars/make/${makeSlug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }))
+
+  // /new-cars/make/[make]/[model] — 62 make+model combos
+  const newCarsMakeModelPages: MetadataRoute.Sitemap = []
+  Object.entries(modelsData).forEach(([, modelData]) => {
+    const makeSlug = Object.entries(makesData).find(
+      ([, makeData]) => makeData.name.toLowerCase() === modelData.brand.toLowerCase()
+    )?.[0]
+    if (makeSlug) {
+      newCarsMakeModelPages.push({
+        url: `${baseUrl}/new-cars/make/${makeSlug}/${modelNameToSlug(modelData.model)}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      })
+    }
+  })
+
+  // /new-cars/[location] — 182 locations
+  const newCarsLocationSlugs = Object.keys(locationsData)
+  const newCarsLocationPages: MetadataRoute.Sitemap = newCarsLocationSlugs.map((loc) => ({
+    url: `${baseUrl}/new-cars/${loc}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }))
+
+  // /new-cars/[location]/[filter] — location × (price ranges + body types + models)
+  const newCarsPriceRanges = [
+    'under-25000', 'under-30000', 'under-35000', 'under-40000', 'under-50000', 'under-60000',
+    '25000-to-35000', '35000-to-50000', '50000-to-75000', '75000-to-100000', 'over-100000',
+  ]
+  const newCarsBodyTypeSlugs = Object.keys(bodyTypesData)
+  const newCarsModelSlugs = Object.keys(modelsData)
+
+  const newCarsLocationFilterPages: MetadataRoute.Sitemap = []
+  newCarsLocationSlugs.forEach((loc) => {
+    newCarsPriceRanges.forEach((range) => {
+      newCarsLocationFilterPages.push({
+        url: `${baseUrl}/new-cars/${loc}/${range}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.75,
+      })
+    })
+    newCarsBodyTypeSlugs.forEach((type) => {
+      newCarsLocationFilterPages.push({
+        url: `${baseUrl}/new-cars/${loc}/${type}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.75,
+      })
+    })
+    newCarsModelSlugs.forEach((model) => {
+      newCarsLocationFilterPages.push({
+        url: `${baseUrl}/new-cars/${loc}/${model}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.75,
+      })
+    })
+  })
+
+  return [
+    ...staticPages,
+    ...carPages,
+    ...locationPages,
+    ...modelPages,
+    ...priceRangePages,
+    ...bodyTypePages,
+    ...modelLocationPages,
+    ...newCarsStaticPages,
+    ...newCarsMakePages,
+    ...newCarsMakeModelPages,
+    ...newCarsLocationPages,
+    ...newCarsLocationFilterPages,
+  ]
 }
