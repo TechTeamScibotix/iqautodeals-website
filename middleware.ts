@@ -5,6 +5,15 @@ import type { NextRequest } from 'next/server';
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function middleware(request: NextRequest) {
+  const hostname = request.headers.get('host') || '';
+
+  // Redirect www to non-www (avoid duplicate pages)
+  if (hostname.startsWith('www.')) {
+    const url = request.nextUrl.clone();
+    url.host = hostname.replace('www.', '');
+    return NextResponse.redirect(url, { status: 301 });
+  }
+
   const pathname = request.nextUrl.pathname;
 
   // Check if this is a car detail page with UUID
@@ -40,5 +49,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/cars/:path*',
+  matcher: [
+    // Run on all routes except static files and API internals
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.ico$).*)',
+  ],
 };

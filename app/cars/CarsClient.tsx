@@ -815,7 +815,7 @@ export default function CarsClient() {
 
       <div className="container mx-auto px-4 py-6">
         {/* Page Title */}
-        <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-dark mb-2">
           {search.fuelType && search.fuelType !== 'all'
             ? `${search.fuelType} Vehicles for Sale`
             : search.bodyType && search.bodyType !== 'all'
@@ -825,7 +825,7 @@ export default function CarsClient() {
             : search.condition === 'used'
             ? 'Used Cars for Sale'
             : 'Cars for Sale'}
-        </h2>
+        </h1>
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Desktop Sidebar Filters */}

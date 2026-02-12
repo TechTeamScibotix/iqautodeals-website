@@ -83,7 +83,7 @@ export default async function CarsPage() {
     <>
       {/* Server-rendered inventory visible to crawlers and users */}
       <section className="sr-only">
-        <h1>Used Cars for Sale - Browse {cars.length}+ Vehicles from Certified Dealers</h1>
+        <h2>Used Cars for Sale - Browse {cars.length}+ Vehicles from Certified Dealers</h2>
         <p>
           Browse quality used and new cars for sale from certified dealers across the United States on IQ Auto Deals.
           Compare prices, filter by make, model, year, price range, and location. Our dealer competition model
