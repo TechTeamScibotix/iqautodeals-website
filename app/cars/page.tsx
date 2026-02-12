@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CarsPage() {
-  // Fetch active inventory for server-rendered HTML that AI crawlers can see
+  // Fetch active inventory for server-rendered HTML that crawlers can see
   let cars: {
     id: string;
     slug: string | null;
@@ -81,76 +81,111 @@ export default async function CarsPage() {
 
   return (
     <>
-      {/* Server-rendered inventory visible to crawlers and users */}
-      <section className="sr-only">
-        <h2>Used Cars for Sale - Browse {cars.length}+ Vehicles from Certified Dealers</h2>
-        <p>
+      {/* Interactive client component - the main UI users see */}
+      <Suspense fallback={<div className="min-h-screen bg-gray-100 flex items-center justify-center">Loading cars...</div>}>
+        <CarsClient />
+      </Suspense>
+
+      {/* Server-rendered inventory index below the interactive UI.
+          Visible to all crawlers (including JS-disabled like Semrush).
+          Users who scroll past the interactive UI can also see this. */}
+      <section className="bg-gray-50 border-t border-gray-200 px-4 py-12 max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Used Cars for Sale - Browse {cars.length}+ Vehicles from Certified Dealers
+        </h1>
+        <p className="text-gray-600 mb-8 max-w-3xl">
           Browse quality used and new cars for sale from certified dealers across the United States on IQ Auto Deals.
           Compare prices, filter by make, model, year, price range, and location. Our dealer competition model
           helps you save up to $5,000 on your next vehicle.
         </p>
 
         {topMakes.length > 0 && (
-          <>
-            <h2>Browse by Make</h2>
-            <ul>
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-3">Browse by Make</h2>
+            <div className="flex flex-wrap gap-2">
               {topMakes.map(([make, count]) => (
-                <li key={make}>
-                  <Link href={`/cars?make=${encodeURIComponent(make)}`}>
-                    {make} ({count} vehicles available)
-                  </Link>
-                </li>
+                <Link
+                  key={make}
+                  href={`/cars?make=${encodeURIComponent(make)}`}
+                  className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:text-blue-600 transition"
+                >
+                  {make} ({count})
+                </Link>
               ))}
-            </ul>
-          </>
+            </div>
+          </div>
         )}
 
-        <h2>Popular Body Types</h2>
-        <ul>
-          <li><Link href="/cars?bodyType=SUV">Used SUVs{bodyTypeCount['SUV'] ? ` (${bodyTypeCount['SUV']} available)` : ''}</Link></li>
-          <li><Link href="/cars?bodyType=Sedan">Used Sedans{bodyTypeCount['Sedan'] ? ` (${bodyTypeCount['Sedan']} available)` : ''}</Link></li>
-          <li><Link href="/cars?bodyType=Truck">Used Trucks{bodyTypeCount['Truck'] ? ` (${bodyTypeCount['Truck']} available)` : ''}</Link></li>
-          <li><Link href="/cars?bodyType=Coupe">Used Coupes{bodyTypeCount['Coupe'] ? ` (${bodyTypeCount['Coupe']} available)` : ''}</Link></li>
-          <li><Link href="/cars?bodyType=Hatchback">Used Hatchbacks{bodyTypeCount['Hatchback'] ? ` (${bodyTypeCount['Hatchback']} available)` : ''}</Link></li>
-        </ul>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Popular Body Types</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { type: 'SUV', label: 'SUVs' },
+              { type: 'Sedan', label: 'Sedans' },
+              { type: 'Truck', label: 'Trucks' },
+              { type: 'Coupe', label: 'Coupes' },
+              { type: 'Hatchback', label: 'Hatchbacks' },
+              { type: 'Convertible', label: 'Convertibles' },
+              { type: 'Minivan', label: 'Minivans' },
+              { type: 'Wagon', label: 'Wagons' },
+            ].map(({ type, label }) => (
+              <Link
+                key={type}
+                href={`/cars?bodyType=${type}`}
+                className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:border-blue-500 hover:text-blue-600 transition"
+              >
+                {label}{bodyTypeCount[type] ? ` (${bodyTypeCount[type]})` : ''}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <nav className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-3">Browse More</h2>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/locations" className="text-blue-600 hover:underline text-sm">Browse by Location</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/models" className="text-blue-600 hover:underline text-sm">Browse by Model</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/new-cars" className="text-blue-600 hover:underline text-sm">New Cars for Sale</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/cars?condition=used" className="text-blue-600 hover:underline text-sm">Used Cars for Sale</Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/" className="text-blue-600 hover:underline text-sm">Home</Link>
+          </div>
+        </nav>
 
         {cars.length > 0 && (
           <>
-            <h2>Current Inventory - {cars.length} Vehicles for Sale</h2>
-            <ul>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Current Inventory - {cars.length} Vehicles for Sale
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {cars.map((car) => (
-                <li key={car.id}>
-                  <Link href={`/cars/${car.slug || car.id}`}>
-                    {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''} - {formatPrice(car.salePrice)}
-                  </Link>
-                  {' | '}
-                  {car.mileage.toLocaleString()} miles | {car.color} | {car.transmission}
-                  {car.fuelType ? ` | ${car.fuelType}` : ''}
-                  {car.bodyType ? ` | ${car.bodyType}` : ''}
-                  {' | '}Located in {car.city}, {car.state}
-                  {car.dealer.businessName ? ` | Sold by ${car.dealer.businessName}` : ''}
-                </li>
+                <Link
+                  key={car.id}
+                  href={`/cars/${car.slug || car.id}`}
+                  className="block bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-400 hover:shadow-sm transition"
+                >
+                  <p className="font-semibold text-gray-900 text-sm">
+                    {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}
+                  </p>
+                  <p className="text-blue-600 font-bold text-sm">{formatPrice(car.salePrice)}</p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    {car.mileage.toLocaleString()} mi | {car.color} | {car.transmission}
+                    {car.fuelType ? ` | ${car.fuelType}` : ''}
+                    {car.bodyType ? ` | ${car.bodyType}` : ''}
+                  </p>
+                  <p className="text-gray-400 text-xs">
+                    {car.city}, {car.state}
+                    {car.dealer.businessName ? ` - ${car.dealer.businessName}` : ''}
+                  </p>
+                </Link>
               ))}
-            </ul>
+            </div>
           </>
         )}
-
-        <nav aria-label="Related pages">
-          <h2>Browse More</h2>
-          <ul>
-            <li><Link href="/locations">Browse Cars by Location</Link></li>
-            <li><Link href="/models">Browse Cars by Model</Link></li>
-            <li><Link href="/new-cars">New Cars for Sale</Link></li>
-            <li><Link href="/cars?condition=used">Used Cars for Sale</Link></li>
-            <li><Link href="/">IQ Auto Deals Home</Link></li>
-          </ul>
-        </nav>
       </section>
-
-      {/* Interactive client component */}
-      <Suspense fallback={<div className="min-h-screen bg-gray-100 flex items-center justify-center">Loading cars...</div>}>
-        <CarsClient />
-      </Suspense>
     </>
   );
 }

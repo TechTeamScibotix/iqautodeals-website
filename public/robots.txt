@@ -8,6 +8,10 @@ Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
 Disallow: /admin/
+Disallow: /API_DOCUMENTATION.md
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /login
 
 # ============================================
 # BLOCKED BOTS
