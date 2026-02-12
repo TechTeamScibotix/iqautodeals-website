@@ -32,11 +32,11 @@ function getSftpConfig() {
   };
 }
 
-// Path relative to SFTP home directory
-// e.g. uploads/inventoryfeed.csv
-function getFeedPath(): string {
-  return 'uploads/inventoryfeed.csv';
-}
+// Feed paths relative to SFTP home directory
+const FEED_PATHS = [
+  'uploads/inventoryfeed.csv',
+  'uploadsnissan/inventoryfeed.csv',
+];
 
 // Wendle CSV field mapping (66 columns, comma-separated images)
 interface WendleCsvVehicle {
@@ -246,27 +246,43 @@ export async function syncWendleFeedInventory(dealerId: string): Promise<SyncRes
     console.log(`[Wendle Sync] Connecting to SFTP server for ${dealer.businessName}...`);
     await sftp.connect(getSftpConfig());
 
-    // Read CSV file via absolute path on the shared SFTP server
-    const feedPath = getFeedPath();
-    console.log(`[Wendle Sync] Reading feed file: ${feedPath}`);
+    // Read and merge CSV files from all feed paths, deduplicating by VIN
+    const vinMap = new Map<string, WendleCsvVehicle>();
 
-    const exists = await sftp.exists(feedPath);
-    if (!exists) {
-      throw new Error(`Feed file not found: ${feedPath}`);
+    for (const feedPath of FEED_PATHS) {
+      const exists = await sftp.exists(feedPath);
+      if (!exists) {
+        console.log(`[Wendle Sync] Feed file not found (skipping): ${feedPath}`);
+        continue;
+      }
+
+      console.log(`[Wendle Sync] Reading feed file: ${feedPath}`);
+      const csvBuffer = await sftp.get(feedPath);
+      const csvContent = csvBuffer.toString();
+
+      const parsed: WendleCsvVehicle[] = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+
+      console.log(`[Wendle Sync] Found ${parsed.length} vehicles in ${feedPath}`);
+
+      for (const v of parsed) {
+        if (v.VIN && !vinMap.has(v.VIN)) {
+          vinMap.set(v.VIN, v);
+        }
+      }
     }
 
-    const csvBuffer = await sftp.get(feedPath);
-    const csvContent = csvBuffer.toString();
+    const vehicles = Array.from(vinMap.values());
 
-    // Parse CSV
-    const vehicles: WendleCsvVehicle[] = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
+    if (vehicles.length === 0) {
+      throw new Error('No vehicles found in any feed file');
+    }
 
     result.totalInFeed = vehicles.length;
-    console.log(`[Wendle Sync] Found ${vehicles.length} vehicles in feed`);
+    console.log(`[Wendle Sync] ${vehicles.length} unique vehicles after merging feeds`);
 
     // Get existing VINs for this dealer
     const existingCars = await prisma.car.findMany({
