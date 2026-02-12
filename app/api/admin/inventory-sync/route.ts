@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { syncDealerSocketInventory, listAvailableFeeds } from '@/lib/inventory-sync/dealersocket';
+import { syncLexusFeedInventory } from '@/lib/inventory-sync/lexus-feed';
+import { syncWendleFeedInventory } from '@/lib/inventory-sync/wendle-feed';
 import { prisma } from '@/lib/prisma';
 
 // Verify admin authentication via token
@@ -114,8 +116,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Run sync
-    const result = await syncDealerSocketInventory(dealerId);
+    // Run sync — route to correct function based on feed type
+    let result;
+    if (dealer.inventoryFeedType === 'lexus_sftp') {
+      result = await syncLexusFeedInventory(dealerId);
+    } else if (dealer.inventoryFeedType === 'wendle_sftp') {
+      result = await syncWendleFeedInventory(dealerId);
+    } else {
+      result = await syncDealerSocketInventory(dealerId);
+    }
 
     return NextResponse.json({
       success: result.success,

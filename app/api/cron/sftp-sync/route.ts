@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { syncDealerSocketInventory } from '@/lib/inventory-sync/dealersocket';
 import { syncLexusFeedInventory } from '@/lib/inventory-sync/lexus-feed';
+import { syncWendleFeedInventory } from '@/lib/inventory-sync/wendle-feed';
 
 // Cron job to sync SFTP-based dealer inventories (DealerSocket + Lexus feeds)
 // Runs daily at 4 AM UTC; uses syncFrequencyDays to skip days when sync isn't due
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const dealers = await prisma.user.findMany({
       where: {
         autoSyncEnabled: true,
-        inventoryFeedType: { in: ['dealersocket', 'lexus_sftp'] },
+        inventoryFeedType: { in: ['dealersocket', 'lexus_sftp', 'wendle_sftp'] },
         dealerSocketFeedId: { not: null },
       },
       select: {
@@ -74,6 +75,8 @@ export async function GET(request: NextRequest) {
           syncResult = await syncDealerSocketInventory(dealer.id);
         } else if (dealer.inventoryFeedType === 'lexus_sftp') {
           syncResult = await syncLexusFeedInventory(dealer.id);
+        } else if (dealer.inventoryFeedType === 'wendle_sftp') {
+          syncResult = await syncWendleFeedInventory(dealer.id);
         } else {
           throw new Error(`Unknown SFTP feed type: ${dealer.inventoryFeedType}`);
         }

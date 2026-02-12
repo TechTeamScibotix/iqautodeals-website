@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.turpindodgeofdubuque.net',
       },
+      // Wendle / HomeNet IOL images
+      {
+        protocol: 'https',
+        hostname: 'content.homenetiol.com',
+      },
       // DealerSocket CDN images
       {
         protocol: 'https',
