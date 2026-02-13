@@ -22,10 +22,6 @@ import { formatPrice } from '@/lib/format';
 import {
   generateStandsOutPoints,
   generateBuyerPersonas,
-  parseStructuredDescription,
-  parseOldFormatQuestions,
-  toVehicleSpecificHeading,
-  isNegotiateSection,
 } from '../components/AIDealSummary';
 
 /**
@@ -1454,73 +1450,18 @@ export default function CarsClient() {
                   </ul>
                 </div>
 
-                {/* Buying & Decision Guide */}
-                {viewingPhotos.car.description && (() => {
-                  const desc = viewingPhotos.car.description;
-                  const car = viewingPhotos.car;
-
-                  // New structured format
-                  const structured = parseStructuredDescription(desc);
-                  if (structured) {
-                    const guideSections = structured.filter(s => {
-                      const lower = s.heading.toLowerCase();
-                      return !lower.includes('good deal') && !lower.includes('best for');
-                    });
-                    if (guideSections.length > 0) {
-                      return (
-                        <div className="mb-6">
-                          <h3 className="text-lg font-bold text-dark mb-3">Buying &amp; Decision Guide</h3>
-                          <div className="space-y-4">
-                            {guideSections.map((section, i) => (
-                              <div key={i}>
-                                <h4 className="font-semibold text-dark text-sm mb-1">{section.heading}</h4>
-                                <p className="text-gray-700 text-sm leading-relaxed">{section.content}</p>
-                                {isNegotiateSection(section.heading) && (
-                                  <Link
-                                    href="/register?type=customer"
-                                    className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-primary-dark transition-colors mt-2"
-                                  >
-                                    Create Free Account
-                                  </Link>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }
-                  }
-
-                  // Old format with **bold questions**
-                  const parsed = parseOldFormatQuestions(desc);
-                  if (parsed && parsed.questions.length > 0) {
-                    return (
-                      <div className="mb-6">
-                        <h3 className="text-lg font-bold text-dark mb-3">Buying &amp; Decision Guide</h3>
-                        <div className="space-y-4">
-                          {parsed.questions.map((q, i) => (
-                            <div key={i}>
-                              <h4 className="font-semibold text-dark text-sm mb-1">
-                                {toVehicleSpecificHeading(q.heading, car.year, car.make, car.model)}
-                              </h4>
-                              <p className="text-gray-700 text-sm leading-relaxed">{q.content}</p>
-                              {isNegotiateSection(q.heading) && (
-                                <Link
-                                  href="/register?type=customer"
-                                  className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-primary-dark transition-colors mt-2"
-                                >
-                                  Create Free Account
-                                </Link>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })()}
+                {/* Action CTA */}
+                <div className="mb-6">
+                  <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                    IQAutoDeals allows you to move forward confidently. Create a free account, add this vehicle to your Deal Request, and let certified dealers compete to offer you their best price.
+                  </p>
+                  <Link
+                    href="/register?type=customer"
+                    className="inline-flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-primary-dark transition-colors"
+                  >
+                    Create Free Account
+                  </Link>
+                </div>
 
                 {/* Dealer Info */}
                 <div className="mb-6 p-4 border border-gray-200 rounded-lg">
@@ -1566,20 +1507,14 @@ export default function CarsClient() {
                   )}
                 </div>
 
-                {/* Similar Vehicle Recommendations */}
+                {/* Similar Vehicle Recommendations — scoped to same dealer */}
                 {(() => {
                   const cur = viewingPhotos.car;
-                  const others = cars.filter(c => c.id !== cur.id);
+                  const sameDealer = cars.filter(c => c.id !== cur.id && c.dealerId === cur.dealerId);
 
-                  const similarVehicles = others.filter(c => c.make === cur.make).slice(0, 4);
-                  const sameModel = others.filter(c => c.make === cur.make && c.model === cur.model).slice(0, 2);
-                  const sameCategory = others.filter(c =>
-                    c.id !== cur.id &&
-                    c.bodyType === cur.bodyType &&
-                    c.salePrice >= cur.salePrice * 0.7 &&
-                    c.salePrice <= cur.salePrice * 1.3 &&
-                    !similarVehicles.some(sv => sv.id === c.id)
-                  ).slice(0, 2);
+                  const similarVehicles = sameDealer.filter(c => c.make === cur.make).slice(0, 4);
+                  const sameModel = sameDealer.filter(c => c.make === cur.make && c.model === cur.model).slice(0, 2);
+                  const dealerOther = sameDealer.slice(0, 4);
 
                   const renderTile = (car: CarListing) => {
                     let photo = '';
@@ -1624,11 +1559,11 @@ export default function CarsClient() {
                           </div>
                         </div>
                       )}
-                      {sameCategory.length > 0 && (
+                      {similarVehicles.length === 0 && sameModel.length === 0 && dealerOther.length > 0 && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
-                          <h3 className="font-bold text-dark text-sm mb-3">Other {cur.bodyType || 'Vehicle'}s in This Price Range</h3>
+                          <h3 className="font-bold text-dark text-sm mb-3">Other Vehicles Offered by {cur.dealer.businessName}</h3>
                           <div className="grid grid-cols-2 gap-3">
-                            {sameCategory.map(renderTile)}
+                            {dealerOther.map(renderTile)}
                           </div>
                         </div>
                       )}

@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
         salePrice: true,
         city: true,
         state: true,
+        features: true,
       },
     });
 

@@ -9,6 +9,7 @@ import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import VehicleFAQSchema from '@/app/components/VehicleFAQSchema';
 import Footer from '@/app/components/Footer';
+import { toMakeSlug, toModelPageSlug, toMakeModelUrl } from '@/lib/data/slug-helpers';
 import CheckAvailabilityButton from '@/app/components/CheckAvailabilityButton';
 import CarPhotoGallery from '@/app/components/CarPhotoGallery';
 import ViewTracker from '@/app/components/ViewTracker';
@@ -193,7 +194,7 @@ export default async function CarDetailPage({ params }: PageProps) {
     // Invalid JSON
   }
 
-  // Sidebar vehicle recommendations (only for active cars, fetched in parallel)
+  // Sidebar vehicle recommendations — scoped to same dealer only
   const sidebarSelect = {
     id: true,
     slug: true,
@@ -208,38 +209,32 @@ export default async function CarDetailPage({ params }: PageProps) {
   const sidebarWhere = {
     status: 'active' as const,
     id: { not: car.id },
-    dealer: { verificationStatus: 'approved' as const },
+    dealerId: car.dealerId,
   };
 
-  const [similarVehicles, sameModelVehicles, sameCategoryVehicles] = car.status === 'active'
+  let [similarVehicles, sameModelVehicles, dealerOtherVehicles] = car.status === 'active'
     ? await Promise.all([
+        // Same dealer, same make (different models)
         prisma.car.findMany({
           where: { ...sidebarWhere, make: car.make },
           select: sidebarSelect,
           take: 4,
           orderBy: { createdAt: 'desc' },
         }),
+        // Same dealer, same make + model
         prisma.car.findMany({
           where: { ...sidebarWhere, make: car.make, model: car.model },
           select: sidebarSelect,
           take: 2,
           orderBy: { createdAt: 'desc' },
         }),
-        car.bodyType && car.salePrice
-          ? prisma.car.findMany({
-              where: {
-                ...sidebarWhere,
-                bodyType: car.bodyType,
-                salePrice: {
-                  gte: car.salePrice * 0.7,
-                  lte: car.salePrice * 1.3,
-                },
-              },
-              select: sidebarSelect,
-              take: 2,
-              orderBy: { createdAt: 'desc' },
-            })
-          : Promise.resolve([]),
+        // Same dealer, any other vehicles (fallback)
+        prisma.car.findMany({
+          where: sidebarWhere,
+          select: sidebarSelect,
+          take: 4,
+          orderBy: { createdAt: 'desc' },
+        }),
       ])
     : [[], [], []];
 
@@ -361,8 +356,18 @@ export default async function CarDetailPage({ params }: PageProps) {
               <li>/</li>
               <li><Link href="/cars" className="hover:text-primary">Cars</Link></li>
               <li>/</li>
-              <li><Link href={`/locations/${car.city.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-primary">{car.city}</Link></li>
-              <li>/</li>
+              {toMakeSlug(car.make) && (
+                <>
+                  <li><Link href={`/cars/make/${toMakeSlug(car.make)}`} className="hover:text-primary">{car.make}</Link></li>
+                  <li>/</li>
+                </>
+              )}
+              {toModelPageSlug(car.make, car.model) && (
+                <>
+                  <li><Link href={`/models/${toModelPageSlug(car.make, car.model)}`} className="hover:text-primary">{car.make} {car.model}</Link></li>
+                  <li>/</li>
+                </>
+              )}
               <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}</li>
             </ol>
           </nav>
@@ -608,8 +613,18 @@ export default async function CarDetailPage({ params }: PageProps) {
             <li>/</li>
             <li><Link href="/cars" className="hover:text-primary">Cars</Link></li>
             <li>/</li>
-            <li><Link href={`/locations/${car.city.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-primary">{car.city}</Link></li>
-            <li>/</li>
+            {toMakeSlug(car.make) && (
+              <>
+                <li><Link href={`/cars/make/${toMakeSlug(car.make)}`} className="hover:text-primary">{car.make}</Link></li>
+                <li>/</li>
+              </>
+            )}
+            {toModelPageSlug(car.make, car.model) && (
+              <>
+                <li><Link href={`/models/${toModelPageSlug(car.make, car.model)}`} className="hover:text-primary">{car.make} {car.model}</Link></li>
+                <li>/</li>
+              </>
+            )}
             <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}</li>
           </ol>
         </nav>
@@ -652,6 +667,37 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <span className="font-semibold">VIN:</span> {car.vin}
                 </p>
               </div>
+
+              {/* Learn More Links */}
+              {(toModelPageSlug(car.make, car.model) || toMakeSlug(car.make)) && (
+                <div className="border-t pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Learn More</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {toModelPageSlug(car.make, car.model) && (
+                      <Link
+                        href={`/models/${toModelPageSlug(car.make, car.model)}`}
+                        className="text-sm text-primary hover:text-primary-dark font-medium"
+                      >
+                        View all {car.make} {car.model} listings →
+                      </Link>
+                    )}
+                    {toMakeSlug(car.make) && (
+                      <Link
+                        href={`/cars/make/${toMakeSlug(car.make)}`}
+                        className="text-sm text-primary hover:text-primary-dark font-medium"
+                      >
+                        Browse all {car.make} vehicles →
+                      </Link>
+                    )}
+                    <Link
+                      href={`/locations/${car.city.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="text-sm text-primary hover:text-primary-dark font-medium"
+                    >
+                      Used cars in {car.city} →
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
 
           </div>
@@ -745,7 +791,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Similar Vehicles */}
+            {/* Similar Vehicles by same dealer */}
             {similarVehicles.length > 0 && (
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Similar Vehicles You Might Like</h3>
@@ -774,7 +820,7 @@ export default async function CarDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* More Same Model */}
+            {/* More Same Model by same dealer */}
             {sameModelVehicles.length > 0 && (
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">More {car.make} {car.model}s</h3>
@@ -803,12 +849,12 @@ export default async function CarDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Same Category / Price Range */}
-            {sameCategoryVehicles.length > 0 && car.bodyType && (
+            {/* Fallback: Other vehicles by same dealer (only if no similar or same model found) */}
+            {similarVehicles.length === 0 && sameModelVehicles.length === 0 && dealerOtherVehicles.length > 0 && (
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Other {car.bodyType}s in This Price Range</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Other Vehicles Offered by {car.dealer.businessName}</h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {sameCategoryVehicles.map((v) => {
+                  {dealerOtherVehicles.map((v) => {
                     let photoUrl = '';
                     try { photoUrl = JSON.parse(v.photos || '[]')[0] || ''; } catch {}
                     return (

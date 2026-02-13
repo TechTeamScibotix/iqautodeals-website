@@ -55,18 +55,18 @@ async function checkUniqueness(newContent: string, excludeVin?: string): Promise
 // Generate unique variation prompt additions
 function getVariationPrompt(attemptNumber: number): string {
   const variations = [
-    'Focus on the driving experience and how it feels behind the wheel.',
-    'Emphasize the practical benefits for families and daily commuters.',
-    'Highlight the technology features and modern conveniences.',
-    'Focus on the value proposition and long-term ownership benefits.',
-    'Emphasize the style, design, and curb appeal of this vehicle.',
+    'Focus on the emotional appeal of driving this vehicle.',
+    'Emphasize the practical lifestyle benefits of ownership.',
+    'Highlight what makes this specific listing stand out from others.',
+    'Focus on the confidence and peace of mind this vehicle offers.',
+    'Emphasize the everyday usability and comfort.',
   ];
   return variations[attemptNumber % variations.length];
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { make, model, year, mileage, color, transmission, salePrice, city, state, vin } = await req.json();
+    const { make, model, year, mileage, color, transmission, salePrice, city, state, vin, features } = await req.json();
 
     // Validate required fields
     if (!make || !model || !year) {
@@ -76,6 +76,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Parse and pick top features to feed into the prompt
+    let topFeatures: string[] = [];
+    if (features) {
+      try {
+        const all: string[] = typeof features === 'string' ? JSON.parse(features) : features;
+        const priorityKeywords = ['engine', 'ecoboost', 'v6', 'v8', 'turbo', 'diesel', 'hybrid', 'electric', 'awd', 'four wheel', '4wd', '4x4', 'leather', 'sunroof', 'moonroof', 'navigation', 'heated', 'cooled', 'premium', 'bose', 'harman', 'adaptive cruise', 'blind spot', 'lane', 'camera', 'carplay', 'android auto', 'remote start', 'keyless', 'tow', 'payload', 'bed liner', 'running board', 'panoramic', 'power liftgate'];
+        const priority = all.filter((f: string) => priorityKeywords.some(kw => f.toLowerCase().includes(kw)));
+        const rest = all.filter((f: string) => !priority.includes(f));
+        topFeatures = [...priority.slice(0, 8), ...rest.slice(0, Math.max(0, 10 - priority.length))].slice(0, 10);
+      } catch { /* ignore parse errors */ }
+    }
+
+    const featuresBlock = topFeatures.length > 0
+      ? `\nKey Features & Equipment:\n${topFeatures.map(f => `- ${f}`).join('\n')}\n`
+      : '';
+
     const vehicleInfo = `
 Vehicle: ${year} ${make} ${model}
 Mileage: ${mileage?.toLocaleString() || 'Low'} miles
@@ -84,7 +100,7 @@ Exterior Color: ${color || 'N/A'}
 Location: ${city || ''}, ${state || ''}
 ${salePrice ? `Price: $${salePrice.toLocaleString()}` : 'Contact for pricing'}
 VIN: ${vin || 'N/A'}
-`.trim();
+${featuresBlock}`.trim();
 
     const MAX_ATTEMPTS = 3;
     let content = '';
@@ -94,43 +110,45 @@ VIN: ${vin || 'N/A'}
     while (attempt < MAX_ATTEMPTS) {
       const variationPrompt = attempt > 0 ? `\n\nIMPORTANT: ${getVariationPrompt(attempt)} Make this description COMPLETELY DIFFERENT from typical listings.` : '';
 
-      const prompt = `You are an SEO expert and experienced automotive copywriter. Write a structured vehicle description with 5 sections that will rank well in Google search results and get featured in AI Overviews.
+      const prompt = `You are an SEO expert and experienced automotive copywriter. Write a structured vehicle description with 4 sections that builds excitement and buyer confidence. This description should make the reader want THIS vehicle — no comparisons, no second-guessing.
 
 ${vehicleInfo}
 
-FORMAT: Write EXACTLY 5 sections. Each section MUST start with "## " followed by the heading on its own line, then the content below it. Do NOT use any other markdown formatting (no bold **, no italic, no ###). Bullet points are allowed.
+FORMAT: Write EXACTLY 4 sections. Each section MUST start with "## " followed by the heading on its own line, then the content below it. Do NOT use any other markdown formatting (no bold **, no italic, no ###). Bullet points are allowed.
 
 SECTION 1:
-## Is this ${year} ${make} ${model} a good deal?
-Write 2-3 sentences analyzing the price and value. Mention specific details like mileage (${mileage?.toLocaleString() || 'low'} miles), the ${color || ''} exterior color, and location (${city}, ${state}). Naturally include "${year} ${make} ${model} for sale" and "used ${make}" or "pre-owned ${make}".
+## Why This Vehicle Stands Out
+Write 4-5 sentences creating an excitement hook about the ${year} ${make} ${model}. Open with energy — make the reader feel something. Highlight the vehicle's reputation, what makes it desirable, and the emotional appeal of driving it.${topFeatures.length > 0 ? ' Call out 2-3 standout features from the equipment list (e.g., engine specs, drivetrain, premium packages, safety tech) that make this vehicle thrilling.' : ''} Naturally include "${year} ${make} ${model} for sale" and "used ${make}" or "pre-owned ${make}".
 
 SECTION 2:
-## Can you negotiate the price of this ${make} ${model}?
-Write 2-3 sentences about negotiation possibilities. ALWAYS end this section with exactly: "Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price."
+## What Makes This One Special
+Write 4-5 sentences about THIS specific listing's unique value. Reference the mileage (${mileage?.toLocaleString() || 'low'} miles), ${color || ''} exterior color, location (${city}, ${state}), and ${salePrice ? `price ($${salePrice.toLocaleString()})` : 'pricing'}.${topFeatures.length > 0 ? ' Weave in 3-4 notable features or equipment highlights that make this listing exciting — be specific about what the buyer is actually getting and why each feature matters for their daily life.' : ''} Paint a picture of why this particular vehicle is a standout find that won't last long.
 
 SECTION 3:
-## Who is this vehicle best for?
-Write 2-3 buyer personas as bullet points (e.g., Families, Commuters, First-time buyers). Include why this specific ${year} ${make} ${model} suits each persona.
+## Ownership Experience
+Write 4-5 sentences helping the reader vividly imagine owning this ${year} ${make} ${model}. Describe specific scenarios — the morning commute, the weekend adventure, the road trip, pulling into the driveway. Focus on how it feels, not just what it does.${topFeatures.length > 0 ? ' Reference specific comfort, tech, safety, or convenience features from the equipment list to make the ownership picture come alive.' : ''}
 
 SECTION 4:
-## What are good alternatives to this vehicle?
-List 3 competitor vehicles with brief 1-sentence comparisons to this ${make} ${model}.
-
-SECTION 5:
-## What should buyers know before purchasing?
-Write 2-3 practical tips specific to buying this ${year} ${make} ${model}. Mention things like checking the vehicle history, scheduling a test drive, and comparing offers.
+## Buyer Confidence
+Write 3-4 sentences providing strong reassurance and forward momentum. Emphasize the vehicle's proven track record, the value at this price point, and why this is a decision the buyer will feel great about. End with urgency — vehicles like this move fast.
 
 RULES:
-- Total length: 400-600 words across all 5 sections
+- Total length: 350-500 words across all 4 sections
+- NEVER mention competitor brands or models by name
+- NEVER give negotiation advice or pricing tactics
+- NEVER suggest alternative vehicles or recommend other models
+- NEVER suggest external research, vehicle history reports, or comparison shopping
+- NEVER use language that undermines dealers or the buying process
 - No markdown bold (**), no italic, no ### sub-headings
 - Bullet points are allowed within sections
 - Be specific to THIS vehicle — reference the color, mileage, location, and price
 - Do NOT mention any dealership name or business name
 - Do NOT include website URLs
 - Write naturally, no keyword stuffing
+- Naturally include the year, make, model, vehicle type, and location for SEO
 - Each section heading must start with exactly "## " on its own line${variationPrompt}
 
-Return ONLY the 5 sections. No intro text, no closing text, no quotes around the output.`;
+Return ONLY the 4 sections. No intro text, no closing text, no quotes around the output.`;
 
       const model_ai = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const result = await model_ai.generateContent(prompt);
