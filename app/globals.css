@@ -37,7 +37,6 @@ body {
   }
 }
 
-/* TrueCar-inspired component styles */
 @layer components {
   /* Pill button style */
   .btn-pill {
@@ -61,17 +60,17 @@ body {
   }
 
   /* Card styles */
-  .card-truecar {
+  .card-iq {
     @apply bg-white rounded-card shadow-card border border-border transition-all duration-200 hover:shadow-card-hover;
   }
 
   /* Input styles */
-  .input-truecar {
+  .input-iq {
     @apply w-full px-4 py-3 border border-border rounded-card focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all;
   }
 
   /* Select styles */
-  .select-truecar {
+  .select-iq {
     @apply w-full px-4 py-3 border border-border rounded-card bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all appearance-none cursor-pointer;
   }
 }

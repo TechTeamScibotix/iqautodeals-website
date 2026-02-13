@@ -204,7 +204,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
   return (
     <div className="min-h-screen bg-light-dark font-sans">
       <AIChat />
-      {/* Header - TrueCar dark style */}
+      {/* Header */}
       <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-3 md:px-4 h-full">
           <div className="flex justify-between items-center h-full">
@@ -212,7 +212,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
               <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
             </Link>
 
-            {/* Navigation Menu - TrueCar dark style */}
+            {/* Navigation Menu */}
             <nav className="hidden lg:flex gap-8 text-sm font-semibold">
               <Link href="/cars?condition=new" className="text-white hover:text-primary transition-colors py-2">
                 New Vehicles
@@ -231,7 +231,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
               </Link>
             </nav>
 
-            {/* Auth Buttons - TrueCar pill style */}
+            {/* Auth Buttons */}
             <div className="flex gap-2 md:gap-3">
               <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
                 <LogIn className="w-3 h-3 md:w-4 md:h-4" />
@@ -419,7 +419,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
         </div>
       </section>
 
-      {/* Featured Cars Carousel - TrueCar style */}
+      {/* Featured Cars Carousel */}
       <section className="bg-light-dark py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
@@ -517,7 +517,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       {/* Server-rendered: How It Works */}
       {howItWorksSection}
 
-      {/* New Inventory Carousel - TrueCar style */}
+      {/* New Inventory Carousel */}
       {newCars.length > 0 && (
         <section className="bg-white py-12">
           <div className="container mx-auto px-4">

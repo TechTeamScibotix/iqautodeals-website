@@ -84,7 +84,7 @@ export default function CustomerDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<Car | null>(null);
 
-  // TrueCar-style filter panel state
+  // Filter panel state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     brand: true,

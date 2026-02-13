@@ -139,7 +139,7 @@ export default function CarsClient() {
   const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
   const [requestingPhotos, setRequestingPhotos] = useState<CarListing | null>(null);
 
-  // TrueCar-style filter panel state
+  // Filter panel state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     brand: true,
