@@ -22,6 +22,7 @@ import { formatPrice } from '@/lib/format';
 import {
   generateStandsOutPoints,
   generateBuyerPersonas,
+  parseStructuredDescription,
 } from '../components/AIDealSummary';
 
 /**
@@ -1422,15 +1423,77 @@ export default function CarsClient() {
                   </ul>
                 </div>
 
-                {/* Description Preview */}
-                {viewingPhotos.car.description && (
-                  <div className="mb-6">
-                    <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
-                    <p className="text-gray-700 leading-relaxed text-sm">
-                      {getDescriptionPreview(viewingPhotos.car.description)}
-                    </p>
-                  </div>
-                )}
+                {/* AI Description Sections */}
+                {viewingPhotos.car.description && (() => {
+                  const sections = parseStructuredDescription(viewingPhotos.car.description);
+                  if (!sections) {
+                    // Legacy format — show as plain "About This Vehicle"
+                    return (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
+                        <p className="text-gray-700 leading-relaxed text-sm">
+                          {getDescriptionPreview(viewingPhotos.car.description)}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  // Filter out old problematic sections
+                  const problemKeywords = ['negotiate', 'alternative', 'before purchasing', 'should buyers know', 'good alternatives'];
+                  const cleanSections = sections.filter(s => {
+                    const lower = s.heading.toLowerCase();
+                    return !problemKeywords.some(kw => lower.includes(kw));
+                  });
+
+                  // Try new-format headings first
+                  const standsOutAI = cleanSections.find(s => s.heading.toLowerCase().includes('stands out'));
+                  const specialAI = cleanSections.find(s => s.heading.toLowerCase().includes('makes this one special'));
+                  const ownershipAI = cleanSections.find(s => s.heading.toLowerCase().includes('ownership experience'));
+                  const confidenceAI = cleanSections.find(s => s.heading.toLowerCase().includes('buyer confidence'));
+
+                  // New format detected
+                  if (standsOutAI) {
+                    return (
+                      <>
+                        <div className="mb-6">
+                          <h3 className="text-lg font-bold text-dark mb-2">Why This Vehicle Stands Out</h3>
+                          <p className="text-gray-700 leading-relaxed text-sm">{standsOutAI.content}</p>
+                        </div>
+                        {specialAI && (
+                          <div className="mb-6">
+                            <h3 className="text-lg font-bold text-dark mb-2">What Makes This One Special</h3>
+                            <p className="text-gray-700 leading-relaxed text-sm">{specialAI.content}</p>
+                          </div>
+                        )}
+                        {ownershipAI && (
+                          <div className="mb-6">
+                            <h3 className="text-lg font-bold text-dark mb-2">Ownership Experience</h3>
+                            <p className="text-gray-700 leading-relaxed text-sm">{ownershipAI.content}</p>
+                          </div>
+                        )}
+                        {confidenceAI && (
+                          <div className="mb-6">
+                            <h3 className="text-lg font-bold text-dark mb-2">Buyer Confidence</h3>
+                            <p className="text-gray-700 leading-relaxed text-sm">{confidenceAI.content}</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  }
+
+                  // Old structured format — show "good deal" section as About
+                  const goodDeal = cleanSections.find(s => s.heading.toLowerCase().includes('good deal'));
+                  if (goodDeal) {
+                    return (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
+                        <p className="text-gray-700 leading-relaxed text-sm">{goodDeal.content}</p>
+                      </div>
+                    );
+                  }
+
+                  return null;
+                })()}
 
                 {/* Who This Vehicle Is Best For */}
                 <div className="mb-6">
