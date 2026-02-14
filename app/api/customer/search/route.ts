@@ -237,11 +237,16 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    // Filter by radius if specified
+    // Filter by radius if specified, with fallback to all cars sorted by distance
     if (maxRadius !== null && userLat !== null) {
-      processedCars = processedCars.filter(car =>
+      const withinRadius = processedCars.filter(car =>
         car.distance !== null && car.distance <= maxRadius!
       );
+      // If radius filter returns results, use them; otherwise show all cars sorted by distance
+      if (withinRadius.length > 0) {
+        processedCars = withinRadius;
+      }
+      // If 0 results within radius, keep all processedCars — they'll be sorted by distance below
     }
 
     // Helper function to check if car has photos
