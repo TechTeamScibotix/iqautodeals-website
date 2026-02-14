@@ -7,7 +7,7 @@ import CarsClient from './CarsClient';
 export const revalidate = 3600; // Re-generate every hour with fresh inventory
 
 export const metadata: Metadata = {
-  title: 'Used Cars for Sale - Browse & Compare | IQ Auto Deals',
+  title: 'New and Used Cars for Sale',
   description: 'Browse thousands of quality used cars for sale from certified dealers. Compare prices, filter by make, model, price, and location. Save thousands with dealer competition.',
   keywords: ['used cars for sale', 'buy used cars', 'used car dealers', 'compare car prices', 'certified pre-owned cars'],
 };

@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Used Cars by Make & Model - Browse Popular Vehicles | IQ Auto Deals',
+  title: 'New and Used Cars by Make & Model',
   description: 'Shop used cars by make and model. Find quality pre-owned vehicles from top brands including Toyota, Honda, Ford, Chevrolet, and more. Compare prices from trusted dealers.',
   keywords: ['used cars by model', 'used Toyota', 'used Honda', 'used Ford', 'used Chevrolet', 'popular used cars'],
 };

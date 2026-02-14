@@ -7,7 +7,7 @@ import Footer from '../components/Footer';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Used Cars by Location - Find Local Dealers | IQ Auto Deals',
+  title: 'New and Used Cars by Location',
   description: 'Find quality used cars for sale in your area. Browse our network of trusted dealers across all 50 states. Compare prices and save thousands on your next vehicle.',
   keywords: ['used cars by location', 'local car dealers', 'used cars near me', 'car dealers by state', 'nationwide used cars'],
 };

@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
   const { name } = makeData;
 
   return {
-    title: `Used ${name} Cars for Sale — Compare Prices | IQ Auto Deals`,
+    title: `New and Used ${name} Cars for Sale`,
     description: `Shop used ${name} vehicles for sale. Compare prices from certified dealers and save thousands. Browse used ${name} ${vehicleTypes[name] || 'SUVs, sedans, and more'}. No haggling required.`,
     keywords: [
       `used ${name.toLowerCase()}`,
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
       `pre-owned ${name.toLowerCase()}`,
     ],
     openGraph: {
-      title: `Used ${name} Cars for Sale`,
+      title: `New and Used ${name} Cars for Sale`,
       description: `Shop used ${name} vehicles. Compare prices from dealers and save thousands.`,
       url: `https://iqautodeals.com/cars/make/${makeSlug}`,
     },

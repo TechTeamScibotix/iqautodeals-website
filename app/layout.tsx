@@ -19,8 +19,8 @@ import { PostHogProvider, PostHogPageView } from "./components/PostHogProvider";
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
-    default: "Used Cars for Sale Near You - Compare Prices from Certified Dealers",
-    template: "%s"
+    default: "New and Used Cars for Sale Near You | IQ Auto Deals",
+    template: "%s | IQ Auto Deals"
   },
   description: "Shop 1000+ quality used cars online. Compare prices from local dealers instantly, get competing offers from multiple dealers. ✓ No haggling ✓ Free to use ✓ Trusted dealers. Browse now →",
   keywords: [
@@ -392,7 +392,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://iqautodeals.com',
-    title: 'Buy Used Cars Online - Shop Certified Pre-Owned Vehicles | IQ Auto Deals',
+    title: 'Buy New and Used Cars Online | IQ Auto Deals',
     description: 'Shop thousands of quality used cars for sale online. Compare prices from local dealers, get instant offers from multiple competing dealers. Browse certified pre-owned vehicles with transparent pricing.',
     siteName: 'IQ Auto Deals',
     images: [
@@ -406,7 +406,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Buy Used Cars Online - Compare Dealer Prices | IQ Auto Deals',
+    title: 'Buy New and Used Cars Online | IQ Auto Deals',
     description: 'Shop thousands of quality used cars. Get instant competing offers from local dealers on your next vehicle.',
     images: ['/og-image.jpg'],
   },

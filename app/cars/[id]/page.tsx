@@ -124,12 +124,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!car) {
     return {
-      title: 'Vehicle Not Found | IQ Auto Deals',
+      title: 'Vehicle Not Found',
       description: 'This vehicle is no longer available. Browse our inventory for similar cars.',
     };
   }
 
-  const title = `${car.year} ${car.make} ${car.model} for Sale in ${car.city}, ${car.state} | IQ Auto Deals`;
+  const title = `${car.year} ${car.make} ${car.model} for Sale in ${car.city}, ${car.state}`;
   const description = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
 

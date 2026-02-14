@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     canonical: 'https://iqautodeals.com/for-dealers',
   },
   openGraph: {
-    title: 'For Dealers - Get More Leads & Close More Sales | IQ Auto Deals',
+    title: 'For Dealers - Get More Leads & Close More Sales',
     description: 'Join the AI-native automotive marketplace. AI-powered SEO, proactive customer engagement, and 90-day free pilot. Start selling more cars today.',
     url: 'https://iqautodeals.com/for-dealers',
   },
