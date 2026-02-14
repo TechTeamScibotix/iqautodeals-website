@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, XCircle, DollarSign, Calculator } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Lease vs Buy a Car: Complete Comparison Guide 2025',
+  title: 'Lease vs Buy a Car: Complete Comparison Guide 2026',
   description: 'Should you lease or buy your next car? Compare total costs, pros and cons, and find out which option is better for your situation.',
   keywords: 'lease vs buy car, car leasing, should I lease or buy, leasing pros cons, car buying vs leasing, auto lease calculator',
 };
@@ -249,6 +250,48 @@ export default function LeaseVsBuyGuide() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Models to Buy or Lease</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/toyota-camry" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Camry</Link>
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Civic</Link>
+            <Link href="/models/toyota-rav4" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota RAV4</Link>
+            <Link href="/models/bmw-x3" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">BMW X3</Link>
+            <Link href="/models/lexus-rx350" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Lexus RX 350</Link>
+            <Link href="/models/honda-accord" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Accord</Link>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse used cars →</Link>
+            <Link href="/new-cars" className="text-blue-600 font-semibold hover:underline">Browse new cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/car-financing-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Financing Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Get the best loan rates</p>
+            </Link>
+            <Link href="/guides/credit-score-auto-loans" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Credit Score &amp; Auto Loans</span>
+              <p className="text-sm text-gray-600 mt-1">Improve your credit score</p>
+            </Link>
+            <Link href="/guides/how-to-buy-used-car" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">How to Buy a Used Car</span>
+              <p className="text-sm text-gray-600 mt-1">Complete buying guide</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

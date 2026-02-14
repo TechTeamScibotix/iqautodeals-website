@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft, HelpCircle, CheckCircle, AlertTriangle, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'First-Time Car Buyer FAQ: 25 Questions Answered 2025',
+  title: 'First-Time Car Buyer FAQ: 25 Questions Answered 2026',
   description: 'Everything first-time car buyers need to know: financing, negotiation, insurance, and common mistakes to avoid. Expert answers to your top questions.',
   keywords: 'first time car buyer, buying first car, car buying tips, first car advice, new driver car buying, how to buy first car',
 };
@@ -292,6 +293,47 @@ export default function FirstTimeBuyerFAQ() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Great First Cars</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Civic</Link>
+            <Link href="/models/toyota-camry" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Camry</Link>
+            <Link href="/models/mazda-cx5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Mazda CX-5</Link>
+            <Link href="/models/hyundai-tucson" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Hyundai Tucson</Link>
+            <Link href="/models/toyota-rav4" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota RAV4</Link>
+            <Link href="/models/honda-cr-v" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda CR-V</Link>
+          </div>
+          <div className="mt-6">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse all used cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/how-to-buy-used-car" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">How to Buy a Used Car</span>
+              <p className="text-sm text-gray-600 mt-1">Complete step-by-step guide</p>
+            </Link>
+            <Link href="/guides/car-financing-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Financing Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Get the best loan rates</p>
+            </Link>
+            <Link href="/guides/car-insurance-basics" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Insurance Basics</span>
+              <p className="text-sm text-gray-600 mt-1">Coverage you need</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

@@ -71,7 +71,7 @@ export default function HomePage() {
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">Why Choose Our Nationwide Car Marketplace?</h2>
                 <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-                  The trusted online marketplace for new, certified pre-owned, and quality pre-owned vehicles. Compare prices from verified dealers and save up to $5,000.
+                  The trusted online marketplace for new, certified pre-owned, and quality pre-owned vehicles. Compare prices from verified dealers who compete for your business.
                 </p>
               </div>
 
@@ -337,7 +337,7 @@ export default function HomePage() {
                 <div className="bg-black p-6 rounded-xl shadow-card">
                   <h3 className="text-lg font-bold text-white mb-3">How much can I save with online car shopping?</h3>
                   <p className="text-gray-400 leading-relaxed">
-                    Buyers typically save $1,500 to $5,000 compared to traditional dealership prices. By creating competition between dealers, you get their absolute best price upfront without negotiating at multiple dealerships. Dealers bring their A-game to win your business!
+                    By creating competition between dealers, you get their absolute best price upfront without negotiating at multiple dealerships. Dealers bring their A-game to win your business — and you compare up to 4 offers side by side.
                   </p>
                 </div>
 
@@ -388,7 +388,7 @@ export default function HomePage() {
                 },
                 {
                   question: 'How much can I save with online car shopping?',
-                  answer: 'Buyers typically save $1,500 to $5,000 compared to traditional dealership prices. By creating competition between dealers, you get their absolute best price upfront without negotiating at multiple dealerships.'
+                  answer: 'By creating competition between dealers, you get their absolute best price upfront without negotiating at multiple dealerships. Compare up to 4 competing offers side by side and choose the best deal.'
                 },
                 {
                   question: 'How many dealer offers will I receive?',

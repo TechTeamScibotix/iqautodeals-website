@@ -16,6 +16,24 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // Location redirects: strip state code suffix (e.g. /locations/atlanta-ga → /locations/atlanta)
+  const locationMatch = pathname.match(/^\/locations\/(.+)-([a-z]{2})$/);
+  if (locationMatch) {
+    const city = locationMatch[1];
+    return NextResponse.redirect(new URL(`/locations/${city}`, request.url), { status: 301 });
+  }
+
+  // Model redirects: correct common slug mismatches
+  const modelRedirects: Record<string, string> = {
+    'ford-f-150': 'ford-f150',
+  };
+  if (pathname.startsWith('/models/')) {
+    const slug = pathname.replace('/models/', '');
+    if (modelRedirects[slug]) {
+      return NextResponse.redirect(new URL(`/models/${modelRedirects[slug]}`, request.url), { status: 301 });
+    }
+  }
+
   // Check if this is a car detail page with UUID
   if (pathname.startsWith('/cars/')) {
     const carIdOrSlug = pathname.replace('/cars/', '');

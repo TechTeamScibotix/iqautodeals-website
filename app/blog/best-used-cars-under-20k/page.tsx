@@ -7,7 +7,7 @@ import { LogoWithBeam } from '@/components/LogoWithBeam';
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Best Used Cars Under $20,000 in 2025',
+  title: 'Best Used Cars Under $20,000 in 2026',
   description: 'Top 10 most reliable and value-packed used cars under $20k. Expert recommendations for sedans, SUVs, and trucks with proven reliability and low ownership costs.',
   keywords: 'best used cars under 20000, reliable used cars, affordable used SUVs, best budget cars, used cars under 20k, reliable sedans',
 };
@@ -38,13 +38,13 @@ export default function BestCarsUnder20kArticle() {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-6">
-            Best Used Cars Under $20,000 in 2025
+            Best Used Cars Under $20,000 in 2026
           </h1>
 
           <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              <span>November 1, 2025</span>
+              <span>February 1, 2026</span>
             </div>
             <span>•</span>
             <span>7 min read</span>
@@ -422,7 +422,7 @@ export default function BestCarsUnder20kArticle() {
             <Link href="/blog/how-to-finance-used-car-2025" className="group">
               <div className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
                 <h3 className="font-bold text-dark group-hover:text-primary mb-2">
-                  How to Finance a Used Car in 2025
+                  How to Finance a Used Car in 2026
                 </h3>
                 <p className="text-sm text-gray-600">Get the best rates and terms on your auto loan</p>
               </div>

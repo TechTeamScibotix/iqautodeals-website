@@ -1,3 +1,5 @@
+import { makes } from './makes';
+
 // Vehicle models data for SEO pages
 export const models = {
   // Toyota
@@ -99,7 +101,26 @@ export const models = {
 
   // Buick
   'buick-enclave': { brand: 'Buick', model: 'Enclave', fullName: 'Buick Enclave', type: 'suv', slug: 'buick-enclave' },
+
+  // Tesla
+  'tesla-model-3': { brand: 'Tesla', model: 'Model 3', fullName: 'Tesla Model 3', type: 'electric', slug: 'tesla-model-3' },
+  'tesla-model-y': { brand: 'Tesla', model: 'Model Y', fullName: 'Tesla Model Y', type: 'electric', slug: 'tesla-model-y' },
+  'tesla-model-s': { brand: 'Tesla', model: 'Model S', fullName: 'Tesla Model S', type: 'electric', slug: 'tesla-model-s' },
+  'tesla-model-x': { brand: 'Tesla', model: 'Model X', fullName: 'Tesla Model X', type: 'electric', slug: 'tesla-model-x' },
+  'tesla-cybertruck': { brand: 'Tesla', model: 'Cybertruck', fullName: 'Tesla Cybertruck', type: 'electric', slug: 'tesla-cybertruck' },
 };
 
 export const modelSlugs = Object.keys(models);
 export type ModelData = typeof models[keyof typeof models];
+
+/**
+ * Get all models for a given make slug (e.g. "ford" → all Ford models)
+ */
+export function getModelsByMake(makeSlug: string): [string, ModelData][] {
+  const makeData = makes[makeSlug as keyof typeof makes];
+  if (!makeData) return [];
+
+  return Object.entries(models).filter(
+    ([, data]) => (data as ModelData).brand.toLowerCase() === makeData.name.toLowerCase()
+  ) as [string, ModelData][];
+}

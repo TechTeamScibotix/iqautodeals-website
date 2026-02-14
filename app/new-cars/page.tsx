@@ -10,7 +10,7 @@ import { ArrowRight, Sparkles, TrendingDown, Car, CheckCircle } from 'lucide-rea
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'New Cars for Sale (2025) - Compare Prices from Local Dealers',
+  title: 'New Cars for Sale (2026) - Compare Prices from Local Dealers',
   description: 'Shop new cars for sale from certified dealers nationwide. Compare prices, get competing offers, and save hundreds on your new vehicle purchase. Browse new SUVs, trucks, sedans and more.',
   keywords: [
     'new cars for sale',
@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     'new car prices',
     'buy new car online',
     'new car dealers near me',
-    'new cars 2025',
-    '2025 new cars',
+    'new cars 2026',
+    '2026 new cars',
     'new car specials',
     'new car inventory',
     'compare new car prices',

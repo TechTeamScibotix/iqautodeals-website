@@ -21,7 +21,7 @@ export default function RegisterPage() {
           <li>Browse thousands of quality vehicles from certified dealers nationwide</li>
           <li>Save your favorite cars and compare up to 4 vehicles side by side</li>
           <li>Receive competing offers from multiple dealers on your selected vehicles</li>
-          <li>Save up to $5,000 with our unique dealer competition model</li>
+          <li>Get competing offers from multiple dealers on your selected vehicles</li>
           <li>Track all your deal requests and offers in one convenient dashboard</li>
           <li>Get price drop alerts on vehicles you are interested in</li>
         </ul>

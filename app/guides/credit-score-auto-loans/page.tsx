@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, TrendingUp, AlertTriangle, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Credit Scores & Auto Loans: How to Get the Best Rate 2025',
+  title: 'Credit Scores & Auto Loans: How to Get the Best Rate 2026',
   description: 'Understand how credit scores affect auto loan rates. Learn what score you need, how to improve your credit, and strategies to get approved with any credit.',
   keywords: 'credit score auto loan, car loan credit score, improve credit for car loan, auto loan rates by credit score, bad credit car loan, auto financing',
 };
@@ -300,6 +301,47 @@ export default function CreditScoreAutoLoansGuide() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Affordable Models to Finance</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Civic</Link>
+            <Link href="/models/toyota-camry" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Camry</Link>
+            <Link href="/models/hyundai-sonata" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Hyundai Sonata</Link>
+            <Link href="/models/nissan-altima" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Nissan Altima</Link>
+            <Link href="/models/chevy-malibu" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Chevy Malibu</Link>
+            <Link href="/models/mazda-cx5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Mazda CX-5</Link>
+          </div>
+          <div className="mt-6">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse all used cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/car-financing-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Financing Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Get the best auto loan</p>
+            </Link>
+            <Link href="/guides/first-time-buyer-faq" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">First-Time Buyer FAQ</span>
+              <p className="text-sm text-gray-600 mt-1">Answers for new buyers</p>
+            </Link>
+            <Link href="/guides/lease-vs-buy" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Lease vs Buy</span>
+              <p className="text-sm text-gray-600 mt-1">Which option is best?</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

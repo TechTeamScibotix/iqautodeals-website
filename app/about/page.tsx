@@ -116,8 +116,8 @@ export default function AboutPage() {
               <div className="text-gray-600 font-medium">States Covered</div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-              <div className="text-4xl font-bold text-primary mb-2">$5,000</div>
-              <div className="text-gray-600 font-medium">Average Buyer Savings</div>
+              <div className="text-4xl font-bold text-primary mb-2">4</div>
+              <div className="text-gray-600 font-medium">Competing Offers Per Vehicle</div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
               <div className="text-4xl font-bold text-primary mb-2">Free</div>
@@ -328,16 +328,16 @@ export default function AboutPage() {
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div className="p-4">
-                <div className="text-3xl font-bold text-primary mb-1">4.8/5</div>
-                <div className="text-sm text-gray-600">Average Rating</div>
+                <div className="text-3xl font-bold text-primary mb-1">Trusted</div>
+                <div className="text-sm text-gray-600">Platform</div>
               </div>
               <div className="p-4">
-                <div className="text-3xl font-bold text-primary mb-1">1,250+</div>
-                <div className="text-sm text-gray-600">Customer Reviews</div>
+                <div className="text-3xl font-bold text-primary mb-1">Verified</div>
+                <div className="text-sm text-gray-600">Dealers</div>
               </div>
               <div className="p-4">
-                <div className="text-3xl font-bold text-primary mb-1">16,000+</div>
-                <div className="text-sm text-gray-600">Vehicles Listed</div>
+                <div className="text-3xl font-bold text-primary mb-1">1,000+</div>
+                <div className="text-sm text-gray-600">Vehicles</div>
               </div>
               <div className="p-4">
                 <div className="text-3xl font-bold text-primary mb-1">182</div>

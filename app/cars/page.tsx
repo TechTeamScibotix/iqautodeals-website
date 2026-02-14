@@ -96,7 +96,7 @@ export default async function CarsPage() {
         <p className="text-gray-600 mb-8 max-w-3xl">
           Browse quality used and new cars for sale from certified dealers across the United States on IQ Auto Deals.
           Compare prices, filter by make, model, year, price range, and location. Our dealer competition model
-          helps you save up to $5,000 on your next vehicle.
+          lets multiple dealers compete to offer you their best price.
         </p>
 
         {topMakes.length > 0 && (

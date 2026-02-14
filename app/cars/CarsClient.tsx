@@ -135,6 +135,8 @@ export default function CarsClient() {
   const [user, setUser] = useState<any>(null);
   const [checkingAvailability, setCheckingAvailability] = useState<CarListing | null>(null);
   const [requestingPhotos, setRequestingPhotos] = useState<CarListing | null>(null);
+  const [similarCars, setSimilarCars] = useState<CarListing[]>([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
 
   // Filter panel state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -478,6 +480,66 @@ export default function CarsClient() {
   const endIndex = startIndex + itemsPerPage;
   const paginatedCars = filteredCars.slice(startIndex, endIndex);
 
+  // Fetch similar vehicles when no results found
+  useEffect(() => {
+    if (loading || filteredCars.length > 0) {
+      setSimilarCars([]);
+      return;
+    }
+
+    // Only fetch if we have some active filters (not a bare /cars page with zero inventory)
+    const hasFilters = search.make || search.model || search.q ||
+      (search.bodyType && search.bodyType !== 'all') ||
+      (search.fuelType && search.fuelType !== 'all') ||
+      (search.condition && search.condition !== 'all') ||
+      search.minPrice || search.maxPrice;
+    if (!hasFilters) return;
+
+    let cancelled = false;
+    const fetchSimilar = async () => {
+      setLoadingSimilar(true);
+      try {
+        // Tier 1: Same make, drop model
+        if (search.make) {
+          const params = new URLSearchParams({ make: search.make });
+          const res = await fetch(`/api/customer/search?${params}`);
+          const data = await res.json();
+          if (!cancelled && data.cars?.length > 0) {
+            setSimilarCars(data.cars.slice(0, 8));
+            setLoadingSimilar(false);
+            return;
+          }
+        }
+
+        // Tier 2: Same bodyType, drop make+model
+        if (search.bodyType && search.bodyType !== 'all') {
+          const params = new URLSearchParams({ bodyType: search.bodyType });
+          const res = await fetch(`/api/customer/search?${params}`);
+          const data = await res.json();
+          if (!cancelled && data.cars?.length > 0) {
+            setSimilarCars(data.cars.slice(0, 8));
+            setLoadingSimilar(false);
+            return;
+          }
+        }
+
+        // Tier 3: No filters — popular/recent inventory
+        const res = await fetch('/api/customer/search');
+        const data = await res.json();
+        if (!cancelled && data.cars?.length > 0) {
+          setSimilarCars(data.cars.slice(0, 8));
+        }
+      } catch (err) {
+        console.error('Failed to load similar vehicles:', err);
+      } finally {
+        if (!cancelled) setLoadingSimilar(false);
+      }
+    };
+
+    fetchSimilar();
+    return () => { cancelled = true; };
+  }, [loading, filteredCars.length, search.make, search.model, search.q, search.bodyType, search.fuelType, search.condition, search.minPrice, search.maxPrice]);
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
@@ -790,7 +852,11 @@ export default function CarsClient() {
             <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex gap-3">
               <button
                 onClick={() => {
-                  setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
+                  const cleared = { q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' };
+                  setSearch(cleared);
+                  router.push('/cars');
+                  loadCarsWithParams(cleared);
+                  setShowMobileFilters(false);
                 }}
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-full font-semibold hover:bg-gray-50"
               >
@@ -1020,8 +1086,10 @@ export default function CarsClient() {
                 </button>
                 <button
                   onClick={() => {
-                    setSearch({ q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' });
+                    const cleared = { q: '', make: '', model: '', state: 'all', condition: 'all', fuelType: 'all', bodyType: 'all', minPrice: '', maxPrice: '', zipCode: '' };
+                    setSearch(cleared);
                     router.push('/cars');
+                    loadCarsWithParams(cleared);
                   }}
                   className="w-full px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm transition-colors"
                 >
@@ -1051,12 +1119,129 @@ export default function CarsClient() {
                 <div className="text-gray-500">Loading inventory...</div>
               </div>
             ) : filteredCars.length === 0 ? (
-              <div className="bg-white rounded-xl shadow-md p-12 text-center">
-                <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-8 h-8 text-primary" />
+              <div>
+                <div className="bg-white rounded-xl shadow-md p-12 text-center">
+                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-dark">No vehicles found</h3>
+                  <p className="text-gray-600">Try adjusting your search filters to see more results</p>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-dark">No vehicles found</h3>
-                <p className="text-gray-600">Try adjusting your search filters to see more results</p>
+
+                {/* Similar Vehicles Section */}
+                {loadingSimilar && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-dark mb-4">Similar Vehicles You Might Like</h3>
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
+                          <div className="aspect-[4/3] bg-gray-200" />
+                          <div className="p-2 md:p-4 space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-3/4" />
+                            <div className="h-6 bg-gray-200 rounded w-1/2" />
+                            <div className="h-3 bg-gray-200 rounded w-2/3" />
+                            <div className="h-10 bg-gray-200 rounded-full w-full mt-2" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!loadingSimilar && similarCars.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-bold text-dark mb-4">Similar Vehicles You Might Like</h3>
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                      {similarCars.map((car) => {
+                        let photoUrl = '';
+                        try {
+                          const photos = JSON.parse(car.photos || '[]');
+                          photoUrl = photos[0] || '';
+                        } catch (e) {
+                          console.error('Failed to parse photos:', e);
+                        }
+
+                        return (
+                          <div
+                            key={car.id}
+                            className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+                          >
+                            <div className="relative aspect-[4/3] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
+                              <Image
+                                src={photoUrl || getPlaceholderImage(car.bodyType)}
+                                alt={`${car.year} ${car.make} ${car.model}`}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                              />
+                              {photoUrl && (
+                                <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded-pill text-[10px] md:text-xs font-semibold backdrop-blur-sm">
+                                  <Camera className="w-3 h-3 inline mr-1" />
+                                  <span className="hidden sm:inline">View Photos</span>
+                                  <span className="sm:hidden">Photos</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="p-2 md:p-4">
+                              <h3 className="font-bold text-xs md:text-lg text-dark line-clamp-2 mb-1">
+                                {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                              </h3>
+                              <p className="text-lg md:text-2xl font-bold text-primary mb-1 md:mb-2">
+                                {formatPrice(car.salePrice)}
+                              </p>
+                              <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">
+                                {car.color} • {car.mileage.toLocaleString()} mi
+                              </div>
+                              <div className="text-[10px] md:text-sm text-gray-600 mb-1 md:mb-3">
+                                {car.city}, {car.state}
+                                {car.distance !== null && car.distance !== undefined && (
+                                  <span className="ml-1 text-primary font-medium">
+                                    ({car.distance} mi)
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] md:text-xs text-gray-500 mb-2 md:mb-3 line-clamp-1">{car.dealer.businessName}</p>
+
+                              <div className="flex flex-col gap-1.5 md:gap-2">
+                                <button
+                                  onClick={(e) => handleCheckAvailability(car, e)}
+                                  className="w-full bg-black text-white px-2 md:px-4 py-1.5 md:py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-[10px] md:text-sm"
+                                >
+                                  Check Availability - Test Drive
+                                </button>
+                                {!photoUrl && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setRequestingPhotos(car);
+                                    }}
+                                    className="w-full bg-black text-white px-2 md:px-4 py-1.5 md:py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-[10px] md:text-sm"
+                                  >
+                                    <Camera className="w-3 h-3 md:w-4 md:h-4" />
+                                    <span className="hidden sm:inline">Request Photos</span>
+                                    <span className="sm:hidden">Photos</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {!loadingSimilar && similarCars.length === 0 && (search.make || search.model || search.q) && (
+                  <div className="mt-8 text-center">
+                    <Link
+                      href="/cars"
+                      className="inline-block bg-primary text-white px-8 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Browse All Inventory
+                    </Link>
+                  </div>
+                )}
               </div>
             ) : (
               <>

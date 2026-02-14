@@ -59,7 +59,7 @@ vercel --prod
 - **Founded:** 2024
 - **Headquarters:** Atlanta, GA (corporate office, NOT a car lot)
 - **Tagline:** "Smart Car Buying Made Simple"
-- **Value Prop:** Save up to $5,000 through dealer competition
+- **Value Prop:** Dealers compete to offer you their best price
 - **Languages:** English and Spanish
 - **Contact:** support@iqautodeals.com, 1-800-IQ-DEALS
 
@@ -144,7 +144,7 @@ This is the consumer-facing website for IQ Auto Deals - a nationwide online car 
 - Compare up to 4 vehicles at once
 - Receive competing offers from certified dealers
 - No haggling - transparent pricing
-- Save up to $5,000
+- Dealers compete for your business
 
 ### For Dealers
 - Access to qualified buyer leads

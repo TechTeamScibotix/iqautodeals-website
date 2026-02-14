@@ -84,10 +84,10 @@ export default function ForDealersClient() {
             </h1>
 
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              In just <strong className="text-white">40+ days</strong> after launch, IQ Auto Deals generated over{' '}
+              IQ Auto Deals generated over{' '}
               <strong className="text-white">40,000 clicks</strong> and consistently ranked{' '}
-              <strong className="text-white">top 3 in AI searches</strong> — all with dummy inventory.
-              Imagine what it can do with your real vehicles.
+              <strong className="text-white">top 3 in AI searches</strong>.
+              Imagine what your real inventory can do.
             </p>
 
             {/* CTA Buttons */}
@@ -267,10 +267,10 @@ export default function ForDealersClient() {
               <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mb-6">
                 <TrendingUp className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-dark mb-3">SEO Boost for Your Website</h3>
+              <h3 className="text-xl font-bold text-dark mb-3">Built-In SEO Backlinks</h3>
               <p className="text-gray-600 leading-relaxed">
-                Verified backlinks + authority building = higher rankings on your own site.
-                Your dealership naturally appears at the top of AI overviews — no paid ads required.
+                Every listing on IQ Auto Deals is an indexed page that links directly to your website — real dofollow backlinks that build your domain authority.
+                The more inventory you list, the more backlinks you earn.
               </p>
             </div>
           </div>

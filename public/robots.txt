@@ -12,6 +12,7 @@ Disallow: /API_DOCUMENTATION.md
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /login
+Disallow: /register
 
 # ============================================
 # BLOCKED BOTS

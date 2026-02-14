@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
@@ -248,6 +249,47 @@ export default function CarInsuranceGuide() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Models to Insure</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/honda-civic" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Civic</Link>
+            <Link href="/models/toyota-camry" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Camry</Link>
+            <Link href="/models/honda-cr-v" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda CR-V</Link>
+            <Link href="/models/toyota-rav4" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota RAV4</Link>
+            <Link href="/models/subaru-outback" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Subaru Outback</Link>
+            <Link href="/models/hyundai-tucson" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Hyundai Tucson</Link>
+          </div>
+          <div className="mt-6">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse all used cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/warranty-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Warranty Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Protect your investment</p>
+            </Link>
+            <Link href="/guides/car-financing-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Financing Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Get the best auto loan</p>
+            </Link>
+            <Link href="/guides/first-time-buyer-faq" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">First-Time Buyer FAQ</span>
+              <p className="text-sm text-gray-600 mt-1">Answers for new buyers</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

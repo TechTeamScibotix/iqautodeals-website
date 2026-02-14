@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import zipcodes from 'zipcodes';
 import Footer from '../../components/Footer';
 
 // Force static generation for SEO
@@ -311,7 +312,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
 
   return {
     title: `Used Cars in ${city}, ${stateCode} - Save Thousands`,
-    description: `500+ quality used cars in ${city}, ${state}. Compare dealer prices instantly. Save hundreds. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
+    description: `Browse quality used cars for sale in ${city}, ${state}. Compare dealer prices instantly. Save hundreds. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
     keywords: [
       `used cars ${city}`,
       `used cars for sale ${city}`,
@@ -346,6 +347,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
   }
 
   const { city, state, stateCode } = locationData;
+  const zip = zipcodes.lookupByName(city, state)?.[0]?.zip;
 
   return (
     <div className="min-h-screen bg-white">
@@ -359,7 +361,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
             Shop Quality Pre-Owned Vehicles from Trusted Dealers in {city}, {state}
           </p>
           <Link
-            href="/cars"
+            href={zip ? `/cars?zipCode=${zip}` : '/cars'}
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
             Browse Cars in {city}
@@ -417,7 +419,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
                 </div>
                 <div className="ml-4">
                   <h3 className="text-xl font-semibold mb-2">Select Your Cars</h3>
-                  <p className="text-gray-700">Browse quality used cars from dealers in {city} and add up to 20 to your deal list.</p>
+                  <p className="text-gray-700">Browse quality used cars from dealers in {city} and add to your deal list.</p>
                 </div>
               </div>
               <div className="flex">
@@ -451,7 +453,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Find spacious and reliable SUVs perfect for {city} roads and {state} adventures.
               </p>
-              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
+              <Link href={zip ? `/cars?zipCode=${zip}&bodyType=SUV` : '/cars?bodyType=SUV'} className="text-blue-600 font-semibold hover:underline">
                 Browse SUVs →
               </Link>
             </div>
@@ -460,7 +462,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Discover fuel-efficient and comfortable sedans from top brands available in {city}.
               </p>
-              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
+              <Link href={zip ? `/cars?zipCode=${zip}&bodyType=Sedan` : '/cars?bodyType=Sedan'} className="text-blue-600 font-semibold hover:underline">
                 Browse Sedans →
               </Link>
             </div>
@@ -469,7 +471,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
               <p className="text-gray-700 mb-4">
                 Powerful trucks for work or play, available from trusted dealers in {city}, {stateCode}.
               </p>
-              <Link href="/cars" className="text-blue-600 font-semibold hover:underline">
+              <Link href={zip ? `/cars?zipCode=${zip}&bodyType=Truck` : '/cars?bodyType=Truck'} className="text-blue-600 font-semibold hover:underline">
                 Browse Trucks →
               </Link>
             </div>
@@ -483,7 +485,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
             Browse quality used cars from trusted dealers in {city}, {state}.
           </p>
           <Link
-            href="/cars"
+            href={zip ? `/cars?zipCode=${zip}` : '/cars'}
             className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Browse Inventory
@@ -618,10 +620,11 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
+            '@type': 'Service',
             '@id': `https://iqautodeals.com/locations/${location}`,
             name: `IQ Auto Deals - ${city}, ${stateCode}`,
             description: `Used car marketplace connecting buyers with dealers in ${city}, ${state}`,
+            serviceType: 'Online Automotive Marketplace',
             address: {
               '@type': 'PostalAddress',
               addressLocality: city,
@@ -641,13 +644,6 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
                 '@type': 'State',
                 name: state,
               },
-            },
-            priceRange: '$$',
-            openingHoursSpecification: {
-              '@type': 'OpeningHoursSpecification',
-              dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-              opens: '00:00',
-              closes: '23:59',
             },
           }),
         }}

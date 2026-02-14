@@ -18,7 +18,7 @@ export default function LocalBusinessSchema() {
     alternateName: ['IQAutoDeals', 'IQ AutoDeals'],
     // CRITICAL: Clarify business type
     disambiguatingDescription: 'IQ Auto Deals (iqautodeals.com) is an ONLINE car marketplace platform serving all 50 US states. We are a digital platform that connects buyers with certified dealers - NOT a physical dealership or car lot.',
-    description: 'Nationwide online car marketplace platform where buyers compare used cars from certified dealers across the United States. Select up to 4 vehicles and receive competing offers from multiple dealers. Save up to $5,000 with no haggling required.',
+    description: 'Nationwide online car marketplace platform where buyers compare used cars from certified dealers across the United States. Select up to 4 vehicles and receive competing offers from multiple dealers. No haggling required.',
     url: 'https://iqautodeals.com',
     logo: 'https://iqautodeals.com/logo.png',
     image: 'https://iqautodeals.com/og-image.jpg',
@@ -146,7 +146,7 @@ export default function LocalBusinessSchema() {
         '@type': 'ListItem',
         position: 4,
         name: 'Save Money',
-        description: 'Save up to $5,000 compared to traditional car buying',
+        description: 'Compare competing dealer offers and choose the best price',
       },
       {
         '@type': 'ListItem',

@@ -296,6 +296,14 @@ export default function PrivacyClient() {
               </div>
             </section>
 
+            {/* Do Not Track */}
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold text-dark border-b border-gray-200 pb-2">Do Not Track</h2>
+              <p className="text-gray-700">
+                We do not currently respond to Do Not Track browser signals. You may opt out of tracking by contacting us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a>.
+              </p>
+            </section>
+
             {/* Section 8: Retention */}
             <section id="retention" className="mb-12">
               <h2 className="text-2xl font-bold text-dark border-b border-gray-200 pb-2">7. Personal Information Retention</h2>
@@ -336,7 +344,7 @@ export default function PrivacyClient() {
               <h3 className="text-xl font-semibold text-dark mt-6">Analytics Opt-Out</h3>
               <ul className="list-disc pl-6 text-gray-700 space-y-1">
                 <li>Contact us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> to request opt-out from analytics tracking</li>
-                <li>Google Analytics: <a href="https://tools.google.com/dlpage/gaoptout/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">https://tools.google.com/dlpage/gaoptout/</a></li>
+                <li>You can opt out of analytics by contacting us at <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> or using your browser's privacy settings.</li>
               </ul>
 
               <p className="text-gray-700 mt-4">You may make any privacy requests by emailing <a href="mailto:support@iqautodeals.com" className="text-primary hover:underline">support@iqautodeals.com</a> or calling <a href="tel:1-678-313-4597" className="text-primary hover:underline">1-678-313-4597</a>.</p>

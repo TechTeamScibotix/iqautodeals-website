@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import zipcodes from 'zipcodes';
 import Footer from '../../../components/Footer';
 import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
@@ -119,7 +120,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       `new ${fullName.toLowerCase()} ${city}`,
       `new ${fullName} for sale ${city}`,
       `${brand} ${model} ${city}`,
-      `2025 ${fullName} ${city} ${stateCode}`,
+      `2026 ${fullName} ${city} ${stateCode}`,
       `${fullName.toLowerCase()} dealers near me`,
     ],
     openGraph: {
@@ -145,6 +146,7 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
   }
 
   const { city, state, stateCode } = locationData;
+  const zip = zipcodes.lookupByName(city, state)?.[0]?.zip;
 
   // Determine page type
   const isPriceRange = !!priceData;
@@ -156,6 +158,21 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
     : isBodyType
       ? bodyTypeData.label
       : modelData.fullName;
+
+  // Build filtered /cars URL with condition=new + zip + context params
+  const carsParams = new URLSearchParams();
+  carsParams.set('condition', 'new');
+  if (zip) carsParams.set('zipCode', zip);
+  if (isPriceRange) {
+    if (priceData.max < 999999) carsParams.set('maxPrice', String(priceData.max));
+    if (priceData.min > 0) carsParams.set('minPrice', String(priceData.min));
+  } else if (isBodyType) {
+    carsParams.set('bodyType', bodyTypeData.label);
+  } else if (isModel) {
+    carsParams.set('make', modelData.brand);
+    carsParams.set('model', modelData.model);
+  }
+  const carsHref = `/cars?${carsParams.toString()}`;
 
   return (
     <>
@@ -234,7 +251,7 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href="/cars?condition=new"
+                  href={carsHref}
                   className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition"
                 >
                   <Car className="w-5 h-5" />
@@ -276,7 +293,7 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
                 <ul className="space-y-4">
                   {[
                     'Full manufacturer warranty included',
-                    'Latest 2025 models available',
+                    'Latest 2026 models available',
                     `Compare prices from multiple ${city} dealers`,
                     'Save hundreds through dealer competition',
                   ].map((item, i) => (
@@ -348,7 +365,7 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
                 Browse new vehicles and let dealers compete for your business
               </p>
               <Link
-                href="/cars?condition=new"
+                href={carsHref}
                 className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition text-lg"
               >
                 <Car className="w-5 h-5" />

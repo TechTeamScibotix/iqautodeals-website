@@ -13,10 +13,10 @@ export const dynamic = 'force-static';
 
 // Article metadata
 const article = {
-  title: 'How to Finance a Used Car in 2025: Complete Guide',
+  title: 'How to Finance a Used Car in 2026: Complete Guide',
   description: 'Learn everything about used car financing: credit scores, interest rates, loan terms, and how to get approved. Expert tips to save thousands on your auto loan.',
-  datePublished: '2025-10-15',
-  dateModified: '2025-12-20',
+  datePublished: '2026-01-15',
+  dateModified: '2026-02-13',
   author: authors['editorial-team'],
   category: 'Financing',
   readTime: '8 min read',
@@ -138,7 +138,7 @@ export default function FinanceGuideArticle() {
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">
             <p className="text-xl text-gray-700 leading-relaxed mb-8">
-              Financing a used car can save you thousands compared to buying new, but navigating auto loans, interest rates, and credit requirements can be confusing. This comprehensive guide walks you through everything you need to know to get the best deal on your used car loan in 2025.
+              Financing a used car can save you thousands compared to buying new, but navigating auto loans, interest rates, and credit requirements can be confusing. This comprehensive guide walks you through everything you need to know to get the best deal on your used car loan in 2026.
             </p>
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Understanding Auto Loans</h2>
@@ -162,11 +162,11 @@ export default function FinanceGuideArticle() {
 
             <h2 className="text-3xl font-bold text-dark mt-12 mb-6">Credit Score Requirements</h2>
             <p className="text-gray-700 leading-relaxed mb-6">
-              Your credit score is the biggest factor in determining your interest rate and loan approval. Here&apos;s what to expect in 2025:
+              Your credit score is the biggest factor in determining your interest rate and loan approval. Here&apos;s what to expect in 2026:
             </p>
 
             <div className="bg-blue-50 rounded-lg p-6 mb-8">
-              <h3 className="text-xl font-bold text-dark mb-4">2025 Used Car Loan Rates by Credit Score</h3>
+              <h3 className="text-xl font-bold text-dark mb-4">2026 Used Car Loan Rates by Credit Score</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">Excellent (750+):</span>

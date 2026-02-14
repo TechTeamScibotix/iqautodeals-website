@@ -21,7 +21,6 @@ function findModelByMakeAndSlug(makeSlug: string, modelUrlSlug: string) {
   const makeData = makes[makeSlug as keyof typeof makes];
   if (!makeData) return null;
 
-  // Find model that matches this make and model name slug
   const entry = Object.entries(models).find(([, data]) => {
     const matchesBrand = data.brand.toLowerCase() === makeData.name.toLowerCase();
     const modelSlug = modelNameToSlug(data.model);
@@ -35,13 +34,11 @@ export async function generateStaticParams() {
   const params: { make: string; model: string }[] = [];
 
   Object.entries(models).forEach(([, modelData]) => {
-    // Find the make slug for this model
     const makeSlug = Object.entries(makes).find(
       ([, makeData]) => makeData.name.toLowerCase() === modelData.brand.toLowerCase()
     )?.[0];
 
     if (makeSlug) {
-      // Use just the model name as the URL slug (e.g., "camry" instead of "toyota-camry")
       const modelUrlSlug = modelNameToSlug(modelData.model);
       params.push({ make: makeSlug, model: modelUrlSlug });
     }
@@ -63,30 +60,30 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
   const { fullName, brand, model } = modelData;
 
   return {
-    title: `New ${fullName} for Sale - Best Prices`,
-    description: `Shop new ${fullName} for sale. Compare prices from certified ${brand} dealers and save hundreds. Full warranty. Latest 2026 ${model} inventory. No haggling required.`,
+    title: `Used ${fullName} for Sale — Best Prices Near You | IQ Auto Deals`,
+    description: `Shop used ${fullName} for sale. Compare prices from certified dealers and save thousands. Browse pre-owned ${model} inventory. No haggling required.`,
     keywords: [
-      `new ${fullName.toLowerCase()}`,
-      `new ${fullName.toLowerCase()} for sale`,
-      `2026 ${fullName.toLowerCase()}`,
+      `used ${fullName.toLowerCase()}`,
+      `used ${fullName.toLowerCase()} for sale`,
       `${fullName.toLowerCase()} price`,
-      `buy new ${fullName.toLowerCase()}`,
+      `buy used ${fullName.toLowerCase()}`,
       `${brand.toLowerCase()} ${model.toLowerCase()} dealers`,
-      `new ${model.toLowerCase()}`,
+      `pre-owned ${fullName.toLowerCase()}`,
       `${fullName.toLowerCase()} deals`,
+      `certified pre-owned ${model.toLowerCase()}`,
     ],
     openGraph: {
-      title: `New ${fullName} for Sale`,
-      description: `Shop new ${fullName}. Compare prices from ${brand} dealers and save hundreds.`,
-      url: `https://iqautodeals.com/new-cars/make/${makeSlug}/${modelUrlSlug}`,
+      title: `Used ${fullName} for Sale`,
+      description: `Shop used ${fullName}. Compare prices from dealers and save thousands.`,
+      url: `https://iqautodeals.com/cars/make/${makeSlug}/${modelUrlSlug}`,
     },
     alternates: {
-      canonical: `https://iqautodeals.com/new-cars/make/${makeSlug}/${modelUrlSlug}`,
+      canonical: `https://iqautodeals.com/cars/make/${makeSlug}/${modelUrlSlug}`,
     },
   };
 }
 
-export default async function NewCarsModelPage({ params }: { params: Promise<{ make: string; model: string }> }) {
+export default async function UsedCarsModelPage({ params }: { params: Promise<{ make: string; model: string }> }) {
   const { make: makeSlug, model: modelUrlSlug } = await params;
   const makeData = makes[makeSlug as keyof typeof makes];
   const modelEntry = findModelByMakeAndSlug(makeSlug, modelUrlSlug);
@@ -107,6 +104,13 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
 
   const popularLocations = ['atlanta', 'miami', 'houston', 'dallas', 'chicago', 'los-angeles', 'phoenix', 'denver', 'seattle', 'orlando'];
 
+  // Relevant guides based on vehicle type
+  const guides = [
+    { slug: 'how-to-buy-used-car', title: 'How to Buy a Used Car' },
+    { slug: 'pre-purchase-inspection', title: 'Pre-Purchase Inspection Guide' },
+    { slug: 'car-financing-guide', title: 'Car Financing Guide' },
+  ];
+
   return (
     <div className="min-h-screen bg-light-dark font-sans">
       {/* Header */}
@@ -117,8 +121,8 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
               <Image src="/logo-header.png" alt="IQ Auto Deals" width={180} height={40} className="h-8 md:h-10 w-auto" priority />
             </Link>
             <nav className="hidden lg:flex gap-8 text-sm font-semibold">
-              <Link href="/new-cars" className="text-primary transition-colors py-2">New Vehicles</Link>
-              <Link href="/cars?condition=used" className="text-white hover:text-primary transition-colors py-2">Used Vehicles</Link>
+              <Link href="/new-cars" className="text-white hover:text-primary transition-colors py-2">New Vehicles</Link>
+              <Link href="/cars" className="text-primary transition-colors py-2">Used Vehicles</Link>
               <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">For Dealers</Link>
             </nav>
             <div className="flex gap-2 md:gap-3">
@@ -139,9 +143,9 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
           <ol className="flex items-center space-x-2 text-sm">
             <li><Link href="/" className="text-primary hover:text-primary-dark">Home</Link></li>
             <li className="text-text-secondary">/</li>
-            <li><Link href="/new-cars" className="text-primary hover:text-primary-dark">New Cars</Link></li>
+            <li><Link href="/cars" className="text-primary hover:text-primary-dark">Used Cars</Link></li>
             <li className="text-text-secondary">/</li>
-            <li><Link href={`/new-cars/make/${makeSlug}`} className="text-primary hover:text-primary-dark">{makeName}</Link></li>
+            <li><Link href={`/cars/make/${makeSlug}`} className="text-primary hover:text-primary-dark">{makeName}</Link></li>
             <li className="text-text-secondary">/</li>
             <li className="text-text-primary">{model}</li>
           </ol>
@@ -153,27 +157,27 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
         <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              New {fullName} for Sale
+              Used {fullName} for Sale
             </h1>
             <p className="text-xl mb-4 text-white/90">
-              Shop the Latest 2026 {fullName} from Certified {brand} Dealers
+              Shop Quality Pre-Owned {fullName} from Certified Dealers
             </p>
             <p className="text-lg mb-2 text-white/80">
               Vehicle Type: <span className="capitalize">{type}</span>
             </p>
             <p className="text-lg mb-8 text-white/80">
-              Compare prices and save hundreds on your new {fullName}
+              Compare prices and save thousands on your used {fullName}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/cars?condition=new"
+                href={`/cars?make=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`}
                 className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition"
               >
                 <Car className="w-5 h-5" />
-                Browse New {fullName} Inventory
+                Browse {fullName} Inventory
               </Link>
               <Link
-                href={`/new-cars/make/${makeSlug}`}
+                href={`/cars/make/${makeSlug}`}
                 className="inline-flex items-center gap-2 bg-white/10 text-white px-8 py-3 rounded-pill font-semibold hover:bg-white/20 transition border border-white/30"
               >
                 All {brand} Models
@@ -188,12 +192,12 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
       {otherModels.length > 0 && (
         <section className="bg-black py-10">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Other New {brand} Models</h2>
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">Other Used {brand} Models</h2>
             <div className="flex flex-wrap justify-center gap-3">
               {otherModels.slice(0, 10).map(([slug, data]) => (
                 <Link
                   key={slug}
-                  href={`/new-cars/make/${makeSlug}/${modelNameToSlug(data.model)}`}
+                  href={`/cars/make/${makeSlug}/${modelNameToSlug(data.model)}`}
                   className="px-5 py-2.5 bg-white/10 hover:bg-primary hover:text-white rounded-pill font-medium text-white transition-all"
                 >
                   {data.model}
@@ -209,22 +213,22 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl font-bold mb-6 text-text-primary">Why Buy a New {fullName}?</h2>
+              <h2 className="text-3xl font-bold mb-6 text-text-primary">Why Buy a Used {fullName}?</h2>
               <p className="text-text-secondary mb-4">
                 The {fullName} is one of the most popular {type}s on the market, known for its
-                reliability, performance, and value. Buying new means you get the latest features,
-                full warranty coverage, and the peace of mind that comes with a brand new vehicle.
+                reliability, performance, and strong resale value. Buying used means significant savings
+                while still getting a quality vehicle you can depend on.
               </p>
               <p className="text-text-secondary mb-6">
-                IQ Auto Deals connects you with certified {brand} dealers who compete to offer you
-                the best price on the new {fullName}. Compare multiple offers and save hundreds.
+                IQ Auto Deals connects you with certified dealers who compete to offer you
+                the best price on pre-owned {fullName} vehicles. Compare multiple offers and save thousands.
               </p>
               <ul className="space-y-4">
                 {[
-                  `Full ${brand} manufacturer warranty`,
-                  `Latest 2026 ${model} with newest features`,
+                  `Save thousands vs buying a new ${fullName}`,
+                  `Certified pre-owned options with warranty`,
                   `Compare prices from multiple ${brand} dealers`,
-                  `Save hundreds on your new ${fullName}`,
+                  `Save even more through dealer competition`,
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
@@ -238,9 +242,9 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
               <h2 className="text-3xl font-bold mb-6 text-text-primary">How It Works</h2>
               <div className="space-y-6">
                 {[
-                  { num: 1, title: 'Browse New Inventory', desc: `Search new ${fullName} from certified ${brand} dealers.` },
+                  { num: 1, title: 'Browse Inventory', desc: `Search used ${fullName} vehicles from certified dealers.` },
                   { num: 2, title: 'Dealers Compete', desc: 'Multiple dealers bid on your selected vehicle to win your business.' },
-                  { num: 3, title: 'Save Hundreds', desc: `Choose the best offer and drive away in your new ${fullName} for less.` },
+                  { num: 3, title: 'Save Thousands', desc: `Choose the best offer and drive away in your ${fullName} for less.` },
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
@@ -258,11 +262,38 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
         </div>
       </section>
 
-      {/* Find by Location */}
+      {/* Buying Guides */}
       <section className="py-16 bg-light-dark">
         <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-8 text-text-primary">{fullName} Buying Resources</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {guides.map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/guides/${guide.slug}`}
+                className="bg-white p-6 rounded-card border border-border hover:border-primary hover:shadow-card-hover transition-all"
+              >
+                <h3 className="font-semibold text-text-primary mb-2">{guide.title}</h3>
+                <p className="text-text-secondary text-sm">Expert advice to help you get the best deal on your {fullName}.</p>
+                <span className="text-primary font-semibold text-sm mt-3 inline-flex items-center gap-1">
+                  Read Guide <ArrowRight className="w-3 h-3" />
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6">
+            <Link href={`/models/${modelSlug}`} className="text-primary font-semibold hover:text-primary-dark inline-flex items-center gap-1">
+              Detailed {fullName} Overview <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Find by Location */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-text-primary">Find a New {fullName} Near You</h2>
+            <h2 className="text-2xl font-bold text-text-primary">Find a Used {fullName} Near You</h2>
             <Link href="/locations" className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1">
               All Locations <ArrowRight className="w-4 h-4" />
             </Link>
@@ -274,8 +305,8 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
               return (
                 <Link
                   key={locationSlug}
-                  href={`/new-cars/${locationSlug}`}
-                  className="bg-white p-4 rounded-card border border-border hover:border-primary hover:shadow-card-hover transition-all text-center"
+                  href={`/locations/${locationSlug}`}
+                  className="bg-light-dark p-4 rounded-card border border-border hover:border-primary hover:shadow-card-hover transition-all text-center"
                 >
                   <span className="font-semibold text-text-primary">{location.city}</span>
                 </Link>
@@ -286,7 +317,7 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
       </section>
 
       {/* Also Consider */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-light-dark">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-bold mb-8 text-center text-text-primary">Also Consider</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -300,10 +331,10 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
                 return (
                   <Link
                     key={slug}
-                    href={`/new-cars/make/${modelMakeSlug}/${modelNameToSlug(data.model)}`}
-                    className="bg-light-dark p-4 rounded-card border border-border hover:border-primary hover:shadow-card-hover transition-all text-center"
+                    href={`/cars/make/${modelMakeSlug}/${modelNameToSlug(data.model)}`}
+                    className="bg-white p-4 rounded-card border border-border hover:border-primary hover:shadow-card-hover transition-all text-center"
                   >
-                    <span className="font-semibold text-text-primary">New {data.fullName}</span>
+                    <span className="font-semibold text-text-primary">Used {data.fullName}</span>
                   </Link>
                 );
               })}
@@ -312,15 +343,15 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-light-dark">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="bg-gradient-to-r from-primary to-primary-dark rounded-card p-8 md:p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Ready to Buy Your New {fullName}?</h2>
+            <h2 className="text-3xl font-bold mb-4">Ready to Buy Your Used {fullName}?</h2>
             <p className="text-xl mb-8 text-white/90">
-              Browse new {fullName} inventory and let dealers compete for your business
+              Browse used {fullName} inventory and let dealers compete for your business
             </p>
             <Link
-              href="/cars?condition=new"
+              href={`/cars?make=${encodeURIComponent(brand)}&model=${encodeURIComponent(model)}`}
               className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition text-lg"
             >
               <Car className="w-5 h-5" />
@@ -337,22 +368,22 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: `New ${fullName}`,
-            description: `New ${fullName} for sale from certified ${brand} dealers. Compare prices and save.`,
+            name: `Used ${fullName}`,
+            description: `Used ${fullName} for sale from certified dealers. Compare prices and save thousands.`,
             brand: {
               '@type': 'Brand',
               name: brand,
             },
             category: type,
-            url: `https://iqautodeals.com/new-cars/make/${makeSlug}/${modelNameToSlug(model)}`,
+            url: `https://iqautodeals.com/cars/make/${makeSlug}/${modelNameToSlug(model)}`,
             image: 'https://iqautodeals.com/og-image.jpg',
             offers: {
               '@type': 'AggregateOffer',
               priceCurrency: 'USD',
               availability: 'https://schema.org/InStock',
               offerCount: '50+',
-              lowPrice: '20000',
-              highPrice: '100000',
+              lowPrice: '5000',
+              highPrice: '80000',
               seller: {
                 '@type': 'Organization',
                 name: 'IQ Auto Deals Certified Dealers',

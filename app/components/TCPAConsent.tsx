@@ -51,6 +51,10 @@ export default function TCPAConsent({
       You also agree to our{' '}
       <Link href="/privacy" className="text-primary hover:underline">
         Privacy Policy
+      </Link>{' '}
+      and{' '}
+      <Link href="/terms" className="text-primary hover:underline">
+        Terms of Service
       </Link>
       . Consent is not required to purchase goods/services. Message & data rates may apply.
     </p>

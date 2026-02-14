@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import zipcodes from 'zipcodes';
 import Footer from '../../components/Footer';
 import { locations } from '@/lib/data/locations';
 import { makes } from '@/lib/data/makes';
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       `new cars ${city} ${stateCode}`,
       `buy new car ${city}`,
       `new car dealerships ${city}`,
-      `2025 cars ${city}`,
+      `2026 cars ${city}`,
       `new SUVs ${city}`,
       `new trucks ${city}`,
     ],
@@ -61,6 +62,8 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
   }
 
   const { city, state, stateCode } = locationData;
+  const zip = zipcodes.lookupByName(city, state)?.[0]?.zip;
+  const newCarsHref = zip ? `/cars?condition=new&zipCode=${zip}` : '/cars?condition=new';
   const popularMakes = ['toyota', 'honda', 'ford', 'chevrolet', 'nissan', 'jeep', 'hyundai', 'kia', 'bmw', 'lexus', 'mazda', 'subaru'];
 
   return (
@@ -117,7 +120,7 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/cars?condition=new"
+                href={newCarsHref}
                 className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition"
               >
                 <Car className="w-5 h-5" />
@@ -260,7 +263,7 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
               Browse new vehicles and let {city} dealers compete for your business
             </p>
             <Link
-              href="/cars?condition=new"
+              href={newCarsHref}
               className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition text-lg"
             >
               <Car className="w-5 h-5" />

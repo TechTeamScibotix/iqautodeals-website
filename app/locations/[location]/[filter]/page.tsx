@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import zipcodes from 'zipcodes';
 import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
@@ -149,8 +150,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
   }
 
   const { city, state, stateCode, lat, lng } = locationData;
-  const estimatedCount = Math.floor(Math.random() * 500) + 100;
-  const avgSavings = Math.floor(Math.random() * 2000) + 1000;
+  const zip = zipcodes.lookupByName(city, state)?.[0]?.zip;
 
   // Determine page type
   const isPriceRange = !!priceData;
@@ -162,6 +162,20 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
     : isBodyType
       ? bodyTypeData.label
       : modelData.fullName;
+
+  // Build filtered /cars URL with zip + context params
+  const carsParams = new URLSearchParams();
+  if (zip) carsParams.set('zipCode', zip);
+  if (isPriceRange) {
+    if (priceData.max < 999999) carsParams.set('maxPrice', String(priceData.max));
+    if (priceData.min > 0) carsParams.set('minPrice', String(priceData.min));
+  } else if (isBodyType) {
+    carsParams.set('bodyType', bodyTypeData.label);
+  } else if (isModel) {
+    carsParams.set('make', modelData.brand);
+    carsParams.set('model', modelData.model);
+  }
+  const carsHref = carsParams.toString() ? `/cars?${carsParams.toString()}` : '/cars';
 
   return (
     <>
@@ -197,17 +211,17 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                     : `How many used ${label} are available in ${city}?`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `Currently, we have approximately ${estimatedCount} quality used ${isPriceRange ? 'cars ' + label.toLowerCase() : label} available from trusted dealers in ${city}, ${state}. Our inventory updates daily with new arrivals.`
+                  "text": `Browse quality used ${isPriceRange ? 'cars ' + label.toLowerCase() : label} available from trusted dealers in ${city}, ${state}. Our inventory updates daily with new arrivals.`
                 }
               },
               {
                 "@type": "Question",
                 "name": isPriceRange
-                  ? `What's the average savings on cars ${label.toLowerCase()} in ${city}?`
-                  : `What's the average price for used ${label} in ${city}?`,
+                  ? `How do I get the best price on cars ${label.toLowerCase()} in ${city}?`
+                  : `How do I get the best price on a used ${label} in ${city}?`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `${city} buyers save an average of $${avgSavings.toLocaleString()} on used ${label} through IQ Auto Deals. By creating competition between dealers, you get their absolute best price upfront.`
+                  "text": `On IQ Auto Deals, ${city} dealers compete to offer you their best price on used ${label}. Select up to 4 vehicles and receive competing offers — no haggling required.`
                 }
               }
             ]
@@ -271,14 +285,14 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               }
             </h1>
             <p className="text-xl mb-4">
-              Shop {estimatedCount}+ Quality {isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers
+              Shop Quality {isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers
             </p>
             <p className="text-lg mb-8 text-blue-100">
-              Average savings: ${avgSavings.toLocaleString()} • Compare prices instantly • No haggling required
+              Compare prices instantly • Dealers compete for your business • No haggling required
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                href="/cars"
+                href={carsHref}
                 className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
               >
                 {isPriceRange ? `Browse Cars ${label}` : `Browse ${label}`}
@@ -317,7 +331,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <span className="text-gray-700">Average savings of ${avgSavings.toLocaleString()} compared to traditional dealerships</span>
+                  <span className="text-gray-700">Multiple dealers compete to offer you their best price</span>
                 </li>
                 <li className="flex items-start">
                   <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -440,10 +454,10 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               Ready to Find Your Perfect {isPriceRange ? 'Car' : label} in {city}?
             </h2>
             <p className="text-xl mb-6">
-              Start browsing {estimatedCount}+ quality used {isPriceRange ? `cars ${label.toLowerCase()}` : label} today
+              Start browsing quality used {isPriceRange ? `cars ${label.toLowerCase()}` : label} today
             </p>
             <Link
-              href="/cars"
+              href={carsHref}
               className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition text-lg"
             >
               Browse Inventory

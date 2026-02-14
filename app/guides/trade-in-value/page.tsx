@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, DollarSign, TrendingUp, AlertTriangle } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'How to Maximize Your Car Trade-In Value: Expert Tips 2025',
+  title: 'How to Maximize Your Car Trade-In Value: Expert Tips 2026',
   description: 'Get the most money for your trade-in. Learn what dealers look for, how to prepare your car, and negotiation strategies to maximize your trade-in value.',
   keywords: 'car trade-in value, maximize trade-in, trade-in tips, how much is my car worth, trade-in negotiation, car appraisal',
 };
@@ -245,6 +246,47 @@ export default function TradeInValueGuide() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Popular Trade-In Models</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/ford-f150" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Ford F-150</Link>
+            <Link href="/models/chevy-silverado" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Chevy Silverado</Link>
+            <Link href="/models/toyota-tacoma" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Tacoma</Link>
+            <Link href="/models/honda-accord" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda Accord</Link>
+            <Link href="/models/toyota-camry" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota Camry</Link>
+            <Link href="/models/honda-cr-v" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Honda CR-V</Link>
+          </div>
+          <div className="mt-6">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse all used cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/how-to-buy-used-car" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">How to Buy a Used Car</span>
+              <p className="text-sm text-gray-600 mt-1">Complete buying guide</p>
+            </Link>
+            <Link href="/guides/car-financing-guide" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Financing Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Get the best auto loan</p>
+            </Link>
+            <Link href="/guides/vin-decoder" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">VIN Decoder Guide</span>
+              <p className="text-sm text-gray-600 mt-1">Decode any vehicle&apos;s history</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

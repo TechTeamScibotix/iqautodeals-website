@@ -214,7 +214,7 @@ function RegisterForm() {
           <div className="animate-slide-in" style={{ animationDelay: '0.5s' }}>
             <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
               <Lock className="w-4 h-4 text-primary" />
-              Password * <span className="text-xs text-gray-500">(min 6 characters)</span>
+              Password * <span className="text-xs text-gray-500">(min 8 characters)</span>
             </label>
             <input
               type="password"
@@ -223,7 +223,7 @@ function RegisterForm() {
               placeholder="Create a secure password"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all bg-gray-50 hover:bg-white"
               required
-              minLength={6}
+              minLength={8}
             />
           </div>
 

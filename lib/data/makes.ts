@@ -20,6 +20,7 @@ export const makes = {
   'dodge': { name: 'Dodge', slug: 'dodge', country: 'USA', logo: '/makes/dodge.png' },
   'buick': { name: 'Buick', slug: 'buick', country: 'USA', logo: '/makes/buick.png' },
   'cadillac': { name: 'Cadillac', slug: 'cadillac', country: 'USA', logo: '/makes/cadillac.png' },
+  'tesla': { name: 'Tesla', slug: 'tesla', country: 'USA', logo: '/makes/tesla.png' },
 };
 
 export const makeSlugs = Object.keys(makes);

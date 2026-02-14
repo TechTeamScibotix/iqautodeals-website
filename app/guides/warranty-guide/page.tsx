@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Car Warranty Guide: CPO vs Extended Warranty Explained 2025',
+  title: 'Car Warranty Guide: CPO vs Extended Warranty Explained 2026',
   description: 'Understand car warranties: manufacturer, CPO, and extended warranties compared. Learn what\'s covered, what to avoid, and whether extended warranties are worth it.',
   keywords: 'car warranty, CPO warranty, certified pre-owned, extended warranty, vehicle service contract, warranty coverage, powertrain warranty',
 };
@@ -268,6 +269,47 @@ export default function WarrantyGuide() {
           </div>
         </div>
       </article>
+
+      {/* Popular Models */}
+      <section className="bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Models Worth the Warranty</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/models/lexus-rx350" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Lexus RX 350</Link>
+            <Link href="/models/bmw-x5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">BMW X5</Link>
+            <Link href="/models/mercedes-g-wagon" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Mercedes G-Wagon</Link>
+            <Link href="/models/audi-q5" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Audi Q5</Link>
+            <Link href="/models/bmw-x3" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">BMW X3</Link>
+            <Link href="/models/toyota-4runner" className="bg-white p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition text-center font-semibold text-gray-900">Toyota 4Runner</Link>
+          </div>
+          <div className="mt-6">
+            <Link href="/cars" className="text-blue-600 font-semibold hover:underline">Browse all used cars →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Related Guides */}
+      <section className="bg-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Guides</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link href="/guides/vehicle-maintenance" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Vehicle Maintenance</span>
+              <p className="text-sm text-gray-600 mt-1">Keep your car running</p>
+            </Link>
+            <Link href="/guides/pre-purchase-inspection" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Pre-Purchase Inspection</span>
+              <p className="text-sm text-gray-600 mt-1">What to check before buying</p>
+            </Link>
+            <Link href="/guides/car-insurance-basics" className="p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition">
+              <span className="font-semibold text-gray-900">Car Insurance Basics</span>
+              <p className="text-sm text-gray-600 mt-1">Coverage you need</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

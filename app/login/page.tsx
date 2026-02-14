@@ -25,7 +25,7 @@ export default function LoginPage() {
           <li>Access your purchase history and saved searches</li>
         </ul>
         <h2>For Car Buyers</h2>
-        <p>IQ Auto Deals connects you with certified dealers across all 50 US states. Browse thousands of quality used and new vehicles, select your favorites, and let dealers compete for your business. Save up to $5,000 compared to traditional car buying with no haggling required.</p>
+        <p>IQ Auto Deals connects you with certified dealers across all 50 US states. Browse thousands of quality used and new vehicles, select your favorites, and let dealers compete for your business. Let dealers compete for your business with no haggling required.</p>
         <h2>For Dealers</h2>
         <p>Access qualified buyer leads, manage your inventory, and grow your sales. Our platform connects you with motivated car buyers actively looking to purchase. Sign in to your dealer portal to manage deals and submit competitive offers.</p>
         <h2>Secure Login</h2>

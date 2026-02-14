@@ -2,112 +2,140 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Footer from '../../components/Footer';
+import { makes } from '@/lib/data/makes';
+import { ArrowRight } from 'lucide-react';
+import { prisma } from '@/lib/prisma';
 
-// Force static generation for SEO
-export const dynamic = 'force-static';
+export const revalidate = 3600;
 
 // Popular car models data
 const models = {
   // Toyota
-  'toyota-tacoma': { make: 'Toyota', model: 'Tacoma', type: 'Truck', avgPrice: 28500 },
-  'toyota-tundra': { make: 'Toyota', model: 'Tundra', type: 'Truck', avgPrice: 35000 },
-  'toyota-4runner': { make: 'Toyota', model: '4Runner', type: 'SUV', avgPrice: 32000 },
-  'toyota-camry': { make: 'Toyota', model: 'Camry', type: 'Sedan', avgPrice: 19500 },
-  'toyota-prius': { make: 'Toyota', model: 'Prius', type: 'Sedan', avgPrice: 17000 },
-  'toyota-rav4': { make: 'Toyota', model: 'RAV4', type: 'SUV', avgPrice: 23000 },
-  'toyota-sienna': { make: 'Toyota', model: 'Sienna', type: 'Minivan', avgPrice: 25000 },
-  'toyota-sequoia': { make: 'Toyota', model: 'Sequoia', type: 'SUV', avgPrice: 38000 },
+  'toyota-tacoma': { make: 'Toyota', model: 'Tacoma', type: 'Truck' },
+  'toyota-tundra': { make: 'Toyota', model: 'Tundra', type: 'Truck' },
+  'toyota-4runner': { make: 'Toyota', model: '4Runner', type: 'SUV' },
+  'toyota-camry': { make: 'Toyota', model: 'Camry', type: 'Sedan' },
+  'toyota-prius': { make: 'Toyota', model: 'Prius', type: 'Sedan' },
+  'toyota-rav4': { make: 'Toyota', model: 'RAV4', type: 'SUV' },
+  'toyota-sienna': { make: 'Toyota', model: 'Sienna', type: 'Minivan' },
+  'toyota-sequoia': { make: 'Toyota', model: 'Sequoia', type: 'SUV' },
 
   // Honda
-  'honda-civic': { make: 'Honda', model: 'Civic', type: 'Sedan', avgPrice: 18000 },
-  'honda-accord': { make: 'Honda', model: 'Accord', type: 'Sedan', avgPrice: 21000 },
-  'honda-cr-v': { make: 'Honda', model: 'CR-V', type: 'SUV', avgPrice: 24000 },
-  'honda-pilot': { make: 'Honda', model: 'Pilot', type: 'SUV', avgPrice: 28000 },
-  'honda-passport': { make: 'Honda', model: 'Passport', type: 'SUV', avgPrice: 30000 },
-  'honda-odyssey': { make: 'Honda', model: 'Odyssey', type: 'Minivan', avgPrice: 26000 },
-  'honda-ridgeline': { make: 'Honda', model: 'Ridgeline', type: 'Truck', avgPrice: 32000 },
+  'honda-civic': { make: 'Honda', model: 'Civic', type: 'Sedan' },
+  'honda-accord': { make: 'Honda', model: 'Accord', type: 'Sedan' },
+  'honda-cr-v': { make: 'Honda', model: 'CR-V', type: 'SUV' },
+  'honda-pilot': { make: 'Honda', model: 'Pilot', type: 'SUV' },
+  'honda-passport': { make: 'Honda', model: 'Passport', type: 'SUV' },
+  'honda-odyssey': { make: 'Honda', model: 'Odyssey', type: 'Minivan' },
+  'honda-ridgeline': { make: 'Honda', model: 'Ridgeline', type: 'Truck' },
 
   // Ford
-  'ford-f150': { make: 'Ford', model: 'F-150', type: 'Truck', avgPrice: 35000 },
-  'ford-explorer': { make: 'Ford', model: 'Explorer', type: 'SUV', avgPrice: 28000 },
-  'ford-expedition': { make: 'Ford', model: 'Expedition', type: 'SUV', avgPrice: 42000 },
-  'ford-fusion': { make: 'Ford', model: 'Fusion', type: 'Sedan', avgPrice: 16000 },
-  'ford-raptor': { make: 'Ford', model: 'Raptor', type: 'Truck', avgPrice: 55000 },
+  'ford-f150': { make: 'Ford', model: 'F-150', type: 'Truck' },
+  'ford-explorer': { make: 'Ford', model: 'Explorer', type: 'SUV' },
+  'ford-expedition': { make: 'Ford', model: 'Expedition', type: 'SUV' },
+  'ford-fusion': { make: 'Ford', model: 'Fusion', type: 'Sedan' },
+  'ford-raptor': { make: 'Ford', model: 'Raptor', type: 'Truck' },
 
   // Chevrolet
-  'chevy-silverado': { make: 'Chevrolet', model: 'Silverado', type: 'Truck', avgPrice: 33000 },
-  'chevy-equinox': { make: 'Chevrolet', model: 'Equinox', type: 'SUV', avgPrice: 20000 },
-  'chevy-tahoe': { make: 'Chevrolet', model: 'Tahoe', type: 'SUV', avgPrice: 42000 },
-  'chevy-suburban': { make: 'Chevrolet', model: 'Suburban', type: 'SUV', avgPrice: 45000 },
-  'chevy-colorado': { make: 'Chevrolet', model: 'Colorado', type: 'Truck', avgPrice: 27000 },
-  'chevy-malibu': { make: 'Chevrolet', model: 'Malibu', type: 'Sedan', avgPrice: 17000 },
-  'chevy-camaro': { make: 'Chevrolet', model: 'Camaro', type: 'Coupe', avgPrice: 28000 },
+  'chevy-silverado': { make: 'Chevrolet', model: 'Silverado', type: 'Truck' },
+  'chevy-equinox': { make: 'Chevrolet', model: 'Equinox', type: 'SUV' },
+  'chevy-tahoe': { make: 'Chevrolet', model: 'Tahoe', type: 'SUV' },
+  'chevy-suburban': { make: 'Chevrolet', model: 'Suburban', type: 'SUV' },
+  'chevy-colorado': { make: 'Chevrolet', model: 'Colorado', type: 'Truck' },
+  'chevy-malibu': { make: 'Chevrolet', model: 'Malibu', type: 'Sedan' },
+  'chevy-camaro': { make: 'Chevrolet', model: 'Camaro', type: 'Coupe' },
 
   // Jeep
-  'jeep-wrangler': { make: 'Jeep', model: 'Wrangler', type: 'SUV', avgPrice: 32000 },
-  'jeep-grand-cherokee': { make: 'Jeep', model: 'Grand Cherokee', type: 'SUV', avgPrice: 30000 },
-  'jeep-cherokee': { make: 'Jeep', model: 'Cherokee', type: 'SUV', avgPrice: 23000 },
-  'jeep-gladiator': { make: 'Jeep', model: 'Gladiator', type: 'Truck', avgPrice: 37000 },
-  'jeep-renegade': { make: 'Jeep', model: 'Renegade', type: 'SUV', avgPrice: 19000 },
+  'jeep-wrangler': { make: 'Jeep', model: 'Wrangler', type: 'SUV' },
+  'jeep-grand-cherokee': { make: 'Jeep', model: 'Grand Cherokee', type: 'SUV' },
+  'jeep-cherokee': { make: 'Jeep', model: 'Cherokee', type: 'SUV' },
+  'jeep-gladiator': { make: 'Jeep', model: 'Gladiator', type: 'Truck' },
+  'jeep-renegade': { make: 'Jeep', model: 'Renegade', type: 'SUV' },
 
   // BMW
-  'bmw-x3': { make: 'BMW', model: 'X3', type: 'SUV', avgPrice: 32000 },
-  'bmw-x5': { make: 'BMW', model: 'X5', type: 'SUV', avgPrice: 42000 },
-  'bmw-3-series': { make: 'BMW', model: '3 Series', type: 'Sedan', avgPrice: 28000 },
-  'bmw-m4': { make: 'BMW', model: 'M4', type: 'Coupe', avgPrice: 45000 },
+  'bmw-x3': { make: 'BMW', model: 'X3', type: 'SUV' },
+  'bmw-x5': { make: 'BMW', model: 'X5', type: 'SUV' },
+  'bmw-3-series': { make: 'BMW', model: '3 Series', type: 'Sedan' },
+  'bmw-m4': { make: 'BMW', model: 'M4', type: 'Coupe' },
 
   // Mercedes
-  'mercedes-g-wagon': { make: 'Mercedes-Benz', model: 'G-Wagon', type: 'SUV', avgPrice: 95000 },
+  'mercedes-g-wagon': { make: 'Mercedes-Benz', model: 'G-Wagon', type: 'SUV' },
 
   // Lexus
-  'lexus-rx350': { make: 'Lexus', model: 'RX 350', type: 'SUV', avgPrice: 35000 },
+  'lexus-rx350': { make: 'Lexus', model: 'RX 350', type: 'SUV' },
 
   // Mazda
-  'mazda-cx5': { make: 'Mazda', model: 'CX-5', type: 'SUV', avgPrice: 22000 },
-  'mazda-miata': { make: 'Mazda', model: 'Miata', type: 'Convertible', avgPrice: 22000 },
+  'mazda-cx5': { make: 'Mazda', model: 'CX-5', type: 'SUV' },
+  'mazda-miata': { make: 'Mazda', model: 'Miata', type: 'Convertible' },
 
   // Nissan
-  'nissan-pathfinder': { make: 'Nissan', model: 'Pathfinder', type: 'SUV', avgPrice: 24000 },
-  'nissan-altima': { make: 'Nissan', model: 'Altima', type: 'Sedan', avgPrice: 17000 },
+  'nissan-pathfinder': { make: 'Nissan', model: 'Pathfinder', type: 'SUV' },
+  'nissan-altima': { make: 'Nissan', model: 'Altima', type: 'Sedan' },
 
   // Dodge
-  'dodge-durango': { make: 'Dodge', model: 'Durango', type: 'SUV', avgPrice: 30000 },
-  'dodge-charger': { make: 'Dodge', model: 'Charger', type: 'Sedan', avgPrice: 26000 },
-  'dodge-challenger': { make: 'Dodge', model: 'Challenger', type: 'Coupe', avgPrice: 28000 },
+  'dodge-durango': { make: 'Dodge', model: 'Durango', type: 'SUV' },
+  'dodge-charger': { make: 'Dodge', model: 'Charger', type: 'Sedan' },
+  'dodge-challenger': { make: 'Dodge', model: 'Challenger', type: 'Coupe' },
 
   // Ram
-  'ram-1500': { make: 'Ram', model: '1500', type: 'Truck', avgPrice: 34000 },
+  'ram-1500': { make: 'Ram', model: '1500', type: 'Truck' },
 
   // Subaru
-  'subaru-outback': { make: 'Subaru', model: 'Outback', type: 'SUV', avgPrice: 24000 },
-  'subaru-forester': { make: 'Subaru', model: 'Forester', type: 'SUV', avgPrice: 22000 },
-  'subaru-wrx': { make: 'Subaru', model: 'WRX', type: 'Sedan', avgPrice: 26000 },
+  'subaru-outback': { make: 'Subaru', model: 'Outback', type: 'SUV' },
+  'subaru-forester': { make: 'Subaru', model: 'Forester', type: 'SUV' },
+  'subaru-wrx': { make: 'Subaru', model: 'WRX', type: 'Sedan' },
 
   // Kia
-  'kia-telluride': { make: 'Kia', model: 'Telluride', type: 'SUV', avgPrice: 32000 },
-  'kia-stinger': { make: 'Kia', model: 'Stinger', type: 'Sedan', avgPrice: 28000 },
-  'kia-carnival': { make: 'Kia', model: 'Carnival', type: 'Minivan', avgPrice: 29000 },
+  'kia-telluride': { make: 'Kia', model: 'Telluride', type: 'SUV' },
+  'kia-stinger': { make: 'Kia', model: 'Stinger', type: 'Sedan' },
+  'kia-carnival': { make: 'Kia', model: 'Carnival', type: 'Minivan' },
 
   // Hyundai
-  'hyundai-sonata': { make: 'Hyundai', model: 'Sonata', type: 'Sedan', avgPrice: 19000 },
-  'hyundai-tucson': { make: 'Hyundai', model: 'Tucson', type: 'SUV', avgPrice: 21000 },
-  'hyundai-santa-fe': { make: 'Hyundai', model: 'Santa Fe', type: 'SUV', avgPrice: 24000 },
+  'hyundai-sonata': { make: 'Hyundai', model: 'Sonata', type: 'Sedan' },
+  'hyundai-tucson': { make: 'Hyundai', model: 'Tucson', type: 'SUV' },
+  'hyundai-santa-fe': { make: 'Hyundai', model: 'Santa Fe', type: 'SUV' },
 
   // Audi
-  'audi-q5': { make: 'Audi', model: 'Q5', type: 'SUV', avgPrice: 33000 },
-  'audi-a4': { make: 'Audi', model: 'A4', type: 'Sedan', avgPrice: 26000 },
+  'audi-q5': { make: 'Audi', model: 'Q5', type: 'SUV' },
+  'audi-a4': { make: 'Audi', model: 'A4', type: 'Sedan' },
 
   // Volkswagen
-  'volkswagen-tiguan': { make: 'Volkswagen', model: 'Tiguan', type: 'SUV', avgPrice: 22000 },
-  'volkswagen-atlas': { make: 'Volkswagen', model: 'Atlas', type: 'SUV', avgPrice: 28000 },
+  'volkswagen-tiguan': { make: 'Volkswagen', model: 'Tiguan', type: 'SUV' },
+  'volkswagen-atlas': { make: 'Volkswagen', model: 'Atlas', type: 'SUV' },
 
   // GMC
-  'gmc-acadia': { make: 'GMC', model: 'Acadia', type: 'SUV', avgPrice: 28000 },
-  'gmc-sierra': { make: 'GMC', model: 'Sierra', type: 'Truck', avgPrice: 35000 },
+  'gmc-acadia': { make: 'GMC', model: 'Acadia', type: 'SUV' },
+  'gmc-sierra': { make: 'GMC', model: 'Sierra', type: 'Truck' },
 
   // Buick
-  'buick-enclave': { make: 'Buick', model: 'Enclave', type: 'SUV', avgPrice: 30000 },
+  'buick-enclave': { make: 'Buick', model: 'Enclave', type: 'SUV' },
+
+  // Tesla
+  'tesla-model-3': { make: 'Tesla', model: 'Model 3', type: 'Electric Sedan' },
+  'tesla-model-y': { make: 'Tesla', model: 'Model Y', type: 'Electric SUV' },
+  'tesla-model-s': { make: 'Tesla', model: 'Model S', type: 'Electric Sedan' },
+  'tesla-model-x': { make: 'Tesla', model: 'Model X', type: 'Electric SUV' },
+  'tesla-cybertruck': { make: 'Tesla', model: 'Cybertruck', type: 'Electric Truck' },
 };
+
+async function getLowestPrice(make: string, model: string): Promise<number | null> {
+  try {
+    const result = await prisma.car.findFirst({
+      where: {
+        make: { contains: make, mode: 'insensitive' },
+        model: { contains: model, mode: 'insensitive' },
+        status: 'active',
+        salePrice: { gt: 0 },
+        dealer: { verificationStatus: 'approved' },
+      },
+      select: { salePrice: true },
+      orderBy: { salePrice: 'asc' },
+    });
+    return result?.salePrice ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export async function generateStaticParams() {
   return Object.keys(models).map((model) => ({
@@ -128,7 +156,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
   const { make, model: modelName } = modelData;
 
   return {
-    title: `Used ${make} ${modelName} for Sale (2025) - Best Prices Near You`,
+    title: `Used ${make} ${modelName} for Sale (2026) - Best Prices Near You`,
     description: `Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save hundreds. Certified pre-owned available. No haggling required. Browse ${make} ${modelName} inventory now.`,
     keywords: [
       `used ${make} ${modelName}`,
@@ -162,7 +190,8 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
     notFound();
   }
 
-  const { make, model: modelName, type, avgPrice } = modelData;
+  const { make, model: modelName, type } = modelData;
+  const lowestPrice = await getLowestPrice(make, modelName);
 
   return (
     <div className="min-h-screen bg-white">
@@ -176,10 +205,12 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             Shop Quality Certified Pre-Owned {make} {modelName} from Trusted Dealers
           </p>
           <p className="text-lg mb-8">
-            Average Price: ${avgPrice.toLocaleString()} | Vehicle Type: {type}
+            {lowestPrice
+              ? `Lowest Priced ${modelName} Available: $${lowestPrice.toLocaleString()} | Vehicle Type: ${type}`
+              : `Vehicle Type: ${type}`}
           </p>
           <Link
-            href="/cars"
+            href={`/cars?make=${encodeURIComponent(make)}&model=${encodeURIComponent(modelName)}`}
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
           >
             Browse {make} {modelName} Inventory
@@ -295,11 +326,84 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             Join thousands of happy customers who saved money on quality used {make} {modelName} vehicles.
           </p>
           <Link
-            href="/cars"
+            href={`/cars?make=${encodeURIComponent(make)}&model=${encodeURIComponent(modelName)}`}
             className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
           >
             Browse {make} {modelName} Inventory
           </Link>
+        </div>
+      </section>
+
+      {/* Browse Make & Buying Guides */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12">
+            {/* Make Page Link */}
+            {(() => {
+              const makeSlug = Object.entries(makes).find(([, d]) => d.name.toLowerCase() === make.toLowerCase())?.[0];
+              const modelUrlSlug = modelName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+              return (
+                <div>
+                  <h2 className="text-2xl font-bold mb-6">Explore {make}</h2>
+                  <div className="space-y-4">
+                    {makeSlug && (
+                      <Link
+                        href={`/cars/make/${makeSlug}`}
+                        className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                      >
+                        <span className="font-semibold text-gray-900">Browse all {make} vehicles</span>
+                        <ArrowRight className="w-5 h-5 text-blue-600" />
+                      </Link>
+                    )}
+                    {makeSlug && (
+                      <Link
+                        href={`/cars/make/${makeSlug}/${modelUrlSlug}`}
+                        className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                      >
+                        <span className="font-semibold text-gray-900">Detailed {make} {modelName} buying guide</span>
+                        <ArrowRight className="w-5 h-5 text-blue-600" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Buying Guides */}
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Buying Guides</h2>
+              <div className="space-y-4">
+                <Link
+                  href="/guides/how-to-buy-used-car"
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <span className="font-semibold text-gray-900">How to Buy a Used Car</span>
+                  <ArrowRight className="w-5 h-5 text-blue-600" />
+                </Link>
+                <Link
+                  href="/guides/pre-purchase-inspection"
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <span className="font-semibold text-gray-900">Pre-Purchase Inspection Guide</span>
+                  <ArrowRight className="w-5 h-5 text-blue-600" />
+                </Link>
+                <Link
+                  href="/guides/car-financing-guide"
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <span className="font-semibold text-gray-900">Car Financing Guide</span>
+                  <ArrowRight className="w-5 h-5 text-blue-600" />
+                </Link>
+                <Link
+                  href="/guides/trade-in-value"
+                  className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border hover:border-blue-500 hover:shadow-lg transition"
+                >
+                  <span className="font-semibold text-gray-900">Trade-In Value Guide</span>
+                  <ArrowRight className="w-5 h-5 text-blue-600" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -437,18 +541,9 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
               '@type': 'Brand',
               name: make,
             },
-            offers: {
-              '@type': 'AggregateOffer',
-              lowPrice: avgPrice * 0.8,
-              highPrice: avgPrice * 1.2,
-              priceCurrency: 'USD',
-              offerCount: 100,
-            },
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: 4.5,
-              reviewCount: 250,
-            },
+            ...(lowestPrice
+              ? { offers: { '@type': 'AggregateOffer', lowPrice: lowestPrice, highPrice: lowestPrice, priceCurrency: 'USD', availability: 'https://schema.org/InStock' } }
+              : {}),
           }),
         }}
       />

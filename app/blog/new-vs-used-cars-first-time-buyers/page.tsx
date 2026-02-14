@@ -13,8 +13,8 @@ export const dynamic = 'force-static';
 const article = {
   title: 'New vs Used Cars: The Ultimate Guide for First-Time Buyers',
   description: 'Should you buy new or used? Compare costs, depreciation, reliability, and financing. Expert advice to help first-time car buyers make the right choice.',
-  datePublished: '2025-09-20',
-  dateModified: '2025-12-15',
+  datePublished: '2026-01-15',
+  dateModified: '2026-02-13',
   author: authors['editorial-team'],
   category: 'Buying Guide',
   readTime: '10 min read',
@@ -160,7 +160,7 @@ export default function NewVsUsedArticle() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="border border-gray-300 px-4 py-3 font-semibold">2025 New Civic</td>
+                    <td className="border border-gray-300 px-4 py-3 font-semibold">2026 New Civic</td>
                     <td className="border border-gray-300 px-4 py-3 text-right">$28,000</td>
                     <td className="border border-gray-300 px-4 py-3 text-right text-red-600 font-bold">$38,500*</td>
                   </tr>
@@ -448,7 +448,7 @@ export default function NewVsUsedArticle() {
             <Link href="/blog/how-to-finance-used-car-2025" className="group">
               <div className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors">
                 <h3 className="font-bold text-dark group-hover:text-primary mb-2">
-                  How to Finance a Used Car in 2025
+                  How to Finance a Used Car in 2026
                 </h3>
                 <p className="text-sm text-gray-600">Get the best rates and terms on your auto loan</p>
               </div>

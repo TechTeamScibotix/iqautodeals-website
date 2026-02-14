@@ -101,8 +101,8 @@ export default function LocationsPage() {
           </p>
           <p className="text-lg mb-8 text-blue-100">
             Our nationwide network includes thousands of verified dealers offering
-            sedans, SUVs, trucks, and more. Save up to $5,000 when dealers compete
-            for your business.
+            sedans, SUVs, trucks, and more. Let dealers compete to offer you
+            their best price.
           </p>
           <Link
             href="/cars"

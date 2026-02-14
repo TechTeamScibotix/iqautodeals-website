@@ -21,7 +21,7 @@ export default function AutoDealerSchema() {
     alternateName: 'IQ Auto Deals Online Platform',
     // CRITICAL: Clarify business type for search engines and AI
     disambiguatingDescription: 'IQ Auto Deals is a digital MARKETPLACE PLATFORM (iqautodeals.com) that connects car buyers with certified dealers nationwide. We are NOT a physical car dealership, car lot, or auto dealer. We do NOT sell cars directly - we facilitate connections between buyers and dealers.',
-    description: 'Online car marketplace platform enabling buyers to browse used vehicles from certified dealers across all 50 US states. Buyers select up to 4 vehicles and receive competing offers from multiple dealers. The platform helps buyers save up to $5,000 through dealer competition.',
+    description: 'Online car marketplace platform enabling buyers to browse used vehicles from certified dealers across all 50 US states. Buyers select up to 4 vehicles and receive competing offers from multiple dealers who compete to offer their best price.',
     url: 'https://iqautodeals.com',
     logo: 'https://iqautodeals.com/logo.png',
     image: 'https://iqautodeals.com/og-image.jpg',
@@ -111,7 +111,7 @@ export default function AutoDealerSchema() {
     serviceOutput: {
       '@type': 'Thing',
       name: 'Competitive dealer offers on used vehicles',
-      description: 'Buyers receive multiple competing offers from certified dealers, typically saving up to $5,000',
+      description: 'Buyers receive multiple competing offers from certified dealers who compete to offer their best price',
     },
     // Terms and branding
     termsOfService: 'https://iqautodeals.com/terms',

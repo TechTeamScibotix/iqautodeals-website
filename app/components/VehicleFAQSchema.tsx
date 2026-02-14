@@ -20,14 +20,6 @@ export default function VehicleFAQSchema({ make, model, year, goodDealAnswer }: 
       },
       {
         '@type': 'Question',
-        name: `Can I negotiate the price on this ${year} ${make} ${model}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Yes! Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price.',
-        },
-      },
-      {
-        '@type': 'Question',
         name: `Who is this ${year} ${make} ${model} best for?`,
         acceptedAnswer: {
           '@type': 'Answer',
@@ -36,18 +28,18 @@ export default function VehicleFAQSchema({ make, model, year, goodDealAnswer }: 
       },
       {
         '@type': 'Question',
-        name: `What are good alternatives to this ${year} ${make} ${model}?`,
+        name: `How can I get the best price on this ${year} ${make} ${model}?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `There are several competitive alternatives to the ${year} ${make} ${model}. Browse similar vehicles on IQ Auto Deals to compare options and find the best fit for your needs and budget.`,
+          text: `Create a free IQ Auto Deals account and add this vehicle to your Deal Request. Multiple certified dealers compete to offer their best price — no haggling needed.`,
         },
       },
       {
         '@type': 'Question',
-        name: `What should buyers know before purchasing this ${year} ${make} ${model}?`,
+        name: `Is this ${year} ${make} ${model} a reliable vehicle?`,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `Before purchasing this ${year} ${make} ${model}, check its current availability, review the vehicle history report, and consider getting competing offers from multiple dealers through IQ Auto Deals to ensure you get the best price.`,
+          text: `The ${make} ${model} has a strong reputation among buyers. Check the vehicle details, mileage, and condition above, then create a free account to request competing dealer offers.`,
         },
       },
     ],

@@ -18,7 +18,7 @@ export default function OrganizationSchema() {
       height: 512,
     },
     image: 'https://iqautodeals.com/og-image.jpg',
-    description: 'IQ Auto Deals is a nationwide ONLINE car marketplace connecting buyers with certified dealers across all 50 US states. Unlike traditional dealerships, IQ Auto Deals is a digital platform where customers browse thousands of quality pre-owned vehicles, select up to 4 cars, and receive competitive offers from multiple dealers who compete for their business. Save up to $5,000 compared to traditional dealership prices.',
+    description: 'IQ Auto Deals is a nationwide ONLINE car marketplace connecting buyers with certified dealers across all 50 US states. Unlike traditional dealerships, IQ Auto Deals is a digital platform where customers browse thousands of quality pre-owned vehicles, select up to 4 cars, and receive competitive offers from multiple dealers who compete for their business.',
     slogan: 'Smart Car Buying Made Simple',
     foundingDate: '2024',
     foundingLocation: {
@@ -184,7 +184,7 @@ export default function OrganizationSchema() {
       'Compare up to 4 vehicles at once',
       'Receive competing dealer offers',
       'Browse nationwide inventory',
-      'Save up to $5,000',
+      'Dealers compete for your business',
       'No haggling required',
       'Free to use',
     ],

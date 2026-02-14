@@ -93,8 +93,8 @@ export default function VehicleFAQ(props: VehicleFAQProps) {
       icon: HelpCircle,
     },
     {
-      question: "Can I negotiate?",
-      answer: "Yes! Create a free account to add this vehicle to your Deal Request. As a member, dealers compete to offer you their best price.",
+      question: "How do I move forward with this vehicle?",
+      answer: "Create a free IQ Auto Deals account, add this vehicle to your Deal Request, and let certified dealers compete to offer you their best price. It's completely free with no obligation.",
       icon: UserPlus,
       showRegisterCTA: true,
     },

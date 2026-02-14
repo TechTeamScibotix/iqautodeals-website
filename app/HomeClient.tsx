@@ -370,7 +370,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       <section className="bg-black py-1">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm md:text-base text-white mb-1">
-            Compare prices and receive competitive offers from verified dealers nationwide. Save <span className="font-bold text-accent">hundreds</span> on your next vehicle.
+            Compare prices and receive competitive offers from verified dealers nationwide. Let dealers compete for your business.
           </p>
           <div className="flex items-baseline justify-center gap-6 sm:gap-8">
             <div>

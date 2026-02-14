@@ -107,8 +107,8 @@ export default function AboutClient() {
               <div className="text-gray-600 font-medium">States Covered</div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-              <div className="text-4xl font-bold text-primary mb-2">$5,000</div>
-              <div className="text-gray-600 font-medium">Average Buyer Savings</div>
+              <div className="text-4xl font-bold text-primary mb-2">4</div>
+              <div className="text-gray-600 font-medium">Competing Offers Per Vehicle</div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
               <div className="text-4xl font-bold text-primary mb-2">Free</div>

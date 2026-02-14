@@ -19,16 +19,13 @@ export default function LoginClient() {
     setLoading(true);
 
     try {
-      console.log('Attempting login with:', email);
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
 
       if (!response.ok) {
         console.error('Login failed:', data);
@@ -43,7 +40,6 @@ export default function LoginClient() {
       // Store user in localStorage (simple demo auth)
       try {
         localStorage.setItem('user', JSON.stringify(data.user));
-        console.log('User stored in localStorage successfully');
 
         // Track successful login
         trackLoginSuccess({

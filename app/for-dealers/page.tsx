@@ -21,6 +21,14 @@ export const metadata: Metadata = {
   title: 'For Dealers - Join IQ Auto Deals Marketplace',
   description: 'Join IQ Auto Deals marketplace and get access to motivated car buyers. AI-powered SEO, proactive customer engagement, and 90-day free pilot. Start selling more cars today.',
   keywords: ['car dealer marketplace', 'sell cars online', 'dealer leads', 'automotive marketplace', 'car dealer platform'],
+  alternates: {
+    canonical: 'https://iqautodeals.com/for-dealers',
+  },
+  openGraph: {
+    title: 'For Dealers - Get More Leads & Close More Sales | IQ Auto Deals',
+    description: 'Join the AI-native automotive marketplace. AI-powered SEO, proactive customer engagement, and 90-day free pilot. Start selling more cars today.',
+    url: 'https://iqautodeals.com/for-dealers',
+  },
 };
 
 // Force static generation for SEO
@@ -88,10 +96,10 @@ export default function ForDealersPage() {
             </h1>
 
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              In just <strong className="text-white">40+ days</strong> after launch, IQ Auto Deals generated over{' '}
+              IQ Auto Deals generated over{' '}
               <strong className="text-white">40,000 clicks</strong> and consistently ranked{' '}
-              <strong className="text-white">top 3 in AI searches</strong> — all with dummy inventory.
-              Imagine what it can do with your real vehicles.
+              <strong className="text-white">top 3 in AI searches</strong>.
+              Imagine what your real inventory can do.
             </p>
 
             {/* CTA Buttons */}
@@ -271,10 +279,10 @@ export default function ForDealersPage() {
               <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mb-6">
                 <TrendingUp className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-dark mb-3">SEO Boost for Your Website</h3>
+              <h3 className="text-xl font-bold text-dark mb-3">Built-In SEO Backlinks</h3>
               <p className="text-gray-600 leading-relaxed">
-                Verified backlinks + authority building = higher rankings on your own site.
-                Your dealership naturally appears at the top of AI overviews — no paid ads required.
+                Every listing on IQ Auto Deals is an indexed page that links directly to your website — real dofollow backlinks that build your domain authority.
+                The more inventory you list, the more backlinks you earn.
               </p>
             </div>
           </div>
@@ -455,7 +463,7 @@ export default function ForDealersPage() {
                   <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-dark">Early Pilot Dealer</p>
+                  <p className="font-semibold text-dark">Turpin Dodge</p>
                   <p className="text-sm text-gray-500">Pilot Partner</p>
                 </div>
               </div>
@@ -470,7 +478,7 @@ export default function ForDealersPage() {
                   <DollarSign className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-dark">Used Car Manager</p>
+                  <p className="font-semibold text-dark">Lexus of Nashville</p>
                   <p className="text-sm text-gray-500">Pilot Partner</p>
                 </div>
               </div>

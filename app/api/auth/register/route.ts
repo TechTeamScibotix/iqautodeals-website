@@ -9,13 +9,12 @@ import {
 
 // Webhook to notify DealerHub/Scibotix of new dealer registrations
 const DEALERHUB_WEBHOOK_URL = process.env.DEALERHUB_DEALER_WEBHOOK_URL || 'https://scibotixsolutions.com/api/webhooks/iqautodeals/dealer-registered';
-const WEBHOOK_SECRET = process.env.IQAUTODEALS_WEBHOOK_SECRET || 'iq-dealerhub-sync-2024';
+const WEBHOOK_SECRET = process.env.IQAUTODEALS_WEBHOOK_SECRET;
 
 async function notifyDealerHubNewDealer(dealer: {
   id: string;
   email: string;
   name: string;
-  passwordHash: string;
   businessName: string | null;
   phone: string | null;
   address: string | null;
@@ -23,6 +22,11 @@ async function notifyDealerHubNewDealer(dealer: {
   state: string | null;
   zip: string | null;
 }) {
+  if (!WEBHOOK_SECRET) {
+    console.error('DealerHub dealer webhook skipped: IQAUTODEALS_WEBHOOK_SECRET not configured');
+    return;
+  }
+
   try {
     // Split name into first/last for the webhook
     const nameParts = (dealer.name || '').split(' ');
@@ -38,7 +42,6 @@ async function notifyDealerHubNewDealer(dealer: {
       body: JSON.stringify({
         iqautodealsUserId: dealer.id,
         email: dealer.email,
-        passwordHash: dealer.passwordHash,
         dealershipName: dealer.businessName || dealer.name,
         firstName,
         lastName,
@@ -122,7 +125,6 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name || name,
-        passwordHash: hashedPassword,
         businessName: user.businessName,
         phone: user.phone,
         address: user.address,

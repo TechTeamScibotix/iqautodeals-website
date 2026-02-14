@@ -9,7 +9,7 @@ import { ArrowRight, Car, CheckCircle, Tag, Percent, Calendar } from 'lucide-rea
 export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'New Car Deals & Specials (2025) - Best Prices from Local Dealers',
+  title: 'New Car Deals & Specials (2026) - Best Prices from Local Dealers',
   description: 'Find the best new car deals and specials from certified dealers. Compare manufacturer incentives, rebates, and financing offers. Save hundreds on your new vehicle purchase.',
   keywords: [
     'new car deals',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     'new car rebates',
     '0% financing new cars',
     'new car discounts',
-    'best new car deals 2025',
+    'best new car deals 2026',
     'new car lease deals',
     'manufacturer rebates',
     'new car promotions',
