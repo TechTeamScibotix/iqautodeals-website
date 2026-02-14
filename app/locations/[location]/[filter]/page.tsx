@@ -6,8 +6,9 @@ import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 
-// Force static generation for SEO
-export const dynamic = 'force-static';
+// Generate on-demand and cache for 24 hours (ISR) — too many combinations to prebuild
+export const dynamicParams = true;
+export const revalidate = 86400;
 
 // Price range configurations
 const priceRanges = {
@@ -26,26 +27,9 @@ const priceRanges = {
 };
 
 export async function generateStaticParams() {
-  const params: { location: string; filter: string }[] = [];
-
-  Object.keys(locations).forEach((location) => {
-    // Add price range pages
-    Object.keys(priceRanges).forEach((filter) => {
-      params.push({ location, filter });
-    });
-
-    // Add body type pages
-    Object.keys(bodyTypes).forEach((filter) => {
-      params.push({ location, filter });
-    });
-
-    // Add model pages
-    Object.keys(models).forEach((filter) => {
-      params.push({ location, filter });
-    });
-  });
-
-  return params;
+  // Return empty — pages are generated on-demand and cached (ISR)
+  // The full cartesian product (locations × filters) is too large for build-time
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ location: string; filter: string }> }): Promise<Metadata> {

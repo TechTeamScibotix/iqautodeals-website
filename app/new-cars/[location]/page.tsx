@@ -9,13 +9,12 @@ import { makes } from '@/lib/data/makes';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 
-// Force static generation for SEO
-export const dynamic = 'force-static';
+// Generate on-demand and cache for 24 hours (ISR)
+export const dynamicParams = true;
+export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  return Object.keys(locations).map((location) => ({
-    location,
-  }));
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {

@@ -4,8 +4,9 @@ import { notFound } from 'next/navigation';
 import zipcodes from 'zipcodes';
 import Footer from '../../components/Footer';
 
-// Force static generation for SEO
-export const dynamic = 'force-static';
+// Generate on-demand and cache for 24 hours (ISR)
+export const dynamicParams = true;
+export const revalidate = 86400;
 
 // Location data for all 50 states + major cities
 const locations = {
@@ -293,9 +294,7 @@ const locations = {
 };
 
 export async function generateStaticParams() {
-  return Object.keys(locations).map((location) => ({
-    location,
-  }));
+  return [];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {
