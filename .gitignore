@@ -39,3 +39,11 @@ prisma/*.db-journal
 dev.db
 *.sqlite
 *.sqlite3
+
+# Large dev-only files (not needed for deployment)
+video-output/
+*.webm
+*.csv
+playwright-report/
+test-results/
+docs/
