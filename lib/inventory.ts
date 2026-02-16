@@ -75,7 +75,7 @@ export async function fetchInventoryForLocation(params: FetchParams): Promise<In
   if (condition === 'new') {
     baseWhere.condition = { equals: 'new', mode: 'insensitive' };
   } else if (condition === 'used') {
-    baseWhere.condition = { not: 'new', mode: 'insensitive' };
+    baseWhere.condition = { not: { equals: 'new', mode: 'insensitive' } };
   }
 
   // Body type filters (special slug handling)

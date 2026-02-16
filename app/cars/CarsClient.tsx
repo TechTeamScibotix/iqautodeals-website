@@ -462,6 +462,9 @@ export default function CarsClient() {
     }
   };
 
+  // Distance filtering is handled server-side by the search API (with fallback to
+  // all cars sorted by closest when 0 are within radius). Do NOT re-filter by
+  // distance here — the API already returns the best set of results.
   const filteredCars = cars.filter(car => {
     const makeMatch = !search.make || car.make.toLowerCase().includes(search.make.toLowerCase());
     const modelMatch = !search.model || car.model.toLowerCase().includes(search.model.toLowerCase());
@@ -469,9 +472,7 @@ export default function CarsClient() {
     const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
     const minPriceMatch = !search.minPrice || car.salePrice >= parseInt(search.minPrice, 10);
     const maxPriceMatch = !search.maxPrice || car.salePrice <= parseInt(search.maxPrice, 10);
-    // Filter by distance if zipcode is entered
-    const distanceMatch = !search.zipCode || car.distance === null || car.distance === undefined || car.distance <= searchRadius;
-    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch && distanceMatch;
+    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch;
   });
 
   // Pagination calculations
