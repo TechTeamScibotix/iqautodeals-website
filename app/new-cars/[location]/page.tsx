@@ -8,6 +8,9 @@ import { locations } from '@/lib/data/locations';
 import { makes } from '@/lib/data/makes';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
+import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
+import InventorySection from '@/app/components/InventorySection';
+import ItemListSchema from '@/app/components/ItemListSchema';
 
 // Generate on-demand and cache for 24 hours (ISR)
 export const dynamicParams = true;
@@ -65,8 +68,15 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
   const newCarsHref = zip ? `/cars?condition=new&zipCode=${zip}` : '/cars?condition=new';
   const popularMakes = ['toyota', 'honda', 'ford', 'chevrolet', 'nissan', 'jeep', 'hyundai', 'kia', 'bmw', 'lexus', 'mazda', 'subaru'];
 
+  // Fetch real inventory from DB
+  let inventory: InventoryResult = { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
+  try {
+    inventory = await fetchInventoryForLocation({ city, stateCode, condition: 'new' });
+  } catch {}
+
   return (
     <div className="min-h-screen bg-light-dark font-sans">
+      <ItemListSchema cars={inventory.cars} listName={`New Cars for Sale in ${city}, ${stateCode}`} />
       {/* Header */}
       <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-3 md:px-4 h-full">
@@ -114,6 +124,11 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
             <p className="text-xl mb-4 text-white/90">
               Shop Brand New Vehicles from Certified {city} Dealers
             </p>
+            {inventory.totalCount > 0 && (
+              <span className="inline-block bg-white/20 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
+                {inventory.totalCount.toLocaleString()} new vehicles available
+              </span>
+            )}
             <p className="text-lg mb-8 text-white/80">
               Compare prices from multiple dealers and save hundreds on your new car
             </p>
@@ -154,6 +169,8 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
           </div>
         </div>
       </section>
+
+      <InventorySection inventory={inventory} filterLabel="New Vehicles" carsHref={newCarsHref} />
 
       {/* Main Content */}
       <section className="py-16 bg-white">

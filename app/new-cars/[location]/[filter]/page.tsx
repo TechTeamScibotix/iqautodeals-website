@@ -8,6 +8,9 @@ import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
+import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
+import InventorySection from '@/app/components/InventorySection';
+import ItemListSchema from '@/app/components/ItemListSchema';
 
 // Generate on-demand and cache for 24 hours (ISR) — too many combinations to prebuild
 export const dynamicParams = true;
@@ -158,8 +161,23 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
   }
   const carsHref = `/cars?${carsParams.toString()}`;
 
+  // Fetch real inventory from DB
+  let inventory: InventoryResult = { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
+  try {
+    inventory = await fetchInventoryForLocation({
+      city,
+      stateCode,
+      condition: 'new',
+      ...(isPriceRange ? { minPrice: priceData.min > 0 ? priceData.min : undefined, maxPrice: priceData.max < 999999 ? priceData.max : undefined } : {}),
+      ...(isBodyType ? { bodyType: filter } : {}),
+      ...(isModel ? { make: modelData.brand, model: modelData.model } : {}),
+    });
+  } catch {}
+
   return (
     <>
+      <ItemListSchema cars={inventory.cars} listName={`New ${label} for Sale in ${city}, ${stateCode}`} />
+
       {/* Breadcrumb Schema */}
       <script
         type="application/ld+json"
@@ -230,6 +248,11 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
               <p className="text-xl mb-4 text-white/90">
                 Shop Brand New {isPriceRange ? 'Vehicles' : label} from Certified {city} Dealers
               </p>
+              {inventory.totalCount > 0 && (
+                <span className="inline-block bg-white/20 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
+                  {inventory.totalCount.toLocaleString()} vehicles available
+                </span>
+              )}
               <p className="text-lg mb-8 text-white/80">
                 Compare prices from multiple dealers and save hundreds
               </p>
@@ -252,6 +275,8 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
             </div>
           </div>
         </section>
+
+        <InventorySection inventory={inventory} filterLabel={`New ${label}`} carsHref={carsHref} />
 
         {/* Main Content */}
         <section className="py-16 bg-white">

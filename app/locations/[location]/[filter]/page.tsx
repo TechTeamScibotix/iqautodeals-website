@@ -5,6 +5,9 @@ import zipcodes from 'zipcodes';
 import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
+import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
+import InventorySection from '@/app/components/InventorySection';
+import ItemListSchema from '@/app/components/ItemListSchema';
 
 // Generate on-demand and cache for 24 hours (ISR) — too many combinations to prebuild
 export const dynamicParams = true;
@@ -161,8 +164,22 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
   }
   const carsHref = carsParams.toString() ? `/cars?${carsParams.toString()}` : '/cars';
 
+  // Fetch real inventory from DB
+  let inventory: InventoryResult = { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
+  try {
+    inventory = await fetchInventoryForLocation({
+      city,
+      stateCode,
+      ...(isPriceRange ? { minPrice: priceData.min > 0 ? priceData.min : undefined, maxPrice: priceData.max < 999999 ? priceData.max : undefined } : {}),
+      ...(isBodyType ? { bodyType: filter } : {}),
+      ...(isModel ? { make: modelData.brand, model: modelData.model } : {}),
+    });
+  } catch {}
+
   return (
     <>
+      <ItemListSchema cars={inventory.cars} listName={`${label} for Sale in ${city}, ${stateCode}`} />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -195,7 +212,9 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                     : `How many used ${label} are available in ${city}?`,
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": `Browse quality used ${isPriceRange ? 'cars ' + label.toLowerCase() : label} available from trusted dealers in ${city}, ${state}. Our inventory updates daily with new arrivals.`
+                  "text": inventory.totalCount > 0
+                    ? `There are currently ${inventory.totalCount} ${isPriceRange ? 'cars ' + label.toLowerCase() : label.toLowerCase()} available from trusted dealers ${inventory.scopeLabel}. Our inventory updates daily with new arrivals.`
+                    : `Browse quality used ${isPriceRange ? 'cars ' + label.toLowerCase() : label} available from trusted dealers in ${city}, ${state}. Our inventory updates daily with new arrivals.`
                 }
               },
               {
@@ -271,6 +290,11 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
             <p className="text-xl mb-4">
               Shop Quality {isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers
             </p>
+            {inventory.totalCount > 0 && (
+              <span className="inline-block bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
+                {inventory.totalCount.toLocaleString()} vehicles available
+              </span>
+            )}
             <p className="text-lg mb-8 text-blue-100">
               Compare prices instantly • Dealers compete for your business • No haggling required
             </p>
@@ -290,6 +314,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
             </div>
           </div>
         </section>
+
+        <InventorySection inventory={inventory} filterLabel={label} carsHref={carsHref} />
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-2 gap-12 mb-16">
