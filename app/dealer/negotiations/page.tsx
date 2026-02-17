@@ -28,6 +28,7 @@ interface DealList {
       id: string;
       make: string;
       model: string;
+      trim?: string;
       year: number;
       photos: string;
       salePrice: number;

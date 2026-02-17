@@ -17,6 +17,7 @@ interface Sale {
     id: string;
     make: string;
     model: string;
+    trim?: string;
     year: number;
     color: string;
     mileage: number;
@@ -58,6 +59,7 @@ interface WebsiteClicksData {
       id: string;
       make: string;
       model: string;
+      trim?: string;
       year: number;
       vin: string;
       slug: string | null;
@@ -73,6 +75,7 @@ interface OutbidData {
       year: number;
       make: string;
       model: string;
+      trim?: string;
       vin: string;
       color: string;
       mileage: number;
@@ -93,6 +96,7 @@ interface OutbidData {
         year: number;
         make: string;
         model: string;
+        trim?: string;
       };
       finalPrice: number;
       acceptedDate: string;
