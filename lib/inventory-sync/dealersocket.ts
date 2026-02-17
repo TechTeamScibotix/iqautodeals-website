@@ -314,7 +314,9 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
           status: 'active',
           bodyType: vehicle.Body?.trim() || null,
           trim: vehicle.Trim?.trim() || null,
-          drivetrain: vehicle.Drivetrain?.trim() || null,
+          drivetrain: vehicle.Drivetrain?.trim()
+            ? vehicle.Drivetrain.trim().charAt(0).toUpperCase() + vehicle.Drivetrain.trim().slice(1)
+            : null,
           engine: vehicle.Engine?.trim() || null,
           condition: determineCondition(vehicle.Condition, mileage),
           fuelType: inferFuelType(vehicle.Engine, vehicle.Model),

@@ -19,6 +19,7 @@ interface FeaturedCar {
   make: string;
   model: string;
   year: number;
+  trim?: string;
   salePrice: number;
   photos: string;
   bodyType?: string;
@@ -488,7 +489,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
                       </div>
                       <div className="p-4 border-t border-border">
                         <h4 className="font-bold text-base text-text-primary mb-2 line-clamp-1">
-                          {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                          {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                         </h4>
                         <p className="text-xl font-bold text-primary mb-2">
                           {formatPrice(car.salePrice)}
@@ -586,7 +587,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
                         </div>
                         <div className="p-4 border-t border-border">
                           <h4 className="font-bold text-base text-text-primary mb-2 line-clamp-1">
-                            {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                            {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                           </h4>
                           <p className="text-xl font-bold text-primary mb-2">
                             {formatPrice(car.salePrice)}

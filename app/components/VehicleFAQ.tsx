@@ -8,6 +8,7 @@ interface VehicleFAQProps {
   make: string;
   model: string;
   year: number;
+  trim?: string;
   mileage: number;
   color?: string;
   transmission?: string;
@@ -66,7 +67,8 @@ function generateGoodDealAnswer(props: VehicleFAQProps): string {
   }
 
   // Build the answer
-  let answer = `Yes! This ${year} ${make} ${model} offers solid value. `;
+  const fullModel = props.trim ? `${model} ${props.trim}` : model;
+  let answer = `Yes! This ${year} ${make} ${fullModel} offers solid value. `;
 
   if (sellingPoints.length > 0) {
     // Pick up to 2 selling points

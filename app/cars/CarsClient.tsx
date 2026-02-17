@@ -69,6 +69,10 @@ interface CarListing {
   transmission: string;
   fuelType?: string;
   bodyType?: string;
+  trim?: string;
+  drivetrain?: string;
+  engine?: string;
+  interiorColor?: string;
   vin: string;
   isDemo?: boolean;
   dealerId: string;
@@ -1186,7 +1190,7 @@ export default function CarsClient() {
 
                             <div className="p-2 md:p-4">
                               <h3 className="font-bold text-xs md:text-lg text-dark line-clamp-2 mb-1">
-                                {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                                {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                               </h3>
                               <p className="text-lg md:text-2xl font-bold text-primary mb-1 md:mb-2">
                                 {formatPrice(car.salePrice)}
@@ -1280,7 +1284,7 @@ export default function CarsClient() {
 
                   <div className="p-2 md:p-4">
                     <h3 className="font-bold text-xs md:text-lg text-dark line-clamp-2 mb-1">
-                      {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}`}
+                      {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                     </h3>
                     <p className="text-lg md:text-2xl font-bold text-primary mb-1 md:mb-2">
                       {formatPrice(car.salePrice)}
@@ -1529,7 +1533,7 @@ export default function CarsClient() {
                 {/* Title & Price */}
                 <div className="mb-6">
                   <h2 className="text-2xl lg:text-3xl font-bold text-dark mb-2">
-                    {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}
+                    {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}{viewingPhotos.car.trim ? ` ${viewingPhotos.car.trim}` : ''}
                   </h2>
                   <p className="text-3xl lg:text-4xl font-bold text-primary">
                     {formatPrice(viewingPhotos.car.salePrice)}
@@ -1550,10 +1554,28 @@ export default function CarsClient() {
                     <p className="text-xs text-gray-500 uppercase tracking-wide">Exterior Color</p>
                     <p className="font-semibold text-dark">{viewingPhotos.car.color}</p>
                   </div>
+                  {viewingPhotos.car.interiorColor && (
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Interior Color</p>
+                      <p className="font-semibold text-dark">{viewingPhotos.car.interiorColor}</p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs text-gray-500 uppercase tracking-wide">Location</p>
                     <p className="font-semibold text-dark">{viewingPhotos.car.city}, {viewingPhotos.car.state}</p>
                   </div>
+                  {viewingPhotos.car.drivetrain && (
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Drivetrain</p>
+                      <p className="font-semibold text-dark capitalize">{viewingPhotos.car.drivetrain}</p>
+                    </div>
+                  )}
+                  {viewingPhotos.car.engine && (
+                    <div className="col-span-2">
+                      <p className="text-xs text-gray-500 uppercase tracking-wide">Engine</p>
+                      <p className="font-semibold text-dark">{viewingPhotos.car.engine}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Key Features Preview */}
@@ -1564,7 +1586,7 @@ export default function CarsClient() {
                     const preview = allFeatures.slice(0, 6);
                     return (
                       <div className="mb-6">
-                        <h3 className="text-lg font-bold text-dark mb-2">{viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model} Features &amp; Equipment Highlights</h3>
+                        <h3 className="text-lg font-bold text-dark mb-2">{viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}{viewingPhotos.car.trim ? ` ${viewingPhotos.car.trim}` : ''} Features &amp; Equipment Highlights</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
                           {preview.map((feature, i) => (
                             <div key={i} className="flex items-start gap-2 text-sm text-gray-700">
@@ -1591,7 +1613,7 @@ export default function CarsClient() {
 
                 {/* Why Buyers Consider This Vehicle */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-dark mb-2">Why Buyers Consider This {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}</h3>
+                  <h3 className="text-lg font-bold text-dark mb-2">Why Buyers Consider This {viewingPhotos.car.year} {viewingPhotos.car.make} {viewingPhotos.car.model}{viewingPhotos.car.trim ? ` ${viewingPhotos.car.trim}` : ''}</h3>
                   <ul className="space-y-1.5 text-gray-700 text-sm">
                     {generateStandsOutPoints(
                       viewingPhotos.car.year,
@@ -1784,7 +1806,7 @@ export default function CarsClient() {
                             sizes="120px"
                           />
                         </div>
-                        <p className="font-semibold text-xs text-dark mt-1 line-clamp-1">{car.year} {car.make} {car.model}</p>
+                        <p className="font-semibold text-xs text-dark mt-1 line-clamp-1">{car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}</p>
                         <p className="text-xs text-primary font-bold">{formatPrice(car.salePrice)}</p>
                       </Link>
                     );

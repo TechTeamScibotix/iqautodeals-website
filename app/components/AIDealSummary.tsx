@@ -8,6 +8,7 @@ interface AIDealSummaryProps {
   make: string;
   model: string;
   year: number;
+  trim?: string;
   mileage: number;
   color?: string;
   transmission?: string;
@@ -186,6 +187,7 @@ export default function AIDealSummary({
   make,
   model,
   year,
+  trim,
   mileage,
   color,
   transmission,
@@ -195,6 +197,7 @@ export default function AIDealSummary({
   salePrice,
   features: featuresJson,
 }: AIDealSummaryProps) {
+  const fullModel = trim ? `${model} ${trim}` : model;
   // Features section rendered after "Why Buyers Consider" for AI content priority
   const featuresList = parseFeatures(featuresJson);
   const FeaturesSection = () => {
@@ -202,7 +205,7 @@ export default function AIDealSummary({
     const grouped = categorizeFeatures(featuresList);
     return (
       <div className="border-t border-gray-200 pt-6 mt-6 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">{year} {make} {model} Features &amp; Equipment Highlights</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">{year} {make} {fullModel} Features &amp; Equipment Highlights</h2>
         <div className="space-y-5">
           {Array.from(grouped.entries()).map(([category, items]) => (
             <div key={category}>
@@ -227,7 +230,7 @@ export default function AIDealSummary({
 
   const StandsOutSection = () => (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-3">Why Buyers Consider This {year} {make} {model}</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-3">Why Buyers Consider This {year} {make} {fullModel}</h2>
       <ul className="space-y-1.5 text-gray-700">
         {standsOutPoints.map((point, i) => (
           <li key={i} className="flex items-start gap-2">
@@ -241,7 +244,7 @@ export default function AIDealSummary({
 
   const BestForSection = () => (
     <div className="border-t border-gray-200 pt-6 mt-6 mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-3">Who This {year} {make} {model} Is Best For</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-3">Who This {year} {make} {fullModel} Is Best For</h2>
       <ul className="space-y-1.5 text-gray-700">
         {buyerPersonas.map((persona, i) => (
           <li key={i} className="flex items-start gap-2">
@@ -277,6 +280,7 @@ export default function AIDealSummary({
           make={make}
           model={model}
           year={year}
+          trim={trim}
           mileage={mileage}
           color={color}
           transmission={transmission}
@@ -365,7 +369,7 @@ export default function AIDealSummary({
       {/* Old-format "best for" section */}
       {!standsOutAI && bestForSection && (
         <div className="border-t border-gray-200 pt-6 mt-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">Who This {year} {make} {model} Is Best For</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-3">Who This {year} {make} {fullModel} Is Best For</h2>
           <div className="text-gray-700 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
             {bestForSection.content}
           </div>

@@ -582,7 +582,7 @@ export default function DealerReporting() {
                         <tr key={item.carId} className="border-b hover:bg-gray-50">
                           <td className="p-2 font-semibold">
                             {item.car
-                              ? `${item.car.year} ${item.car.make} ${item.car.model}`
+                              ? `${item.car.year} ${item.car.make} ${item.car.model}${item.car.trim ? ` ${item.car.trim}` : ''}`
                               : 'Deleted vehicle'}
                           </td>
                           <td className="p-2 text-xs text-gray-500">
@@ -691,7 +691,7 @@ export default function DealerReporting() {
                         {outbidData.outbidVehicles.map((vehicle, index) => (
                           <tr key={index} className="border-b hover:bg-gray-50">
                             <td className="p-2">
-                              <div className="font-semibold">{vehicle.dealerVehicle.year} {vehicle.dealerVehicle.make} {vehicle.dealerVehicle.model}</div>
+                              <div className="font-semibold">{vehicle.dealerVehicle.year} {vehicle.dealerVehicle.make} {vehicle.dealerVehicle.model}{vehicle.dealerVehicle.trim ? ` ${vehicle.dealerVehicle.trim}` : ''}</div>
                               <div className="text-xs text-gray-500">{vehicle.dealerVehicle.color} • {vehicle.dealerVehicle.mileage.toLocaleString()} mi</div>
                             </td>
                             <td className="p-2">
@@ -706,7 +706,7 @@ export default function DealerReporting() {
                               <div className="font-semibold text-red-600">{vehicle.winningCompetitor.dealerName}</div>
                             </td>
                             <td className="p-2">
-                              <div className="text-sm">{vehicle.winningCompetitor.vehicle.year} {vehicle.winningCompetitor.vehicle.make} {vehicle.winningCompetitor.vehicle.model}</div>
+                              <div className="text-sm">{vehicle.winningCompetitor.vehicle.year} {vehicle.winningCompetitor.vehicle.make} {vehicle.winningCompetitor.vehicle.model}{vehicle.winningCompetitor.vehicle.trim ? ` ${vehicle.winningCompetitor.vehicle.trim}` : ''}</div>
                             </td>
                             <td className="p-2">
                               <div className="font-bold text-red-600">${vehicle.winningCompetitor.finalPrice.toLocaleString()}</div>
@@ -1005,7 +1005,7 @@ export default function DealerReporting() {
                                   <div className="flex items-center gap-1 mb-1">
                                     <Car className="w-4 h-4 text-primary" />
                                     <h4 className="font-bold text-sm">
-                                      {sale.car.year} {sale.car.make} {sale.car.model}
+                                      {sale.car.year} {sale.car.make} {sale.car.model}{sale.car.trim ? ` ${sale.car.trim}` : ''}
                                     </h4>
                                   </div>
                                   <p className="text-xs text-gray-600">{sale.car.color} • {sale.car.mileage.toLocaleString()} mi</p>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
-import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel, DoorOpen, Zap } from 'lucide-react';
+import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel, DoorOpen, Zap, Palette } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
 import VehicleFAQSchema from '@/app/components/VehicleFAQSchema';
@@ -30,7 +30,7 @@ function isUUID(str: string): boolean {
 }
 
 // Generate a positive "good deal" answer based on vehicle attributes (for schema)
-function generateGoodDealAnswer(car: { make: string; model: string; year: number; mileage: number; fuelType?: string | null }): string {
+function generateGoodDealAnswer(car: { make: string; model: string; trim?: string | null; year: number; mileage: number; fuelType?: string | null }): string {
   const currentYear = new Date().getFullYear();
   const vehicleAge = currentYear - car.year;
 
@@ -64,7 +64,8 @@ function generateGoodDealAnswer(car: { make: string; model: string; year: number
     sellingPoints.push(`${car.make}'s reputation for reliability and strong resale value`);
   }
 
-  let answer = `Yes! This ${car.year} ${car.make} ${car.model} offers solid value. `;
+  const fullModel = car.trim ? `${car.model} ${car.trim}` : car.model;
+  let answer = `Yes! This ${car.year} ${car.make} ${fullModel} offers solid value. `;
   if (sellingPoints.length > 0) {
     const points = sellingPoints.slice(0, 2);
     if (points.length === 1) {
@@ -129,7 +130,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const title = `${car.year} ${car.make} ${car.model} for Sale in ${car.city}, ${car.state}`;
+  const trimLabel = car.trim ? ` ${car.trim}` : '';
+  const title = `${car.year} ${car.make} ${car.model}${trimLabel} for Sale in ${car.city}, ${car.state}`;
   const description = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
 
@@ -322,6 +324,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           make={car.make}
           model={car.model}
           year={car.year}
+          trim={car.trim || undefined}
           goodDealAnswer={generateGoodDealAnswer(car)}
         />
 
@@ -368,7 +371,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <li>/</li>
                 </>
               )}
-              <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}</li>
+              <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}</li>
             </ol>
           </nav>
 
@@ -400,14 +403,14 @@ export default async function CarDetailPage({ params }: PageProps) {
               {/* Photo Gallery */}
               <CarPhotoGallery
                 photos={photos}
-                carName={`${car.year} ${car.make} ${car.model}`}
+                carName={`${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                 bodyType={car.bodyType || undefined}
               />
 
               {/* Vehicle Info */}
               <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
-                  {car.year} {car.make} {car.model}
+                  {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}
                 </h1>
 
                 {/* AI Deal Summary or legacy About This Vehicle + FAQ */}
@@ -416,6 +419,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                   make={car.make}
                   model={car.model}
                   year={car.year}
+                  trim={car.trim || undefined}
                   mileage={car.mileage}
                   color={car.color}
                   transmission={car.transmission}
@@ -465,6 +469,12 @@ export default async function CarDetailPage({ params }: PageProps) {
                     <Fuel className="w-3.5 h-3.5 text-primary" />
                     {car.fuelType || 'Gasoline'}
                   </span>
+                  {car.drivetrain && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <Globe className="w-3.5 h-3.5 text-primary" />
+                      {car.drivetrain.charAt(0).toUpperCase() + car.drivetrain.slice(1)}
+                    </span>
+                  )}
                   {car.mpgCity && car.mpgHighway && (
                     <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
                       <Zap className="w-3.5 h-3.5 text-primary" />
@@ -475,6 +485,24 @@ export default async function CarDetailPage({ params }: PageProps) {
                     <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
                       <DoorOpen className="w-3.5 h-3.5 text-primary" />
                       {car.doors} Door
+                    </span>
+                  )}
+                  {car.engine && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <Settings className="w-3.5 h-3.5 text-primary" />
+                      {car.engine}
+                    </span>
+                  )}
+                  {car.color && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <Palette className="w-3.5 h-3.5 text-primary" />
+                      Ext: {car.color}
+                    </span>
+                  )}
+                  {car.interiorColor && (
+                    <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                      <Palette className="w-3.5 h-3.5 text-primary" />
+                      Int: {car.interiorColor}
                     </span>
                   )}
                 </div>
@@ -625,7 +653,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                 <li>/</li>
               </>
             )}
-            <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}</li>
+            <li className="text-gray-900 font-medium">{car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}</li>
           </ol>
         </nav>
 
@@ -635,14 +663,14 @@ export default async function CarDetailPage({ params }: PageProps) {
             {/* Photo Gallery */}
             <CarPhotoGallery
               photos={photos}
-              carName={`${car.year} ${car.make} ${car.model}`}
+              carName={`${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
               bodyType={car.bodyType || undefined}
             />
 
             {/* Vehicle Info */}
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 overflow-hidden">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
-                {car.year} {car.make} {car.model}
+                {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}
               </h1>
 
               {/* AI Deal Summary or legacy About This Vehicle + FAQ */}
@@ -651,6 +679,7 @@ export default async function CarDetailPage({ params }: PageProps) {
                 make={car.make}
                 model={car.model}
                 year={car.year}
+                trim={car.trim || undefined}
                 mileage={car.mileage}
                 color={car.color}
                 transmission={car.transmission}
@@ -725,6 +754,12 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <Fuel className="w-3.5 h-3.5 text-primary" />
                   {car.fuelType || 'Gasoline'}
                 </span>
+                {car.drivetrain && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Globe className="w-3.5 h-3.5 text-primary" />
+                    {car.drivetrain.charAt(0).toUpperCase() + car.drivetrain.slice(1)}
+                  </span>
+                )}
                 {car.mpgCity && car.mpgHighway && (
                   <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
                     <Zap className="w-3.5 h-3.5 text-primary" />
@@ -735,6 +770,24 @@ export default async function CarDetailPage({ params }: PageProps) {
                   <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
                     <DoorOpen className="w-3.5 h-3.5 text-primary" />
                     {car.doors} Door
+                  </span>
+                )}
+                {car.engine && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Settings className="w-3.5 h-3.5 text-primary" />
+                    {car.engine}
+                  </span>
+                )}
+                {car.color && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Palette className="w-3.5 h-3.5 text-primary" />
+                    Ext: {car.color}
+                  </span>
+                )}
+                {car.interiorColor && (
+                  <span className="inline-flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-gray-700">
+                    <Palette className="w-3.5 h-3.5 text-primary" />
+                    Int: {car.interiorColor}
                   </span>
                 )}
               </div>

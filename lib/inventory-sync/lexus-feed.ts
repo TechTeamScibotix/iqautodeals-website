@@ -155,11 +155,22 @@ function determineCondition(newUsed: string, certified: string, mileage: number)
   return 'Used';
 }
 
+// Drivetrain terms that should NOT be used as trim
+const DRIVETRAIN_TERMS = ['quattro', '4matic', 'xdrive', 'awd', 'fwd', 'rwd', '4wd', '2wd', '4x4', '4x2', 'e-4orce'];
+
+function isDrivetrainOnly(val: string): boolean {
+  return DRIVETRAIN_TERMS.includes(val.toLowerCase().trim());
+}
+
 // Build trim from Series / Series Detail columns
 function buildTrim(series: string, seriesDetail: string): string | null {
-  // Prefer Series Detail if available (more specific)
-  if (seriesDetail && seriesDetail.trim()) return seriesDetail.trim();
-  if (series && series.trim()) return series.trim();
+  // Prefer Series Detail if it's a real trim (not just a drivetrain designation)
+  if (seriesDetail && seriesDetail.trim() && !isDrivetrainOnly(seriesDetail)) {
+    return seriesDetail.trim();
+  }
+  if (series && series.trim() && !isDrivetrainOnly(series)) {
+    return series.trim();
+  }
   return null;
 }
 
@@ -329,7 +340,9 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           status: 'active',
           bodyType: vehicle.Body?.trim() || null,
           trim: buildTrim(vehicle.Series, vehicle['Series Detail']),
-          drivetrain: vehicle['Drivetrain Desc']?.trim() || null,
+          drivetrain: vehicle['Drivetrain Desc']?.trim()
+            ? vehicle['Drivetrain Desc'].trim().charAt(0).toUpperCase() + vehicle['Drivetrain Desc'].trim().slice(1)
+            : null,
           engine: vehicle.Engine?.trim() || null,
           condition: determineCondition(vehicle['New/Used'], vehicle.Certified, mileage),
           fuelType: normalizeFuelType(vehicle.Fuel, vehicle.Engine, vehicle.Model),

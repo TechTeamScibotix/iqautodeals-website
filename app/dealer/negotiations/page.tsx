@@ -794,7 +794,7 @@ export default function DealerNegotiations() {
 
                             <div className="flex-1">
                               <h5 className="font-bold text-base mb-1">
-                                {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}
+                                {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}{selectedCar.car.trim ? ` ${selectedCar.car.trim}` : ''}
                               </h5>
                               <p className="text-sm text-gray-700 mb-1">
                                 Asking: {formatPrice(selectedCar.car.salePrice)}
@@ -1186,7 +1186,7 @@ export default function DealerNegotiations() {
 
                                   <div className="flex-1">
                                     <h5 className="font-bold text-base mb-1 text-gray-800">
-                                      {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}
+                                      {selectedCar.car.year} {selectedCar.car.make} {selectedCar.car.model}{selectedCar.car.trim ? ` ${selectedCar.car.trim}` : ''}
                                     </h5>
                                     <p className="text-sm text-gray-600 mb-1">
                                       Mileage: {selectedCar.car.mileage?.toLocaleString()} mi

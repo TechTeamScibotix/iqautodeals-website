@@ -342,7 +342,9 @@ export async function syncWendleFeedInventory(dealerId: string): Promise<SyncRes
           status: 'active',
           bodyType: vehicle.Body?.trim() || null,
           trim: vehicle.Trim?.trim() || null,
-          drivetrain: vehicle.Drivetrain?.trim() || null,
+          drivetrain: vehicle.Drivetrain?.trim()
+            ? vehicle.Drivetrain.trim().charAt(0).toUpperCase() + vehicle.Drivetrain.trim().slice(1)
+            : null,
           engine: vehicle.Engine_Description?.trim() || null,
           condition: determineCondition(vehicle.Type, mileage),
           fuelType: normalizeFuelType(vehicle.Fuel_Type, vehicle.Engine_Description, vehicle.Model),

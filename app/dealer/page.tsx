@@ -13,6 +13,7 @@ interface Car {
   make: string;
   model: string;
   year: number;
+  trim?: string;
   vin: string;
   mileage: number;
   color: string;
@@ -660,7 +661,7 @@ export default function DealerDashboard() {
                 </div>
                 <div className="p-2 md:p-3">
                   <h3 className="font-bold text-xs md:text-sm mb-1 truncate">
-                    {car.year} {car.make} {car.model}
+                    {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}
                   </h3>
                   <p className="text-[10px] md:text-xs text-gray-600 mb-2 truncate">{car.color} • {car.mileage.toLocaleString()} mi{car.fuelType && ` • ${car.fuelType}`}</p>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 mb-1">
@@ -689,7 +690,7 @@ export default function DealerDashboard() {
                       Edit
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(car.id, `${car.year} ${car.make} ${car.model}`); }}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(car.id, `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`); }}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg transition flex items-center justify-center gap-2 text-xs font-semibold"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -747,7 +748,7 @@ export default function DealerDashboard() {
                     </div>
                     <div className="p-3">
                       <h3 className="font-bold text-sm mb-1 truncate">
-                        {car.year} {car.make} {car.model}
+                        {car.year} {car.make} {car.model}{car.trim ? ` ${car.trim}` : ''}
                       </h3>
                       <p className="text-xs text-gray-500 mb-2">VIN: {car.vin}</p>
                       <button
