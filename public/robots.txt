@@ -127,7 +127,7 @@ Disallow: /admin/
 # ============================================
 # SITEMAP & AI INFO
 # ============================================
-Sitemap: https://iqautodeals.com/sitemap.xml
+Sitemap: https://iqautodeals.com/sitemap-index.xml
 
 # LLM/AI Context File
 # For AI assistants seeking structured information
