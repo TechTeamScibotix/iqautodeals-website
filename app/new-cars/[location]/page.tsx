@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
 
   return {
     title: `New Cars in ${city}, ${stateCode} - Best Prices`,
-    description: `Shop new cars for sale in ${city}, ${state}. Compare prices from local dealers and save hundreds. Browse new SUVs, trucks, sedans and more from certified ${city} dealers.`,
+    description: `Shop new cars for sale in ${city}, ${state}. Compare prices from local dealers and save. Browse new SUVs, trucks, sedans and more from certified ${city} dealers.`,
     keywords: [
       `new cars ${city}`,
       `new cars for sale ${city}`,
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     ],
     openGraph: {
       title: `New Cars in ${city}, ${stateCode}`,
-      description: `Shop new cars in ${city}. Compare prices from local dealers and save hundreds.`,
+      description: `Shop new cars in ${city}. Compare prices from local dealers and save.`,
       url: `https://iqautodeals.com/new-cars/${location}`,
     },
     alternates: {
@@ -103,7 +103,7 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
                 {[
                   `Compare prices from multiple ${city} dealers`,
                   'Full manufacturer warranty on all new vehicles',
-                  'Save hundreds through dealer competition',
+                  'Save through dealer competition',
                   'Access to latest manufacturer incentives',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
@@ -120,7 +120,7 @@ export default async function NewCarsLocationPage({ params }: { params: Promise<
                 {[
                   { num: 1, title: 'Browse New Inventory', desc: `Search new vehicles from certified ${city} dealers.` },
                   { num: 2, title: 'Dealers Compete', desc: 'Multiple dealers bid on your selected vehicles to win your business.' },
-                  { num: 3, title: 'Save Hundreds', desc: 'Choose the best offer and drive away in your new car for less.' },
+                  { num: 3, title: 'Save Money', desc: 'Choose the best offer and drive away in your new car for less.' },
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">

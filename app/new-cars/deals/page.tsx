@@ -10,7 +10,7 @@ export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'New Car Deals & Specials (2026) - Best Prices from Local Dealers',
-  description: 'Find the best new car deals and specials from certified dealers. Compare manufacturer incentives, rebates, and financing offers. Save hundreds on your new vehicle purchase.',
+  description: 'Find the best new car deals and specials from certified dealers. Compare manufacturer incentives, rebates, and financing offers. Save on your new vehicle purchase.',
   keywords: [
     'new car deals',
     'new car specials',
@@ -144,7 +144,7 @@ export default function NewCarDealsPage() {
               <h3 className="text-xl font-bold mb-4 text-text-primary">Low APR Financing</h3>
               <p className="text-text-secondary mb-4">
                 Special financing rates as low as 0% APR for qualified buyers.
-                Save thousands in interest over the life of your loan.
+                Save in interest over the life of your loan.
               </p>
               <ul className="text-sm text-text-secondary space-y-2">
                 <li className="flex items-center gap-2">

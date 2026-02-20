@@ -11,7 +11,7 @@ export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
   title: 'New Cars for Sale (2026) - Compare Prices from Local Dealers',
-  description: 'Shop new cars for sale from certified dealers nationwide. Compare prices, get competing offers, and save hundreds on your new vehicle purchase. Browse new SUVs, trucks, sedans and more.',
+  description: 'Shop new cars for sale from certified dealers nationwide. Compare prices, get competing offers, and save on your new vehicle purchase. Browse new SUVs, trucks, sedans and more.',
   keywords: [
     'new cars for sale',
     'new car deals',
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'New Cars for Sale - Compare Dealer Prices',
-    description: 'Shop new cars from certified dealers. Compare prices and save hundreds on your new vehicle.',
+    description: 'Shop new cars from certified dealers. Compare prices and save on your new vehicle.',
     url: 'https://iqautodeals.com/new-cars',
   },
   alternates: {
@@ -76,7 +76,7 @@ export default function NewCarsPage() {
               Shop Brand New Vehicles from Certified Dealers Nationwide
             </p>
             <p className="text-lg mb-8 text-white/80">
-              Compare prices from multiple dealers and save hundreds on your new car purchase
+              Compare prices from multiple dealers and save on your new car purchase
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -164,7 +164,7 @@ export default function NewCarsPage() {
                 {[
                   { num: 1, title: 'Browse New Inventory', desc: 'Search thousands of new vehicles from certified dealers across the country.' },
                   { num: 2, title: 'Dealers Compete', desc: 'Multiple dealers bid on your selected vehicles to win your business.' },
-                  { num: 3, title: 'Save Hundreds', desc: 'Choose the best offer and drive away in your new car for less.' },
+                  { num: 3, title: 'Save Money', desc: 'Choose the best offer and drive away in your new car for less.' },
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">

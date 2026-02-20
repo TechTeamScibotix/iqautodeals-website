@@ -157,7 +157,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
 
   return {
     title: `New and Used ${make} ${modelName} for Sale`,
-    description: `Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save hundreds. Certified pre-owned available. No haggling required. Browse ${make} ${modelName} inventory now.`,
+    description: `Find the best deals on used ${make} ${modelName}. Compare prices from multiple dealers & save. Certified pre-owned available. No haggling required. Browse ${make} ${modelName} inventory now.`,
     keywords: [
       `used ${make} ${modelName}`,
       `${make} ${modelName} for sale`,
@@ -173,7 +173,7 @@ export async function generateMetadata({ params }: { params: Promise<{ model: st
     ],
     openGraph: {
       title: `New and Used ${make} ${modelName} for Sale`,
-      description: `Shop quality used ${make} ${modelName}. Compare prices from local dealers and save hundreds.`,
+      description: `Shop quality used ${make} ${modelName}. Compare prices from local dealers and save.`,
       url: `https://iqautodeals.com/models/${modelSlug}`,
     },
     alternates: {
@@ -230,7 +230,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             </p>
             <p className="text-gray-700 mb-4">
               Our platform connects you with certified dealers who compete to offer you the best price on
-              pre-owned {make} {modelName} vehicles. Compare multiple offers and save thousands on your purchase.
+              pre-owned {make} {modelName} vehicles. Compare multiple offers and save on your purchase.
             </p>
             <ul className="space-y-3 text-gray-700">
               <li className="flex items-start">
@@ -249,7 +249,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>Save hundreds on your {make} {modelName} purchase</span>
+                <span>Save on your {make} {modelName} purchase</span>
               </li>
               <li className="flex items-start">
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -286,7 +286,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
                   3
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-xl font-semibold mb-2">Save Thousands</h3>
+                  <h3 className="text-xl font-semibold mb-2">Save Money</h3>
                   <p className="text-gray-700">Choose the best offer and drive away in your dream {make} {modelName} for less.</p>
                 </div>
               </div>
@@ -536,7 +536,7 @@ export default async function ModelPage({ params }: { params: Promise<{ model: s
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: `Used ${make} ${modelName}`,
-            description: `Shop quality used ${make} ${modelName} for sale. Compare prices from local dealers and save thousands.`,
+            description: `Shop quality used ${make} ${modelName} for sale. Compare prices from local dealers and save.`,
             brand: {
               '@type': 'Brand',
               name: make,

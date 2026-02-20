@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     const { label } = priceData;
     return {
       title: `New Cars ${label} in ${city}, ${stateCode}`,
-      description: `${label} new cars in ${city}, ${state}. Compare dealer prices and save hundreds. Quality new vehicles. No haggling. Trusted dealers. Browse new cars, SUVs and trucks now.`,
+      description: `${label} new cars in ${city}, ${state}. Compare dealer prices and save. Quality new vehicles. No haggling. Trusted dealers. Browse new cars, SUVs and trucks now.`,
       keywords: [
         `new cars ${label.toLowerCase()} ${city}`,
         `affordable new cars ${city}`,
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       ],
       openGraph: {
         title: `New Cars ${label} - ${city}, ${stateCode}`,
-        description: `Shop new cars ${label.toLowerCase()} in ${city}. Compare prices and save hundreds.`,
+        description: `Shop new cars ${label.toLowerCase()} in ${city}. Compare prices and save.`,
         url: `https://iqautodeals.com/new-cars/${location}/${filter}`,
       },
       alternates: {
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     const { label, singular } = bodyTypeData;
     return {
       title: `New ${label} in ${city}, ${stateCode} - Best Deals`,
-      description: `New ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices and save hundreds. Certified new ${singular.toLowerCase()}s. No haggling. Browse now.`,
+      description: `New ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices and save. Certified new ${singular.toLowerCase()}s. No haggling. Browse now.`,
       keywords: [
         `new ${label.toLowerCase()} ${city}`,
         `new ${label.toLowerCase()} for sale ${city}`,
@@ -90,7 +90,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       ],
       openGraph: {
         title: `New ${label} - ${city}, ${stateCode}`,
-        description: `Shop new ${label.toLowerCase()} in ${city}. Compare prices and save hundreds on your new ${singular.toLowerCase()}.`,
+        description: `Shop new ${label.toLowerCase()} in ${city}. Compare prices and save on your new ${singular.toLowerCase()}.`,
         url: `https://iqautodeals.com/new-cars/${location}/${filter}`,
       },
       alternates: {
@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { brand, model, fullName } = modelData;
   return {
     title: `New ${fullName} in ${city}, ${stateCode}`,
-    description: `New ${fullName} for sale in ${city}, ${state}. Compare ${brand} dealer prices and save hundreds. Full warranty. No haggling. Browse new ${fullName} inventory now.`,
+    description: `New ${fullName} for sale in ${city}, ${state}. Compare ${brand} dealer prices and save. Full warranty. No haggling. Browse new ${fullName} inventory now.`,
     keywords: [
       `new ${fullName.toLowerCase()} ${city}`,
       `new ${fullName} for sale ${city}`,
@@ -113,7 +113,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     ],
     openGraph: {
       title: `New ${fullName} - ${city}, ${stateCode}`,
-      description: `Shop new ${fullName} in ${city}. Compare prices and save hundreds.`,
+      description: `Shop new ${fullName} in ${city}. Compare prices and save.`,
       url: `https://iqautodeals.com/new-cars/${location}/${filter}`,
     },
     alternates: {
@@ -239,7 +239,7 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
                     'Full manufacturer warranty included',
                     'Latest 2026 models available',
                     `Compare prices from multiple ${city} dealers`,
-                    'Save hundreds through dealer competition',
+                    'Save through dealer competition',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />

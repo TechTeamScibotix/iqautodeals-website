@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
 
   return {
     title: `New and Used Cars in ${city}, ${stateCode}`,
-    description: `Browse quality used cars for sale in ${city}, ${state}. Compare dealer prices instantly. Save hundreds. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
+    description: `Browse quality used cars for sale in ${city}, ${state}. Compare dealer prices instantly. Save. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
     keywords: [
       `used cars ${city}`,
       `used cars for sale ${city}`,
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     ],
     openGraph: {
       title: `New and Used Cars in ${city}, ${stateCode}`,
-      description: `Shop quality used cars in ${city}. Compare prices from local dealers and save hundreds.`,
+      description: `Shop quality used cars in ${city}. Compare prices from local dealers and save.`,
       url: `https://iqautodeals.com/locations/${location}`,
     },
     alternates: {
@@ -114,7 +114,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span>Save hundreds on your next vehicle</span>
+                <span>Save on your next vehicle</span>
               </li>
               <li className="flex items-start">
                 <svg className="w-6 h-6 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -152,7 +152,7 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
                 </div>
                 <div className="ml-4">
                   <h3 className="text-xl font-semibold mb-2">You Save Money</h3>
-                  <p className="text-gray-700">Choose the best offer and save thousands on your next vehicle purchase.</p>
+                  <p className="text-gray-700">Choose the best offer and save on your next vehicle purchase.</p>
                 </div>
               </div>
             </div>

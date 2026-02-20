@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     const { label, max } = priceData;
     return {
       title: `New and Used Cars ${label} in ${city}, ${stateCode}`,
-      description: `${label} used cars in ${city}, ${state}. Compare dealer prices & save hundreds. Quality vehicles. No haggling. Trusted dealers. Browse affordable cars, SUVs & trucks now.`,
+      description: `${label} used cars in ${city}, ${state}. Compare dealer prices & save. Quality vehicles. No haggling. Trusted dealers. Browse affordable cars, SUVs & trucks now.`,
       keywords: [
         `used cars ${label.toLowerCase()} ${city}`,
         `cars under $${max} ${city}`,
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       ],
       openGraph: {
         title: `New and Used Cars ${label} in ${city}, ${stateCode}`,
-        description: `Shop quality used cars ${label.toLowerCase()} in ${city}. Compare prices and save hundreds.`,
+        description: `Shop quality used cars ${label.toLowerCase()} in ${city}. Compare prices and save.`,
         url: `https://iqautodeals.com/locations/${location}/${filter}`,
       },
       alternates: {
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     const { label, singular } = bodyTypeData;
     return {
       title: `New and Used ${label} in ${city}, ${stateCode}`,
-      description: `Top used ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices & save hundreds. Certified pre-owned. No haggling. Quality ${singular.toLowerCase()}s. Browse now.`,
+      description: `Top used ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices & save. Certified pre-owned. No haggling. Quality ${singular.toLowerCase()}s. Browse now.`,
       keywords: [
         `used ${label.toLowerCase()} ${city}`,
         `${label.toLowerCase()} for sale ${city}`,
@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
       ],
       openGraph: {
         title: `New and Used ${label} in ${city}, ${stateCode}`,
-        description: `Shop quality used ${label.toLowerCase()} in ${city}. Compare prices and save hundreds on your next ${singular.toLowerCase()}.`,
+        description: `Shop quality used ${label.toLowerCase()} in ${city}. Compare prices and save on your next ${singular.toLowerCase()}.`,
         url: `https://iqautodeals.com/locations/${location}/${filter}`,
       },
       alternates: {
@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { brand, model, fullName } = modelData;
   return {
     title: `New and Used ${fullName} for Sale in ${city}, ${stateCode}`,
-    description: `Best deals on used ${fullName} in ${city}, ${state}. Compare ${brand} dealer prices & save hundreds. Certified pre-owned. No haggling. Browse ${fullName} inventory now.`,
+    description: `Best deals on used ${fullName} in ${city}, ${state}. Compare ${brand} dealer prices & save. Certified pre-owned. No haggling. Browse ${fullName} inventory now.`,
     keywords: [
       `used ${fullName.toLowerCase()} ${city}`,
       `${fullName} for sale ${city}`,
@@ -117,7 +117,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     ],
     openGraph: {
       title: `New and Used ${fullName} in ${city}, ${stateCode}`,
-      description: `Shop quality used ${fullName} in ${city}. Compare prices and save hundreds.`,
+      description: `Shop quality used ${fullName} in ${city}. Compare prices and save.`,
       url: `https://iqautodeals.com/locations/${location}/${filter}`,
     },
     alternates: {
@@ -294,8 +294,8 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
                 {isPriceRange
                   ? `Looking for quality used cars ${label.toLowerCase()} in ${city}, ${state}? You're in the right place. IQ Auto Deals helps ${city} residents find the perfect vehicle in this price range while saving thousands.`
                   : isBodyType
-                    ? `Looking for a quality used ${bodyTypeData.singular.toLowerCase()} in ${city}, ${state}? IQ Auto Deals connects you with trusted dealers offering the best ${label.toLowerCase()} at competitive prices. Save thousands on your next ${bodyTypeData.singular.toLowerCase()}.`
-                    : `Looking for a used ${label} in ${city}, ${state}? IQ Auto Deals connects you with trusted ${isModel ? modelData.brand : ''} dealers offering the best ${label} at competitive prices. Compare offers and save thousands.`
+                    ? `Looking for a quality used ${bodyTypeData.singular.toLowerCase()} in ${city}, ${state}? IQ Auto Deals connects you with trusted dealers offering the best ${label.toLowerCase()} at competitive prices. Save on your next ${bodyTypeData.singular.toLowerCase()}.`
+                    : `Looking for a used ${label} in ${city}, ${state}? IQ Auto Deals connects you with trusted ${isModel ? modelData.brand : ''} dealers offering the best ${label} at competitive prices. Compare offers and save.`
                 }
               </p>
               <ul className="space-y-3 mb-6">

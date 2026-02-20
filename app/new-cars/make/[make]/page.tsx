@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
 
   return {
     title: `New ${name} for Sale (2026) - Compare Prices from Local Dealers`,
-    description: `Shop new ${name} vehicles for sale. Compare prices from certified ${name} dealers and save hundreds. Browse new ${name} SUVs, trucks, sedans and more. Full warranty included.`,
+    description: `Shop new ${name} vehicles for sale. Compare prices from certified ${name} dealers and save. Browse new ${name} SUVs, trucks, sedans and more. Full warranty included.`,
     keywords: [
       `new ${name.toLowerCase()}`,
       `new ${name.toLowerCase()} for sale`,
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
     ],
     openGraph: {
       title: `New ${name} for Sale`,
-      description: `Shop new ${name} vehicles. Compare prices from dealers and save hundreds.`,
+      description: `Shop new ${name} vehicles. Compare prices from dealers and save.`,
       url: `https://iqautodeals.com/new-cars/make/${makeSlug}`,
     },
     alternates: {
@@ -123,7 +123,7 @@ export default async function NewCarsMakePage({ params }: { params: Promise<{ ma
               Shop Brand New {name} Vehicles from Certified Dealers
             </p>
             <p className="text-lg mb-8 text-white/80">
-              Compare prices and save hundreds on your new {name}
+              Compare prices and save on your new {name}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -180,14 +180,14 @@ export default async function NewCarsMakePage({ params }: { params: Promise<{ ma
               </p>
               <p className="text-text-secondary mb-6">
                 IQ Auto Deals connects you with certified {name} dealers who compete to offer you the best price
-                on brand new vehicles. Compare multiple offers and save hundreds on your purchase.
+                on brand new vehicles. Compare multiple offers and save on your purchase.
               </p>
               <ul className="space-y-4">
                 {[
                   `Full ${name} manufacturer warranty`,
                   `Latest 2026 ${name} models available`,
                   `Compare prices from multiple ${name} dealers`,
-                  'Save hundreds through dealer competition',
+                  'Save through dealer competition',
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
@@ -203,7 +203,7 @@ export default async function NewCarsMakePage({ params }: { params: Promise<{ ma
                 {[
                   { num: 1, title: 'Browse New Inventory', desc: `Search new ${name} vehicles from certified dealers.` },
                   { num: 2, title: 'Dealers Compete', desc: 'Multiple dealers bid on your selected vehicles to win your business.' },
-                  { num: 3, title: 'Save Hundreds', desc: `Choose the best offer and drive away in your new ${name} for less.` },
+                  { num: 3, title: 'Save Money', desc: `Choose the best offer and drive away in your new ${name} for less.` },
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">

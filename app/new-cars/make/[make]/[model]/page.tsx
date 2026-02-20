@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
 
   return {
     title: `New ${fullName} for Sale - Best Prices`,
-    description: `Shop new ${fullName} for sale. Compare prices from certified ${brand} dealers and save hundreds. Full warranty. Latest 2026 ${model} inventory. No haggling required.`,
+    description: `Shop new ${fullName} for sale. Compare prices from certified ${brand} dealers and save. Full warranty. Latest 2026 ${model} inventory. No haggling required.`,
     keywords: [
       `new ${fullName.toLowerCase()}`,
       `new ${fullName.toLowerCase()} for sale`,
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: { params: Promise<{ make: str
     ],
     openGraph: {
       title: `New ${fullName} for Sale`,
-      description: `Shop new ${fullName}. Compare prices from ${brand} dealers and save hundreds.`,
+      description: `Shop new ${fullName}. Compare prices from ${brand} dealers and save.`,
       url: `https://iqautodeals.com/new-cars/make/${makeSlug}/${modelUrlSlug}`,
     },
     alternates: {
@@ -162,7 +162,7 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
               Vehicle Type: <span className="capitalize">{type}</span>
             </p>
             <p className="text-lg mb-8 text-white/80">
-              Compare prices and save hundreds on your new {fullName}
+              Compare prices and save on your new {fullName}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -217,14 +217,14 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
               </p>
               <p className="text-text-secondary mb-6">
                 IQ Auto Deals connects you with certified {brand} dealers who compete to offer you
-                the best price on the new {fullName}. Compare multiple offers and save hundreds.
+                the best price on the new {fullName}. Compare multiple offers and save.
               </p>
               <ul className="space-y-4">
                 {[
                   `Full ${brand} manufacturer warranty`,
                   `Latest 2026 ${model} with newest features`,
                   `Compare prices from multiple ${brand} dealers`,
-                  `Save hundreds on your new ${fullName}`,
+                  `Save on your new ${fullName}`,
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
@@ -240,7 +240,7 @@ export default async function NewCarsModelPage({ params }: { params: Promise<{ m
                 {[
                   { num: 1, title: 'Browse New Inventory', desc: `Search new ${fullName} from certified ${brand} dealers.` },
                   { num: 2, title: 'Dealers Compete', desc: 'Multiple dealers bid on your selected vehicle to win your business.' },
-                  { num: 3, title: 'Save Hundreds', desc: `Choose the best offer and drive away in your new ${fullName} for less.` },
+                  { num: 3, title: 'Save Money', desc: `Choose the best offer and drive away in your new ${fullName} for less.` },
                 ].map((step) => (
                   <div key={step.num} className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
