@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,8 +7,8 @@ import { locations } from '@/lib/data/locations';
 import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
-import InventorySection from '@/app/components/InventorySection';
 import ItemListSchema from '@/app/components/ItemListSchema';
+import CarsClient from '@/app/cars/CarsClient';
 
 // Generate on-demand and cache for 24 hours (ISR) — too many combinations to prebuild
 export const dynamicParams = true;
@@ -263,59 +264,20 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
       />
 
       <div className="min-h-screen bg-white">
-        <nav className="bg-gray-50 border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li><Link href="/" className="text-blue-600 hover:text-blue-800">Home</Link></li>
-              <li className="text-gray-400">/</li>
-              <li><Link href="/locations" className="text-blue-600 hover:text-blue-800">Locations</Link></li>
-              <li className="text-gray-400">/</li>
-              <li><Link href={`/locations/${location}`} className="text-blue-600 hover:text-blue-800">{city}</Link></li>
-              <li className="text-gray-400">/</li>
-              <li className="text-gray-700">{label}</li>
-            </ol>
-          </div>
-        </nav>
-
-        <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              {isPriceRange
-                ? `Used Cars ${label} in ${city}, ${stateCode}`
-                : isBodyType
-                  ? `Used ${label} for Sale in ${city}, ${stateCode}`
-                  : `Used ${label} for Sale in ${city}, ${stateCode}`
-              }
-            </h1>
-            <p className="text-xl mb-4">
-              Shop Quality {isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers
-            </p>
-            {inventory.totalCount > 0 && (
-              <span className="inline-block bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
-                {inventory.totalCount.toLocaleString()} vehicles available
-              </span>
-            )}
-            <p className="text-lg mb-8 text-blue-100">
-              Compare prices instantly • Dealers compete for your business • No haggling required
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href={carsHref}
-                className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
-              >
-                {isPriceRange ? `Browse Cars ${label}` : `Browse ${label}`}
-              </Link>
-              <Link
-                href={`/locations/${location}`}
-                className="inline-block bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition border-2 border-white"
-              >
-                All {city} Cars
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <InventorySection inventory={inventory} filterLabel={label} carsHref={carsHref} />
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading inventory...</div></div>}>
+          <CarsClient
+            pageTitle={isPriceRange
+              ? `Used Cars ${label} in ${city}, ${stateCode}`
+              : `Used ${label} for Sale in ${city}, ${stateCode}`
+            }
+            pageSubtitle={`Shop Quality ${isPriceRange ? 'Pre-Owned Vehicles' : label} from Trusted Dealers in ${city}, ${state}`}
+            initialZipCode={zip}
+            {...(isPriceRange ? { initialMinPrice: priceData.min > 0 ? priceData.min : undefined, initialMaxPrice: priceData.max < 999999 ? priceData.max : undefined } : {})}
+            {...(isBodyType ? { initialBodyType: bodyTypeData.label } : {})}
+            {...(isModel ? { initialMake: modelData.brand, initialModel: modelData.model } : {})}
+            showFooter={false}
+          />
+        </Suspense>
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-2 gap-12 mb-16">

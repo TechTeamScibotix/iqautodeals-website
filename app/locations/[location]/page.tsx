@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -5,8 +6,8 @@ import zipcodes from 'zipcodes';
 import Footer from '../../components/Footer';
 import { locations } from '@/lib/data/locations';
 import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
-import InventorySection from '@/app/components/InventorySection';
 import ItemListSchema from '@/app/components/ItemListSchema';
+import CarsClient from '@/app/cars/CarsClient';
 
 export async function generateStaticParams() {
   return [];
@@ -74,32 +75,14 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
     <div className="min-h-screen bg-white">
       <ItemListSchema cars={inventory.cars} listName={`Cars for Sale in ${city}, ${stateCode}`} />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Used Cars for Sale in {city}, {stateCode}
-          </h1>
-          <p className="text-xl mb-4">
-            Shop Quality Pre-Owned Vehicles from Trusted Dealers in {city}, {state}
-          </p>
-          {inventory.totalCount > 0 && (
-            <span className="inline-block bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
-              {inventory.totalCount.toLocaleString()} vehicles available
-            </span>
-          )}
-          <div>
-            <Link
-              href={carsHref}
-              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
-            >
-              Browse Cars in {city}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <InventorySection inventory={inventory} filterLabel="Vehicles" carsHref={carsHref} />
+      <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading inventory...</div></div>}>
+        <CarsClient
+          pageTitle={`Used Cars for Sale in ${city}, ${stateCode}`}
+          pageSubtitle={`Shop Quality Pre-Owned Vehicles from Trusted Dealers in ${city}, ${state}`}
+          initialZipCode={zip}
+          showFooter={false}
+        />
+      </Suspense>
 
       {/* Main Content */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

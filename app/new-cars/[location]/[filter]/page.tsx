@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,8 +10,8 @@ import { bodyTypes } from '@/lib/data/bodyTypes';
 import { models } from '@/lib/data/models';
 import { ArrowRight, Car, CheckCircle } from 'lucide-react';
 import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
-import InventorySection from '@/app/components/InventorySection';
 import ItemListSchema from '@/app/components/ItemListSchema';
+import CarsClient from '@/app/cars/CarsClient';
 
 // Generate on-demand and cache for 24 hours (ISR) — too many combinations to prebuild
 export const dynamicParams = true;
@@ -196,87 +197,21 @@ export default async function NewCarsFilterPage({ params }: { params: Promise<{ 
       />
 
       <div className="min-h-screen bg-light-dark font-sans">
-        {/* Header */}
-        <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
-          <div className="container mx-auto px-3 md:px-4 h-full">
-            <div className="flex justify-between items-center h-full">
-              <Link href="/" className="flex items-center h-full py-2">
-                <Image src="/logo-header.png" alt="IQ Auto Deals" width={180} height={40} className="h-8 md:h-10 w-auto" priority />
-              </Link>
-              <nav className="hidden lg:flex gap-8 text-sm font-semibold">
-                <Link href="/new-cars" className="text-primary transition-colors py-2">New Vehicles</Link>
-                <Link href="/cars?condition=used" className="text-white hover:text-primary transition-colors py-2">Used Vehicles</Link>
-                <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">For Dealers</Link>
-              </nav>
-              <div className="flex gap-2 md:gap-3">
-                <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold">
-                  Sign In
-                </Link>
-                <Link href="/register" className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold">
-                  Sign Up
-                </Link>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Breadcrumb Navigation */}
-        <nav className="bg-white border-b border-border">
-          <div className="container mx-auto px-4 py-3">
-            <ol className="flex items-center space-x-2 text-sm">
-              <li><Link href="/" className="text-primary hover:text-primary-dark">Home</Link></li>
-              <li className="text-text-secondary">/</li>
-              <li><Link href="/new-cars" className="text-primary hover:text-primary-dark">New Cars</Link></li>
-              <li className="text-text-secondary">/</li>
-              <li><Link href={`/new-cars/${location}`} className="text-primary hover:text-primary-dark">{city}</Link></li>
-              <li className="text-text-secondary">/</li>
-              <li className="text-text-primary">{label}</li>
-            </ol>
-          </div>
-        </nav>
-
-        {/* Hero Section */}
-        <section className="bg-gradient-to-r from-primary to-primary-dark text-white py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                {isPriceRange
-                  ? `New Cars ${label} in ${city}, ${stateCode}`
-                  : `New ${label} for Sale in ${city}, ${stateCode}`
-                }
-              </h1>
-              <p className="text-xl mb-4 text-white/90">
-                Shop Brand New {isPriceRange ? 'Vehicles' : label} from Certified {city} Dealers
-              </p>
-              {inventory.totalCount > 0 && (
-                <span className="inline-block bg-white/20 text-white text-sm font-semibold px-3 py-1 rounded-full mb-4">
-                  {inventory.totalCount.toLocaleString()} vehicles available
-                </span>
-              )}
-              <p className="text-lg mb-8 text-white/80">
-                Compare prices from multiple dealers and save hundreds
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href={carsHref}
-                  className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3 rounded-pill font-semibold hover:bg-gray-100 transition"
-                >
-                  <Car className="w-5 h-5" />
-                  {isPriceRange ? `Browse Cars ${label}` : `Browse New ${label}`}
-                </Link>
-                <Link
-                  href={`/new-cars/${location}`}
-                  className="inline-flex items-center gap-2 bg-white/10 text-white px-8 py-3 rounded-pill font-semibold hover:bg-white/20 transition border border-white/30"
-                >
-                  All New Cars in {city}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <InventorySection inventory={inventory} filterLabel={`New ${label}`} carsHref={carsHref} />
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading inventory...</div></div>}>
+          <CarsClient
+            pageTitle={isPriceRange
+              ? `New Cars ${label} in ${city}, ${stateCode}`
+              : `New ${label} for Sale in ${city}, ${stateCode}`
+            }
+            pageSubtitle={`Shop Brand New ${isPriceRange ? 'Vehicles' : label} from Certified ${city} Dealers`}
+            initialZipCode={zip}
+            initialCondition="new"
+            {...(isPriceRange ? { initialMinPrice: priceData.min > 0 ? priceData.min : undefined, initialMaxPrice: priceData.max < 999999 ? priceData.max : undefined } : {})}
+            {...(isBodyType ? { initialBodyType: bodyTypeData.label } : {})}
+            {...(isModel ? { initialMake: modelData.brand, initialModel: modelData.model } : {})}
+            showFooter={false}
+          />
+        </Suspense>
 
         {/* Main Content */}
         <section className="py-16 bg-white">

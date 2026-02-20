@@ -117,22 +117,50 @@ interface FilterOptions {
   };
 }
 
-export default function CarsClient() {
+export interface CarsClientProps {
+  pageTitle?: string;
+  pageSubtitle?: string;
+  initialZipCode?: string;
+  initialBodyType?: string;
+  initialMake?: string;
+  initialModel?: string;
+  initialMinPrice?: number;
+  initialMaxPrice?: number;
+  initialCondition?: string;
+  showHeader?: boolean;
+  showFooter?: boolean;
+}
+
+export default function CarsClient({
+  pageTitle,
+  pageSubtitle,
+  initialZipCode,
+  initialBodyType,
+  initialMake,
+  initialModel,
+  initialMinPrice,
+  initialMaxPrice,
+  initialCondition,
+  showHeader = true,
+  showFooter = true,
+}: CarsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasInitialProps = !!(initialZipCode || initialBodyType || initialMake || initialModel || initialMinPrice || initialMaxPrice || initialCondition);
+
   const [search, setSearch] = useState({
-    q: searchParams.get('q') || '', // Free-text search query
-    make: searchParams.get('make') || '',
-    model: searchParams.get('model') || '',
+    q: searchParams.get('q') || '',
+    make: searchParams.get('make') || initialMake || '',
+    model: searchParams.get('model') || initialModel || '',
     state: searchParams.get('state') || 'all',
-    condition: searchParams.get('condition') || 'all',
+    condition: searchParams.get('condition') || initialCondition || 'all',
     fuelType: searchParams.get('fuelType') || 'all',
-    bodyType: searchParams.get('bodyType') || 'all',
-    minPrice: searchParams.get('minPrice') || '',
-    maxPrice: searchParams.get('maxPrice') || '',
-    zipCode: searchParams.get('zipCode') || '',
+    bodyType: searchParams.get('bodyType') || initialBodyType || 'all',
+    minPrice: searchParams.get('minPrice') || (initialMinPrice ? String(initialMinPrice) : ''),
+    maxPrice: searchParams.get('maxPrice') || (initialMaxPrice ? String(initialMaxPrice) : ''),
+    zipCode: searchParams.get('zipCode') || initialZipCode || '',
   });
   const [viewingPhotos, setViewingPhotos] = useState<{ car: CarListing; photos: string[] } | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -219,7 +247,10 @@ export default function CarsClient() {
   }, [search.make, search.model, filterOptions.modelsByMake]);
 
   // Reload when URL params change (e.g., clicking New Vehicles / Used Vehicles links, or search query)
+  // Skip when embedded with initial props — location pages control state via props, not URL params
   useEffect(() => {
+    if (hasInitialProps) return;
+
     const urlQ = searchParams.get('q') || '';
     const urlCondition = searchParams.get('condition') || 'all';
     const urlMake = searchParams.get('make') || '';
@@ -597,6 +628,7 @@ export default function CarsClient() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
+      {showHeader && (
       <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-4 h-full flex justify-between items-center">
           <Link href="/" className="flex items-center h-full py-1">
@@ -647,9 +679,10 @@ export default function CarsClient() {
           </div>
         </div>
       </header>
+      )}
 
       {/* Mobile Filters Button */}
-      <div className="lg:hidden sticky top-20 z-40 bg-white border-b border-gray-200 px-4 py-3">
+      <div className={`lg:hidden sticky ${showHeader ? 'top-14 md:top-20' : 'top-0'} z-40 bg-white border-b border-gray-200 px-4 py-3`}>
         <button
           onClick={() => setShowMobileFilters(true)}
           className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-full font-medium text-gray-700 hover:bg-gray-50"
@@ -884,7 +917,7 @@ export default function CarsClient() {
       <div className="container mx-auto px-4 py-6">
         {/* Page Title */}
         <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
-          {search.fuelType && search.fuelType !== 'all'
+          {pageTitle || (search.fuelType && search.fuelType !== 'all'
             ? `${search.fuelType} Vehicles for Sale`
             : search.bodyType && search.bodyType !== 'all'
             ? `${search.bodyType}s for Sale`
@@ -892,13 +925,16 @@ export default function CarsClient() {
             ? 'New Vehicles for Sale'
             : search.condition === 'used'
             ? 'Used Cars for Sale'
-            : 'Cars for Sale'}
+            : 'Cars for Sale')}
         </h2>
+        {pageSubtitle && (
+          <p className="text-gray-600 mb-4">{pageSubtitle}</p>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Desktop Sidebar Filters */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24">
+            <div className={`sticky ${showHeader ? 'top-24' : 'top-4'}`}>
               {/* Brand Section */}
               <div className="border-b border-gray-200 py-4">
                 <button onClick={() => toggleSection('brand')} className="w-full flex items-center justify-between text-left">
@@ -1867,7 +1903,7 @@ export default function CarsClient() {
       )}
 
       {/* Footer */}
-      <Footer />
+      {showFooter && <Footer />}
     </div>
   );
 }
