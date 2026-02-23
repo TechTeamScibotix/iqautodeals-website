@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -36,6 +36,35 @@ export async function generateStaticParams() {
   return [];
 }
 
+// Deduplicate inventory fetch between generateMetadata and page component (same request)
+const getInventory = cache(async (locationSlug: string, filterSlug: string): Promise<InventoryResult> => {
+  const locationData = locations[locationSlug as keyof typeof locations];
+  const priceData = priceRanges[filterSlug as keyof typeof priceRanges];
+  const bodyTypeData = bodyTypes[filterSlug as keyof typeof bodyTypes];
+  const modelData = models[filterSlug as keyof typeof models];
+
+  if (!locationData || (!priceData && !bodyTypeData && !modelData)) {
+    return { cars: [], totalCount: 0, scope: 'city', scopeLabel: '' };
+  }
+
+  const { city, stateCode } = locationData;
+  const isPriceRange = !!priceData;
+  const isBodyType = !!bodyTypeData;
+  const isModel = !!modelData;
+
+  try {
+    return await fetchInventoryForLocation({
+      city,
+      stateCode,
+      ...(isPriceRange ? { minPrice: priceData.min > 0 ? priceData.min : undefined, maxPrice: priceData.max < 999999 ? priceData.max : undefined } : {}),
+      ...(isBodyType ? { bodyType: filterSlug } : {}),
+      ...(isModel ? { make: modelData.brand, model: modelData.model } : {}),
+    });
+  } catch {
+    return { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
+  }
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ location: string; filter: string }> }): Promise<Metadata> {
   const { location, filter } = await params;
   const locationData = locations[location as keyof typeof locations];
@@ -49,12 +78,19 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
 
   const { city, state, stateCode } = locationData;
 
+  // Check inventory — noindex pages with zero results to avoid thin content penalties
+  const inventory = await getInventory(location, filter);
+  const robotsDirective = inventory.totalCount === 0
+    ? { index: false, follow: true } as const
+    : undefined;
+
   // Price range metadata
   if (priceData) {
     const { label, max } = priceData;
     return {
       title: `New and Used Cars ${label} in ${city}, ${stateCode}`,
       description: `${label} used cars in ${city}, ${state}. Compare dealer prices & save. Quality vehicles. No haggling. Trusted dealers. Browse affordable cars, SUVs & trucks now.`,
+      ...(robotsDirective ? { robots: robotsDirective } : {}),
       keywords: [
         `used cars ${label.toLowerCase()} ${city}`,
         `cars under $${max} ${city}`,
@@ -81,6 +117,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
     return {
       title: `New and Used ${label} in ${city}, ${stateCode}`,
       description: `Top used ${label.toLowerCase()} for sale in ${city}, ${state}. Compare dealer prices & save. Certified pre-owned. No haggling. Quality ${singular.toLowerCase()}s. Browse now.`,
+      ...(robotsDirective ? { robots: robotsDirective } : {}),
       keywords: [
         `used ${label.toLowerCase()} ${city}`,
         `${label.toLowerCase()} for sale ${city}`,
@@ -106,6 +143,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   return {
     title: `New and Used ${fullName} for Sale in ${city}, ${stateCode}`,
     description: `Best deals on used ${fullName} in ${city}, ${state}. Compare ${brand} dealer prices & save. Certified pre-owned. No haggling. Browse ${fullName} inventory now.`,
+    ...(robotsDirective ? { robots: robotsDirective } : {}),
     keywords: [
       `used ${fullName.toLowerCase()} ${city}`,
       `${fullName} for sale ${city}`,
@@ -165,16 +203,10 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
   }
   const carsHref = carsParams.toString() ? `/cars?${carsParams.toString()}` : '/cars';
 
-  // Fetch real inventory from DB
+  // Fetch real inventory from DB (cached — shared with generateMetadata)
   let inventory: InventoryResult = { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
   try {
-    inventory = await fetchInventoryForLocation({
-      city,
-      stateCode,
-      ...(isPriceRange ? { minPrice: priceData.min > 0 ? priceData.min : undefined, maxPrice: priceData.max < 999999 ? priceData.max : undefined } : {}),
-      ...(isBodyType ? { bodyType: filter } : {}),
-      ...(isModel ? { make: modelData.brand, model: modelData.model } : {}),
-    });
+    inventory = await getInventory(location, filter);
   } catch {}
 
   return (
