@@ -134,20 +134,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${car.year} ${car.make} ${car.model}${trimLabel} for Sale in ${car.city}, ${car.state}`;
   const rawDescription = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
-  // Strip markdown syntax for meta tags (##, **, *, >, -, etc.)
-  const strippedDescription = rawDescription
-    .replace(/#{1,6}\s?/g, '')
-    .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
-    .replace(/^[\s]*[-*>]+\s?/gm, '')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/\n{2,}/g, ' ')
-    .replace(/\n/g, ' ')
-    .trim();
-  // Lead with vehicle details for higher CTR in social/search previews
+  // Build a deal-focused meta description for max CTR on social/search previews
   const priceTag = car.salePrice && car.salePrice > 0 ? ` — $${car.salePrice.toLocaleString()}` : '';
-  const milesTag = car.mileage ? ` — ${car.mileage.toLocaleString()} miles` : '';
-  const metaLead = `${car.year} ${car.make} ${car.model}${trimLabel} in ${car.city}, ${car.state}${priceTag}${milesTag}.`;
-  const description = `${metaLead} ${strippedDescription}`;
+  const milesTag = car.mileage ? ` — ${car.mileage.toLocaleString()} mi` : '';
+  const features: string[] = [];
+  if (car.drivetrain && car.drivetrain !== 'Unknown') features.push(car.drivetrain);
+  if (car.trim) features.push(car.trim);
+  else if (car.transmission && car.transmission !== 'Unknown') features.push(car.transmission);
+  const featureTag = features.length > 0 ? ` — ${features.join(' + ')}` : '';
+  const description = `${car.year} ${car.make} ${car.model}${trimLabel} in ${car.city}, ${car.state}${priceTag}${milesTag}${featureTag}. View photos and request competitive dealer offers.`;
 
   let imageUrl = '';
   try {
