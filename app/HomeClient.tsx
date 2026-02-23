@@ -431,8 +431,17 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-gray-500">Loading featured cars...</div>
+            <div className="flex gap-4 pb-4 overflow-hidden">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-72 bg-white rounded-xl border border-border shadow-card overflow-hidden animate-pulse">
+                  <div className="h-44 bg-gray-200" />
+                  <div className="p-4 border-t border-border space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                    <div className="h-6 bg-gray-200 rounded w-1/2" />
+                    <div className="h-3 bg-gray-200 rounded w-2/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : featuredCars.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
@@ -519,7 +528,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       {howItWorksSection}
 
       {/* New Inventory Carousel */}
-      {newCars.length > 0 && (
+      {(loadingNew || newCars.length > 0) && (
         <section className="bg-white py-12">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
@@ -530,8 +539,17 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </div>
 
             {loadingNew ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-gray-500">Loading new cars...</div>
+              <div className="flex gap-4 pb-4 overflow-hidden">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex-shrink-0 w-72 bg-white rounded-xl border border-border shadow-card overflow-hidden animate-pulse">
+                    <div className="h-44 bg-gray-200" />
+                    <div className="p-4 border-t border-border space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                      <div className="h-6 bg-gray-200 rounded w-1/2" />
+                      <div className="h-3 bg-gray-200 rounded w-2/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="relative overflow-hidden">

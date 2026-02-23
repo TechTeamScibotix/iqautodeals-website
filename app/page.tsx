@@ -22,13 +22,13 @@ export const dynamic = 'force-static';
 // Text sections are server-rendered and passed as props to the client component using the Next.js composition pattern
 export default function HomePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
       <HomeClient
         howItWorksSection={
           <section className="container mx-auto px-4 py-10">
             <div className="text-center max-w-3xl mx-auto mb-8">
               <h2 className="text-2xl font-bold text-text-primary mb-2">How to Buy New & Pre-Owned Vehicles Online</h2>
-              <p className="text-base text-text-secondary">Browse vehicles, request competitive offers from verified dealers, and save thousands.</p>
+              <p className="text-base text-text-secondary">Browse vehicles, request competitive offers from verified dealers, and save.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto">
