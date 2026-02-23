@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -13,6 +13,20 @@ export async function generateStaticParams() {
   return [];
 }
 
+// Deduplicate inventory fetch between generateMetadata and page component (same request)
+const getInventory = cache(async (locationSlug: string): Promise<InventoryResult> => {
+  const locationData = locations[locationSlug as keyof typeof locations];
+  if (!locationData) {
+    return { cars: [], totalCount: 0, scope: 'city', scopeLabel: '' };
+  }
+  const { city, stateCode } = locationData;
+  try {
+    return await fetchInventoryForLocation({ city, stateCode });
+  } catch {
+    return { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
+  }
+});
+
 export async function generateMetadata({ params }: { params: Promise<{ location: string }> }): Promise<Metadata> {
   const { location } = await params;
   const locationData = locations[location as keyof typeof locations];
@@ -25,9 +39,16 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
 
   const { city, state, stateCode } = locationData;
 
+  // Check inventory — noindex pages with zero results to avoid thin content penalties
+  const inventory = await getInventory(location);
+  const robotsDirective = inventory.totalCount === 0
+    ? { index: false, follow: true } as const
+    : undefined;
+
   return {
     title: `New and Used Cars in ${city}, ${stateCode}`,
     description: `Browse quality used cars for sale in ${city}, ${state}. Compare dealer prices instantly. Save. No haggling required. Browse SUVs, trucks, sedans & certified pre-owned vehicles now.`,
+    ...(robotsDirective ? { robots: robotsDirective } : {}),
     keywords: [
       `used cars ${city}`,
       `used cars for sale ${city}`,
@@ -65,10 +86,10 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
   const zip = zipcodes.lookupByName(city, state)?.[0]?.zip;
   const carsHref = zip ? `/cars?zipCode=${zip}` : '/cars';
 
-  // Fetch real inventory from DB
+  // Fetch real inventory from DB (cached — shared with generateMetadata)
   let inventory: InventoryResult = { cars: [], totalCount: 0, scope: 'city', scopeLabel: `in ${city}, ${stateCode}` };
   try {
-    inventory = await fetchInventoryForLocation({ city, stateCode });
+    inventory = await getInventory(location);
   } catch {}
 
   return (
