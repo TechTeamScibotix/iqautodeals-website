@@ -135,7 +135,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const rawDescription = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
   // Strip markdown syntax for meta tags (##, **, *, >, -, etc.)
-  const description = rawDescription
+  const strippedDescription = rawDescription
     .replace(/#{1,6}\s?/g, '')
     .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
     .replace(/^[\s]*[-*>]+\s?/gm, '')
@@ -143,6 +143,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .replace(/\n{2,}/g, ' ')
     .replace(/\n/g, ' ')
     .trim();
+  // Lead with vehicle details for higher CTR in social/search previews
+  const priceTag = car.salePrice && car.salePrice > 0 ? ` — $${car.salePrice.toLocaleString()}` : '';
+  const milesTag = car.mileage ? ` — ${car.mileage.toLocaleString()} miles` : '';
+  const metaLead = `${car.year} ${car.make} ${car.model}${trimLabel} in ${car.city}, ${car.state}${priceTag}${milesTag}.`;
+  const description = `${metaLead} ${strippedDescription}`;
 
   let imageUrl = '';
   try {
