@@ -132,8 +132,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const trimLabel = car.trim ? ` ${car.trim}` : '';
   const title = `${car.year} ${car.make} ${car.model}${trimLabel} for Sale in ${car.city}, ${car.state}`;
-  const description = car.description ||
+  const rawDescription = car.description ||
     `${car.year} ${car.make} ${car.model} with ${car.mileage.toLocaleString()} miles. ${car.color} exterior, ${car.transmission} transmission. Located in ${car.city}, ${car.state}. Get competitive offers from dealers.`;
+  // Strip markdown syntax for meta tags (##, **, *, >, -, etc.)
+  const description = rawDescription
+    .replace(/#{1,6}\s?/g, '')
+    .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+    .replace(/^[\s]*[-*>]+\s?/gm, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\n{2,}/g, ' ')
+    .replace(/\n/g, ' ')
+    .trim();
 
   let imageUrl = '';
   try {
