@@ -18,9 +18,27 @@ export interface SEOCarInput {
   state: string | null;
   vin: string;
   features?: string | null;
+  trim?: string | null;
+  engine?: string | null;
+  drivetrain?: string | null;
+  bodyType?: string | null;
+  fuelType?: string | null;
+  interiorColor?: string | null;
+  condition?: string | null;
+  certified?: boolean;
+  mpgCity?: number | null;
+  mpgHighway?: number | null;
 }
 
 export async function generateSEODescription(car: SEOCarInput): Promise<string> {
+  // Build full vehicle name including trim (e.g. "2021 Jeep Wrangler Unlimited Rubicon 392")
+  const fullName = [car.year, car.make, car.model, car.trim].filter(Boolean).join(' ');
+
+  // Inject engine and drivetrain as top-priority features before the keyword filter
+  const injectedFeatures: string[] = [];
+  if (car.engine) injectedFeatures.push(`${car.engine} Engine`);
+  if (car.drivetrain) injectedFeatures.push(`${car.drivetrain} Drivetrain`);
+
   // Parse and pick top features to feed into the prompt
   let topFeatures: string[] = [];
   if (car.features) {
@@ -34,19 +52,37 @@ export async function generateSEODescription(car: SEOCarInput): Promise<string> 
     } catch { /* ignore parse errors */ }
   }
 
+  // Prepend engine/drivetrain so the AI always sees them, dedup against parsed features
+  topFeatures = [...injectedFeatures, ...topFeatures.filter(f => !injectedFeatures.some(inj => f.toLowerCase().includes(inj.toLowerCase().replace(' engine', '').replace(' drivetrain', ''))))].slice(0, 12);
+
   const featuresBlock = topFeatures.length > 0
     ? `\nKey Features & Equipment:\n${topFeatures.map(f => `- ${f}`).join('\n')}\n`
     : '';
 
-  const vehicleInfo = `
-Vehicle: ${car.year} ${car.make} ${car.model}
-Mileage: ${car.mileage?.toLocaleString() || 'Low'} miles
-Transmission: ${car.transmission || 'Automatic'}
-Exterior Color: ${car.color || 'N/A'}
-Location: ${car.city || ''}, ${car.state || ''}
-${car.salePrice ? `Price: $${car.salePrice.toLocaleString()}` : 'Contact for pricing'}
-VIN: ${car.vin || 'N/A'}
+  // Build enhanced vehicle info block with all available specs
+  const specLines: string[] = [
+    `Vehicle: ${fullName}`,
+  ];
+  if (car.trim) specLines.push(`Trim: ${car.trim}`);
+  if (car.engine) specLines.push(`Engine: ${car.engine}`);
+  if (car.drivetrain) specLines.push(`Drivetrain: ${car.drivetrain}`);
+  if (car.bodyType) specLines.push(`Body Type: ${car.bodyType}`);
+  if (car.fuelType) specLines.push(`Fuel Type: ${car.fuelType}`);
+  if (car.mpgCity && car.mpgHighway) specLines.push(`Fuel Economy: ${car.mpgCity} city / ${car.mpgHighway} highway MPG`);
+  if (car.interiorColor) specLines.push(`Interior: ${car.interiorColor}`);
+  if (car.condition) specLines.push(`Condition: ${car.condition}`);
+  if (car.certified) specLines.push(`Certified Pre-Owned: Yes`);
+  specLines.push(`Mileage: ${car.mileage?.toLocaleString() || 'Low'} miles`);
+  specLines.push(`Transmission: ${car.transmission || 'Automatic'}`);
+  specLines.push(`Exterior Color: ${car.color || 'N/A'}`);
+  specLines.push(`Location: ${car.city || ''}, ${car.state || ''}`);
+  specLines.push(car.salePrice ? `Price: $${car.salePrice.toLocaleString()}` : 'Contact for pricing');
+  specLines.push(`VIN: ${car.vin || 'N/A'}`);
+
+  const vehicleInfo = `${specLines.join('\n')}
 ${featuresBlock}`.trim();
+
+  const trimInstruction = car.trim ? `\nIf this vehicle has a notable trim level, prominently feature it — the trim is what differentiates this vehicle from base models.` : '';
 
   const prompt = `You are an SEO expert and experienced automotive copywriter. Write a structured vehicle description with 4 sections that builds excitement and buyer confidence. This description should make the reader want THIS vehicle — no comparisons, no second-guessing.
 
@@ -56,7 +92,7 @@ FORMAT: Write EXACTLY 4 sections. Each section MUST start with "## " followed by
 
 SECTION 1:
 ## Why This Vehicle Stands Out
-Write 4-5 sentences creating an excitement hook about the ${car.year} ${car.make} ${car.model}. Open with energy — make the reader feel something. Highlight the vehicle's reputation, what makes it desirable, and the emotional appeal of driving it.${topFeatures.length > 0 ? ' Call out 2-3 standout features from the equipment list (e.g., engine specs, drivetrain, premium packages, safety tech) that make this vehicle thrilling.' : ''} Naturally include "${car.year} ${car.make} ${car.model} for sale" and "used ${car.make}" or "pre-owned ${car.make}".
+Write 4-5 sentences creating an excitement hook about the ${fullName}. Open with energy — make the reader feel something. Highlight the vehicle's reputation, what makes it desirable, and the emotional appeal of driving it.${topFeatures.length > 0 ? ' Call out 2-3 standout features from the equipment list (e.g., engine specs, drivetrain, premium packages, safety tech) that make this vehicle thrilling.' : ''} Naturally include "${fullName} for sale" and "used ${car.make}" or "pre-owned ${car.make}".${trimInstruction}
 
 SECTION 2:
 ## What Makes This One Special
@@ -64,7 +100,7 @@ Write 4-5 sentences about THIS specific listing's unique value. Reference the mi
 
 SECTION 3:
 ## Ownership Experience
-Write 4-5 sentences helping the reader vividly imagine owning this ${car.year} ${car.make} ${car.model}. Describe specific scenarios — the morning commute, the weekend adventure, the road trip, pulling into the driveway. Focus on how it feels, not just what it does.${topFeatures.length > 0 ? ' Reference specific comfort, tech, safety, or convenience features from the equipment list to make the ownership picture come alive.' : ''}
+Write 4-5 sentences helping the reader vividly imagine owning this ${fullName}. Describe specific scenarios — the morning commute, the weekend adventure, the road trip, pulling into the driveway. Focus on how it feels, not just what it does.${topFeatures.length > 0 ? ' Reference specific comfort, tech, safety, or convenience features from the equipment list to make the ownership picture come alive.' : ''}
 
 SECTION 4:
 ## Buyer Confidence
@@ -83,7 +119,7 @@ RULES:
 - Do NOT mention any dealership name or business name
 - Do NOT include website URLs
 - Write naturally, no keyword stuffing
-- Naturally include the year, make, model, vehicle type, and location for SEO
+- Naturally include the year, make, model, trim level, vehicle type, and location for SEO
 - Each section heading must start with exactly "## " on its own line
 
 Return ONLY the 4 sections. No intro text, no closing text, no quotes around the output.`;

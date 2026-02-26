@@ -58,6 +58,10 @@ export default function EditCarPage() {
     state: 'GA',
     latitude: 33.7490,
     longitude: -84.3880,
+    trim: '',
+    engine: '',
+    drivetrain: '',
+    bodyType: '',
   });
 
   useEffect(() => {
@@ -121,6 +125,10 @@ export default function EditCarPage() {
         state: car.state || dealerState,
         latitude: car.latitude,
         longitude: car.longitude,
+        trim: car.trim || '',
+        engine: car.engine || '',
+        drivetrain: car.drivetrain || '',
+        bodyType: car.bodyType || '',
       });
 
       // Pre-fill photos
@@ -295,6 +303,11 @@ export default function EditCarPage() {
           city: seoCity,
           state: seoState,
           vin: formData.vin,
+          trim: formData.trim,
+          engine: formData.engine,
+          drivetrain: formData.drivetrain,
+          bodyType: formData.bodyType,
+          fuelType: formData.fuelType,
         }),
       });
 

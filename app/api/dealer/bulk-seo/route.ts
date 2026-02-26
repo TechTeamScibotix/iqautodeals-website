@@ -43,6 +43,16 @@ export async function POST(req: NextRequest) {
         city: true,
         state: true,
         features: true,
+        trim: true,
+        engine: true,
+        drivetrain: true,
+        bodyType: true,
+        fuelType: true,
+        interiorColor: true,
+        condition: true,
+        certified: true,
+        mpgCity: true,
+        mpgHighway: true,
       },
     });
 

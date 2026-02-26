@@ -54,6 +54,10 @@ export default function AddCarPage() {
     state: '',
     latitude: 33.7490,
     longitude: -84.3880,
+    trim: '',
+    engine: '',
+    drivetrain: '',
+    bodyType: '',
   });
 
   useEffect(() => {
@@ -248,6 +252,11 @@ export default function AddCarPage() {
           city: seoCity,
           state: seoState,
           vin: formData.vin,
+          trim: formData.trim,
+          engine: formData.engine,
+          drivetrain: formData.drivetrain,
+          bodyType: formData.bodyType,
+          fuelType: formData.fuelType,
         }),
       });
 
