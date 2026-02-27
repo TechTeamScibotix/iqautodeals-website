@@ -3,10 +3,42 @@ import { prisma } from '@/lib/prisma';
 
 export const revalidate = 300; // Cache for 5 minutes
 
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Generate search variants to handle hyphen/no-hyphen differences
+// "f150" → ["f150", "f-150"], "cx5" → ["cx5", "cx-5"]
+function searchVariants(term: string): string[] {
+  const variants = new Set<string>();
+  variants.add(term);
+  const noHyphens = term.replace(/-/g, '');
+  variants.add(noHyphens);
+  const withHyphens = noHyphens
+    .replace(/([a-zA-Z])(\d)/g, '$1-$2')
+    .replace(/(\d)([a-zA-Z])/g, '$1-$2');
+  variants.add(withHyphens);
+  return Array.from(variants);
+}
+
+const VALID_SORT = ['relevance', 'distance', 'priceAsc', 'priceDesc', 'yearDesc', 'mileageAsc'] as const;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    // Free-text search
+    const q = searchParams.get('q')?.trim();
+
+    // Structured filters
     const make = searchParams.get('make')?.trim();
     const model = searchParams.get('model')?.trim();
     const yearMin = parseInt(searchParams.get('yearMin') || '', 10);
@@ -20,8 +52,35 @@ export async function GET(request: NextRequest) {
     const drivetrain = searchParams.get('drivetrain')?.trim();
     const condition = searchParams.get('condition')?.trim();
     const maxMileage = parseInt(searchParams.get('maxMileage') || '', 10);
+
+    // Location-based search
+    const lat = parseFloat(searchParams.get('lat') || '');
+    const lng = parseFloat(searchParams.get('lng') || '');
+    const radiusMiles = parseFloat(searchParams.get('radiusMiles') || '100');
+
+    // Sort & pagination
+    const sortParam = searchParams.get('sort')?.trim() || 'relevance';
+    const sort = VALID_SORT.includes(sortParam as typeof VALID_SORT[number])
+      ? sortParam
+      : 'relevance';
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
+
+    // Validate: if distance sort requested, lat/lng must be provided
+    if (sort === 'distance' && (isNaN(lat) || isNaN(lng))) {
+      return NextResponse.json(
+        { error: 'lat and lng are required when sort=distance', details: 'Provide lat and lng query parameters for distance-based sorting.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate: if lat or lng given, both must be present
+    if ((!isNaN(lat) && isNaN(lng)) || (isNaN(lat) && !isNaN(lng))) {
+      return NextResponse.json(
+        { error: 'Both lat and lng must be provided together', details: 'Provide both lat and lng query parameters for location search.' },
+        { status: 400 }
+      );
+    }
 
     // Build where clause
     const where: Record<string, unknown> = {
@@ -29,6 +88,26 @@ export async function GET(request: NextRequest) {
       photos: { not: '' },
       dealer: { verificationStatus: 'approved' },
     };
+
+    // Free-text search across make, model, trim
+    if (q) {
+      const terms = q.split(/\s+/).filter(Boolean);
+      where.AND = terms.map((term) => {
+        const variants = searchVariants(term);
+        const conditions: Record<string, unknown>[] = variants.flatMap((v) => [
+          { make: { contains: v, mode: 'insensitive' } },
+          { model: { contains: v, mode: 'insensitive' } },
+          { trim: { contains: v, mode: 'insensitive' } },
+          { bodyType: { contains: v, mode: 'insensitive' } },
+          { fuelType: { contains: v, mode: 'insensitive' } },
+          { drivetrain: { contains: v, mode: 'insensitive' } },
+        ]);
+        if (!isNaN(Number(term)) && term.length === 4) {
+          conditions.push({ year: Number(term) });
+        }
+        return { OR: conditions };
+      });
+    }
 
     if (make) {
       where.make = { equals: make, mode: 'insensitive' };
@@ -70,51 +149,144 @@ export async function GET(request: NextRequest) {
       where.mileage = { lte: maxMileage };
     }
 
-    const [cars, total] = await Promise.all([
-      prisma.car.findMany({
-        where,
-        select: {
-          id: true,
-          vin: true,
-          year: true,
-          make: true,
-          model: true,
-          trim: true,
-          bodyType: true,
-          condition: true,
-          salePrice: true,
-          msrp: true,
-          mileage: true,
-          color: true,
-          interiorColor: true,
-          transmission: true,
-          engine: true,
-          fuelType: true,
-          drivetrain: true,
-          mpgCity: true,
-          mpgHighway: true,
-          doors: true,
-          certified: true,
-          photos: true,
-          city: true,
-          state: true,
-          slug: true,
-          features: true,
-          createdAt: true,
-          dealer: {
+    // Determine Prisma orderBy based on sort
+    let orderBy: Record<string, string> = { createdAt: 'desc' };
+    if (sort === 'priceAsc') orderBy = { salePrice: 'asc' };
+    else if (sort === 'priceDesc') orderBy = { salePrice: 'desc' };
+    else if (sort === 'yearDesc') orderBy = { year: 'desc' };
+    else if (sort === 'mileageAsc') orderBy = { mileage: 'asc' };
+    // 'distance' and 'relevance' sort in-memory after fetch
+
+    const needsInMemorySort = sort === 'distance' || (sort === 'relevance' && q);
+    const hasGeo = !isNaN(lat) && !isNaN(lng);
+
+    // For distance/relevance sort or geo filtering, fetch all matching then sort/filter in memory
+    // For DB-sortable fields, let Prisma handle pagination
+    const [cars, total] = needsInMemorySort || hasGeo
+      ? await (async () => {
+          const allCars = await prisma.car.findMany({
+            where,
             select: {
-              businessName: true,
+              id: true,
+              vin: true,
+              year: true,
+              make: true,
+              model: true,
+              trim: true,
+              bodyType: true,
+              condition: true,
+              salePrice: true,
+              msrp: true,
+              mileage: true,
+              color: true,
+              interiorColor: true,
+              transmission: true,
+              engine: true,
+              fuelType: true,
+              drivetrain: true,
+              mpgCity: true,
+              mpgHighway: true,
+              doors: true,
+              certified: true,
+              photos: true,
               city: true,
               state: true,
+              latitude: true,
+              longitude: true,
+              slug: true,
+              features: true,
+              createdAt: true,
+              dealer: {
+                select: {
+                  businessName: true,
+                  city: true,
+                  state: true,
+                },
+              },
             },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-      }),
-      prisma.car.count({ where }),
-    ]);
+          });
+
+          // Calculate distance and filter by radius if geo provided
+          let filtered = allCars.map((car) => ({
+            ...car,
+            _distance: hasGeo
+              ? calculateDistance(lat, lng, car.latitude, car.longitude)
+              : null,
+          }));
+
+          if (hasGeo) {
+            filtered = filtered.filter((car) =>
+              car._distance !== null && car._distance <= radiusMiles
+            );
+          }
+
+          // Sort
+          if (sort === 'distance' && hasGeo) {
+            filtered.sort((a, b) => (a._distance ?? 0) - (b._distance ?? 0));
+          } else if (sort === 'priceAsc') {
+            filtered.sort((a, b) => a.salePrice - b.salePrice);
+          } else if (sort === 'priceDesc') {
+            filtered.sort((a, b) => b.salePrice - a.salePrice);
+          } else if (sort === 'yearDesc') {
+            filtered.sort((a, b) => b.year - a.year);
+          } else if (sort === 'mileageAsc') {
+            filtered.sort((a, b) => a.mileage - b.mileage);
+          } else if (hasGeo) {
+            // Default: sort by distance when geo is available
+            filtered.sort((a, b) => (a._distance ?? 0) - (b._distance ?? 0));
+          }
+
+          const count = filtered.length;
+          const page = filtered.slice(offset, offset + limit);
+          return [page, count] as const;
+        })()
+      : await Promise.all([
+          prisma.car.findMany({
+            where,
+            select: {
+              id: true,
+              vin: true,
+              year: true,
+              make: true,
+              model: true,
+              trim: true,
+              bodyType: true,
+              condition: true,
+              salePrice: true,
+              msrp: true,
+              mileage: true,
+              color: true,
+              interiorColor: true,
+              transmission: true,
+              engine: true,
+              fuelType: true,
+              drivetrain: true,
+              mpgCity: true,
+              mpgHighway: true,
+              doors: true,
+              certified: true,
+              photos: true,
+              city: true,
+              state: true,
+              latitude: true,
+              longitude: true,
+              slug: true,
+              features: true,
+              createdAt: true,
+              dealer: {
+                select: {
+                  businessName: true,
+                  city: true,
+                  state: true,
+                },
+              },
+            },
+            orderBy,
+            take: limit,
+            skip: offset,
+          }),
+          prisma.car.count({ where }),
+        ]);
 
     const results = cars.map((car) => {
       // Parse photos
@@ -122,7 +294,7 @@ export async function GET(request: NextRequest) {
       try {
         const parsed = JSON.parse(car.photos);
         if (Array.isArray(parsed)) {
-          photoUrls = parsed.slice(0, 5); // Limit to 5 photos for AI responses
+          photoUrls = parsed.slice(0, 5);
         }
       } catch {
         if (car.photos && car.photos.startsWith('http')) {
@@ -146,6 +318,8 @@ export async function GET(request: NextRequest) {
       const title = [car.year, car.make, car.model, car.trim]
         .filter(Boolean)
         .join(' ');
+
+      const distance = '_distance' in car ? (car as Record<string, unknown>)._distance as number | null : null;
 
       return {
         title,
@@ -176,10 +350,7 @@ export async function GET(request: NextRequest) {
           city: car.dealer?.city || null,
           state: car.dealer?.state || null,
         },
-        location: {
-          city: car.city,
-          state: car.state,
-        },
+        ...(distance !== null ? { distanceMiles: Math.round(distance * 10) / 10 } : {}),
         url: car.slug
           ? `https://iqautodeals.com/cars/${car.slug}`
           : `https://iqautodeals.com/cars/${car.id}`,

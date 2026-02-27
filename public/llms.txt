@@ -60,12 +60,16 @@ IQ Auto Deals provides a public API for AI assistants to search vehicle inventor
 **Endpoint:** `GET https://iqautodeals.com/api/ai-inventory`
 
 **Parameters (all optional):**
+- `q` — Free-text search (e.g., "reliable suv 3rd row", "ram 5500", "awd sedan")
 - `make` — Vehicle make (e.g., Toyota, Ford, BMW)
 - `model` — Vehicle model (e.g., Camry, F-150)
 - `yearMin` — Minimum model year
 - `yearMax` — Maximum model year
 - `minPrice` — Minimum price in USD
 - `maxPrice` — Maximum price in USD
+- `lat` — Latitude for "near me" proximity search
+- `lng` — Longitude for "near me" proximity search
+- `radiusMiles` — Search radius in miles (default 100, use with lat/lng)
 - `state` — US state abbreviation (e.g., GA, FL, TX)
 - `city` — City name (partial match)
 - `bodyType` — SUV, Sedan, Truck, Coupe, Hatchback, Convertible, Minivan, Wagon
@@ -73,16 +77,18 @@ IQ Auto Deals provides a public API for AI assistants to search vehicle inventor
 - `drivetrain` — AWD, FWD, RWD, 4WD
 - `condition` — New, Used, Certified Pre-Owned
 - `maxMileage` — Maximum mileage
+- `sort` — relevance, distance, priceAsc, priceDesc, yearDesc, mileageAsc (default: relevance)
 - `limit` — Results per page (max 50, default 20)
 - `offset` — Pagination offset
 
 **Example Queries:**
-- SUVs under $30,000 in Georgia: `/api/ai-inventory?bodyType=SUV&maxPrice=30000&state=GA`
+- SUVs under $30,000 near Atlanta: `/api/ai-inventory?bodyType=SUV&maxPrice=30000&lat=33.749&lng=-84.388&radiusMiles=50`
 - Toyota Camry nationwide: `/api/ai-inventory?make=Toyota&model=Camry`
-- Electric vehicles: `/api/ai-inventory?fuelType=Electric`
-- Trucks under 50k miles: `/api/ai-inventory?bodyType=Truck&maxMileage=50000`
+- Free-text search: `/api/ai-inventory?q=reliable+suv+third+row&maxPrice=35000`
+- Electric vehicles sorted by price: `/api/ai-inventory?fuelType=Electric&sort=priceAsc`
+- Trucks under 50k miles in Georgia: `/api/ai-inventory?bodyType=Truck&maxMileage=50000&state=GA`
 
-**Response:** Returns vehicle details including VIN, price, mileage, specs, photos, dealer info, and direct URL to listing.
+**Response:** Returns vehicle details including VIN, price, mileage, specs, photos, dealer info, distance (when lat/lng provided), and direct URL to listing.
 
 ### OpenAPI Specification
 
