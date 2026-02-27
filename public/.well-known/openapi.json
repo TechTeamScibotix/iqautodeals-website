@@ -1,0 +1,212 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IQ Auto Deals Inventory API",
+    "description": "Search vehicles on IQ Auto Deals, a nationwide online car marketplace connecting buyers with certified dealers across all 50 US states. Buyers can compare vehicles and receive competing offers from dealers.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "IQ Auto Deals",
+      "url": "https://iqautodeals.com",
+      "email": "support@iqautodeals.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://iqautodeals.com",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/api/ai-inventory": {
+      "get": {
+        "operationId": "searchVehicles",
+        "summary": "Search vehicle inventory",
+        "description": "Search for vehicles by make, model, year, price, location, body type, fuel type, drivetrain, mileage, and condition. Returns detailed vehicle information including specs, photos, dealer info, and direct links to listings.",
+        "parameters": [
+          {
+            "name": "make",
+            "in": "query",
+            "description": "Vehicle make (e.g., Toyota, Ford, BMW, Mercedes-Benz)",
+            "schema": { "type": "string" },
+            "example": "Toyota"
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "Vehicle model (e.g., Camry, F-150, 3 Series)",
+            "schema": { "type": "string" },
+            "example": "Camry"
+          },
+          {
+            "name": "yearMin",
+            "in": "query",
+            "description": "Minimum model year",
+            "schema": { "type": "integer" },
+            "example": 2020
+          },
+          {
+            "name": "yearMax",
+            "in": "query",
+            "description": "Maximum model year",
+            "schema": { "type": "integer" },
+            "example": 2026
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "description": "Minimum price in USD",
+            "schema": { "type": "number" },
+            "example": 10000
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "description": "Maximum price in USD",
+            "schema": { "type": "number" },
+            "example": 35000
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "US state abbreviation (e.g., GA, FL, TX, CA)",
+            "schema": { "type": "string" },
+            "example": "GA"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "description": "City name (partial match supported)",
+            "schema": { "type": "string" },
+            "example": "Atlanta"
+          },
+          {
+            "name": "bodyType",
+            "in": "query",
+            "description": "Vehicle body type",
+            "schema": {
+              "type": "string",
+              "enum": ["SUV", "Sedan", "Truck", "Coupe", "Hatchback", "Convertible", "Minivan", "Wagon"]
+            },
+            "example": "SUV"
+          },
+          {
+            "name": "fuelType",
+            "in": "query",
+            "description": "Fuel type",
+            "schema": {
+              "type": "string",
+              "enum": ["Gasoline", "Diesel", "Hybrid", "Electric", "Plug-In Hybrid"]
+            },
+            "example": "Gasoline"
+          },
+          {
+            "name": "drivetrain",
+            "in": "query",
+            "description": "Drivetrain type",
+            "schema": {
+              "type": "string",
+              "enum": ["AWD", "FWD", "RWD", "4WD"]
+            },
+            "example": "AWD"
+          },
+          {
+            "name": "condition",
+            "in": "query",
+            "description": "Vehicle condition",
+            "schema": {
+              "type": "string",
+              "enum": ["New", "Used", "Certified Pre-Owned"]
+            },
+            "example": "Used"
+          },
+          {
+            "name": "maxMileage",
+            "in": "query",
+            "description": "Maximum mileage",
+            "schema": { "type": "integer" },
+            "example": 50000
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results to return (max 50, default 20)",
+            "schema": { "type": "integer", "default": 20, "maximum": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of results to skip for pagination",
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "vehicles": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": { "type": "string", "description": "Full vehicle title (Year Make Model Trim)" },
+                          "vin": { "type": "string" },
+                          "year": { "type": "integer" },
+                          "make": { "type": "string" },
+                          "model": { "type": "string" },
+                          "trim": { "type": "string", "nullable": true },
+                          "bodyType": { "type": "string", "nullable": true },
+                          "condition": { "type": "string", "nullable": true },
+                          "price": { "type": "number", "description": "Listed price in USD" },
+                          "msrp": { "type": "number", "nullable": true },
+                          "mileage": { "type": "integer" },
+                          "exteriorColor": { "type": "string" },
+                          "interiorColor": { "type": "string", "nullable": true },
+                          "transmission": { "type": "string" },
+                          "engine": { "type": "string", "nullable": true },
+                          "fuelType": { "type": "string", "nullable": true },
+                          "drivetrain": { "type": "string", "nullable": true },
+                          "mpgCity": { "type": "integer", "nullable": true },
+                          "mpgHighway": { "type": "integer", "nullable": true },
+                          "doors": { "type": "integer", "nullable": true },
+                          "certifiedPreOwned": { "type": "boolean" },
+                          "features": { "type": "array", "items": { "type": "string" } },
+                          "photos": { "type": "array", "items": { "type": "string", "format": "uri" } },
+                          "dealer": {
+                            "type": "object",
+                            "properties": {
+                              "name": { "type": "string", "nullable": true },
+                              "city": { "type": "string", "nullable": true },
+                              "state": { "type": "string", "nullable": true }
+                            }
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "city": { "type": "string" },
+                              "state": { "type": "string" }
+                            }
+                          },
+                          "url": { "type": "string", "format": "uri", "description": "Direct link to vehicle listing on IQ Auto Deals" },
+                          "listedAt": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    },
+                    "total": { "type": "integer", "description": "Total matching vehicles" },
+                    "limit": { "type": "integer" },
+                    "offset": { "type": "integer" },
+                    "source": { "type": "string" },
+                    "description": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

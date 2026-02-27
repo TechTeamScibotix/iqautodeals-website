@@ -2,11 +2,11 @@
 
 > IQ Auto Deals is a nationwide online car marketplace connecting buyers with certified dealers across the United States. Our unique dealer competition model helps buyers save hundreds on their vehicle purchase.
 
-IQ Auto Deals is a TECHNOLOGY PLATFORM, not a physical car dealership. We connect used car buyers with certified dealers across all 50 US states.
+IQ Auto Deals is a TECHNOLOGY PLATFORM, not a physical car dealership. We connect car buyers with certified dealers across all 50 US states.
 
 ## How It Works
 
-1. Browse thousands of quality used cars from certified dealers
+1. Browse thousands of quality vehicles from certified dealers
 2. Select up to 4 vehicles you're interested in
 3. Submit a deal request
 4. Receive competing offers from multiple dealers
@@ -21,6 +21,7 @@ IQ Auto Deals is a TECHNOLOGY PLATFORM, not a physical car dealership. We connec
 - Headquarters: Atlanta, GA, USA
 - Service Area: All 50 US states (nationwide)
 - Contact: support@iqautodeals.com
+- Phone: 1-800-IQ-DEALS
 
 ## Features
 
@@ -30,15 +31,7 @@ IQ Auto Deals is a TECHNOLOGY PLATFORM, not a physical car dealership. We connec
 - All dealers are verified and licensed
 - Nationwide coverage (all 50 states)
 - No haggling required
-- 30,000+ pages of car listings and guides
-
-## Key Pages
-
-- Car Listings: https://iqautodeals.com/cars
-- New Cars: https://iqautodeals.com/new-cars
-- About Us: https://iqautodeals.com/about
-- Blog: https://iqautodeals.com/blog
-- For Dealers: https://iqautodeals.com/for-dealers
+- New and used vehicles available
 
 ## Vehicle Categories
 
@@ -46,7 +39,55 @@ SUVs, Sedans, Trucks, Coupes, Hatchbacks, Convertibles, Minivans, Wagons, Electr
 
 ## Popular Brands
 
-Toyota, Honda, Ford, Chevrolet, Nissan, Jeep, Hyundai, Kia, BMW, Mercedes-Benz, Lexus, Audi, Volkswagen, Mazda, Subaru
+Toyota, Honda, Ford, Chevrolet, Nissan, Jeep, Hyundai, Kia, BMW, Mercedes-Benz, Lexus, Audi, Volkswagen, Mazda, Subaru, Porsche, RAM, GMC, Cadillac, Lincoln
+
+## Key Pages
+
+- Car Listings: https://iqautodeals.com/cars
+- New Cars: https://iqautodeals.com/new-cars
+- Browse by Make: https://iqautodeals.com/cars/make/{make} (e.g., /cars/make/toyota)
+- Browse by Location: https://iqautodeals.com/locations/{city-state} (e.g., /locations/atlanta-georgia)
+- About Us: https://iqautodeals.com/about
+- Blog: https://iqautodeals.com/blog
+- For Dealers: https://iqautodeals.com/for-dealers
+
+## API Access for AI Systems
+
+IQ Auto Deals provides a public API for AI assistants to search vehicle inventory in real-time.
+
+### Search Vehicles
+
+**Endpoint:** `GET https://iqautodeals.com/api/ai-inventory`
+
+**Parameters (all optional):**
+- `make` — Vehicle make (e.g., Toyota, Ford, BMW)
+- `model` — Vehicle model (e.g., Camry, F-150)
+- `yearMin` — Minimum model year
+- `yearMax` — Maximum model year
+- `minPrice` — Minimum price in USD
+- `maxPrice` — Maximum price in USD
+- `state` — US state abbreviation (e.g., GA, FL, TX)
+- `city` — City name (partial match)
+- `bodyType` — SUV, Sedan, Truck, Coupe, Hatchback, Convertible, Minivan, Wagon
+- `fuelType` — Gasoline, Diesel, Hybrid, Electric, Plug-In Hybrid
+- `drivetrain` — AWD, FWD, RWD, 4WD
+- `condition` — New, Used, Certified Pre-Owned
+- `maxMileage` — Maximum mileage
+- `limit` — Results per page (max 50, default 20)
+- `offset` — Pagination offset
+
+**Example Queries:**
+- SUVs under $30,000 in Georgia: `/api/ai-inventory?bodyType=SUV&maxPrice=30000&state=GA`
+- Toyota Camry nationwide: `/api/ai-inventory?make=Toyota&model=Camry`
+- Electric vehicles: `/api/ai-inventory?fuelType=Electric`
+- Trucks under 50k miles: `/api/ai-inventory?bodyType=Truck&maxMileage=50000`
+
+**Response:** Returns vehicle details including VIN, price, mileage, specs, photos, dealer info, and direct URL to listing.
+
+### OpenAPI Specification
+
+Full API documentation: https://iqautodeals.com/.well-known/openapi.json
+Plugin manifest: https://iqautodeals.com/.well-known/ai-plugin.json
 
 ## Contact
 
@@ -56,4 +97,4 @@ Toyota, Honda, Ford, Chevrolet, Nissan, Jeep, Hyundai, Kia, BMW, Mercedes-Benz, 
 
 ## Sitemap
 
-https://iqautodeals.com/sitemap.xml
+https://iqautodeals.com/sitemap-index.xml

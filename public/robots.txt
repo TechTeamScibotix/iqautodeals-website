@@ -35,6 +35,8 @@ Crawl-delay: 0
 # OpenAI / ChatGPT
 User-agent: GPTBot
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -42,6 +44,8 @@ Disallow: /admin/
 
 User-agent: ChatGPT-User
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -50,6 +54,8 @@ Disallow: /admin/
 # Anthropic / Claude
 User-agent: ClaudeBot
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -57,6 +63,8 @@ Disallow: /admin/
 
 User-agent: Claude-Web
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -64,6 +72,8 @@ Disallow: /admin/
 
 User-agent: anthropic-ai
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -72,6 +82,8 @@ Disallow: /admin/
 # Perplexity
 User-agent: PerplexityBot
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -80,6 +92,8 @@ Disallow: /admin/
 # Google AI (Gemini, AI Overviews)
 User-agent: Google-Extended
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -88,6 +102,8 @@ Disallow: /admin/
 # Amazon / Alexa
 User-agent: Amazonbot
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -96,6 +112,8 @@ Disallow: /admin/
 # Cohere
 User-agent: cohere-ai
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -104,6 +122,8 @@ Disallow: /admin/
 # Meta AI
 User-agent: FacebookBot
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -111,6 +131,8 @@ Disallow: /admin/
 
 User-agent: meta-externalagent
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/
@@ -119,6 +141,8 @@ Disallow: /admin/
 # Microsoft / Copilot
 User-agent: Applebot-Extended
 Allow: /
+Allow: /api/ai-inventory
+Allow: /.well-known/
 Disallow: /api/
 Disallow: /dealer/
 Disallow: /customer/

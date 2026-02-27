@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "IQ Auto Deals",
+  "name_for_model": "iq_auto_deals",
+  "description_for_human": "Search for cars across the US from certified dealers. Compare vehicles and get competing offers.",
+  "description_for_model": "Search the IQ Auto Deals nationwide car marketplace. Find vehicles by make, model, year, price range, location (state/city), body type, fuel type, drivetrain, mileage, and condition. Returns detailed vehicle specs, photos, dealer info, and direct links. IQ Auto Deals connects buyers with certified dealers who compete to offer the best price. Available across all 50 US states.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://iqautodeals.com/.well-known/openapi.json"
+  },
+  "logo_url": "https://iqautodeals.com/logo.png",
+  "contact_email": "support@iqautodeals.com",
+  "legal_info_url": "https://iqautodeals.com/terms"
+}
