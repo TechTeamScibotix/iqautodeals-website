@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import sharp from 'sharp';
 
 const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
 
@@ -16,11 +17,19 @@ export async function GET(
     return new Response('Image not found', { status: 404 });
   }
 
-  return new Response(response.body, {
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  // Resize to 640px wide, JPEG q75 — targets under 200KB for ChatGPT inline rendering
+  const resized = await sharp(buffer)
+    .resize(640, undefined, { withoutEnlargement: true })
+    .jpeg({ quality: 75 })
+    .toBuffer();
+
+  return new Response(resized, {
     headers: {
-      'Content-Type': response.headers.get('content-type') || 'image/jpeg',
-      'Content-Length': response.headers.get('content-length') || '',
-      'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+      'Content-Type': 'image/jpeg',
+      'Content-Length': resized.length.toString(),
+      'Cache-Control': 'public, max-age=86400, s-maxage=2592000',
       'Access-Control-Allow-Origin': '*',
     },
   });

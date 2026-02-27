@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
   },
   // Externalize ssh2-sftp-client and native modules for server-side only
   // These modules have native bindings that webpack cannot bundle
-  serverExternalPackages: ['ssh2-sftp-client', 'ssh2', 'cpu-features'],
+  serverExternalPackages: ['ssh2-sftp-client', 'ssh2', 'cpu-features', 'sharp'],
 };
 
 export default nextConfig;
