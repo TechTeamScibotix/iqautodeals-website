@@ -89,6 +89,7 @@
                         "required": ["title", "vin", "year", "make", "model", "price", "url"],
                         "properties": {
                           "title": { "type": "string", "description": "Full vehicle title (Year Make Model Trim)" },
+                          "primaryImage": { "type": ["string", "null"], "format": "uri", "description": "Main photo URL of the vehicle. Display this image directly under the title." },
                           "vin": { "type": "string" },
                           "year": { "type": "integer" },
                           "make": { "type": "string" },

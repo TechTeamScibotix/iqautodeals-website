@@ -323,6 +323,7 @@ export async function GET(request: NextRequest) {
 
       return {
         title,
+        primaryImage: photoUrls[0] || null,
         vin: car.vin,
         year: car.year,
         make: car.make,
