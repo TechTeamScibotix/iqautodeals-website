@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
+const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
+
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/cdn/:path*',
+        destination: `https://${BLOB_HOST}/:path*`,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

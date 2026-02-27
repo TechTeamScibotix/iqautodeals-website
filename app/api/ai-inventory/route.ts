@@ -3,6 +3,14 @@ import { prisma } from '@/lib/prisma';
 
 export const revalidate = 300; // Cache for 5 minutes
 
+const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
+const SITE_CDN = 'https://iqautodeals.com/cdn';
+
+// Rewrite blob URLs to go through our domain so ChatGPT renders them
+function proxyImageUrl(url: string): string {
+  return url.replace(`https://${BLOB_HOST}`, SITE_CDN);
+}
+
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 3959; // Earth's radius in miles
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -309,16 +317,16 @@ export async function GET(request: NextRequest) {
         ]);
 
     const results = cars.map((car) => {
-      // Parse photos
+      // Parse photos and proxy through our domain for ChatGPT image rendering
       let photoUrls: string[] = [];
       try {
         const parsed = JSON.parse(car.photos);
         if (Array.isArray(parsed)) {
-          photoUrls = parsed.slice(0, 5);
+          photoUrls = parsed.slice(0, 5).map((u: string) => proxyImageUrl(u));
         }
       } catch {
         if (car.photos && car.photos.startsWith('http')) {
-          photoUrls = [car.photos];
+          photoUrls = [proxyImageUrl(car.photos)];
         }
       }
 
