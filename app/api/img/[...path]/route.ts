@@ -25,7 +25,7 @@ export async function GET(
     .jpeg({ quality: 75 })
     .toBuffer();
 
-  return new Response(resized, {
+  return new Response(new Uint8Array(resized), {
     headers: {
       'Content-Type': 'image/jpeg',
       'Content-Length': resized.length.toString(),
