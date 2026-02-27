@@ -134,7 +134,20 @@ export async function GET(request: NextRequest) {
       where.city = { contains: city, mode: 'insensitive' };
     }
     if (bodyType) {
-      where.bodyType = { equals: bodyType, mode: 'insensitive' };
+      const bt = bodyType.toLowerCase();
+      if (bt === 'truck') {
+        where.OR = [
+          { bodyType: { contains: 'truck', mode: 'insensitive' } },
+          { bodyType: { contains: 'pickup', mode: 'insensitive' } },
+        ];
+      } else if (bt === 'suv') {
+        where.OR = [
+          { bodyType: { contains: 'suv', mode: 'insensitive' } },
+          { bodyType: { contains: 'crossover', mode: 'insensitive' } },
+        ];
+      } else {
+        where.bodyType = { contains: bodyType, mode: 'insensitive' };
+      }
     }
     if (fuelType) {
       where.fuelType = { equals: fuelType, mode: 'insensitive' };
@@ -207,22 +220,29 @@ export async function GET(request: NextRequest) {
           });
 
           // Calculate distance and filter by radius if geo provided
+          // Skip distance calc for vehicles with 0,0 coords (not geocoded)
+          const hasCoords = (car: { latitude: number; longitude: number }) =>
+            car.latitude !== 0 || car.longitude !== 0;
+
           let filtered = allCars.map((car) => ({
             ...car,
-            _distance: hasGeo
+            _distance: hasGeo && hasCoords(car)
               ? calculateDistance(lat, lng, car.latitude, car.longitude)
               : null,
           }));
 
           if (hasGeo) {
             filtered = filtered.filter((car) =>
-              car._distance !== null && car._distance <= radiusMiles
+              // Include cars with valid distance within radius
+              (car._distance !== null && car._distance <= radiusMiles) ||
+              // Also include cars without coordinates (they passed city/state WHERE filters)
+              !hasCoords(car)
             );
           }
 
-          // Sort
+          // Sort (vehicles without coordinates go to the end for distance sorts)
           if (sort === 'distance' && hasGeo) {
-            filtered.sort((a, b) => (a._distance ?? 0) - (b._distance ?? 0));
+            filtered.sort((a, b) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
           } else if (sort === 'priceAsc') {
             filtered.sort((a, b) => a.salePrice - b.salePrice);
           } else if (sort === 'priceDesc') {
@@ -233,7 +253,7 @@ export async function GET(request: NextRequest) {
             filtered.sort((a, b) => a.mileage - b.mileage);
           } else if (hasGeo) {
             // Default: sort by distance when geo is available
-            filtered.sort((a, b) => (a._distance ?? 0) - (b._distance ?? 0));
+            filtered.sort((a, b) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
           }
 
           const count = filtered.length;
