@@ -4,11 +4,10 @@ import { prisma } from '@/lib/prisma';
 export const revalidate = 300; // Cache for 5 minutes
 
 const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
-const SITE_CDN = 'https://iqautodeals.com/cdn';
 
-// Rewrite blob URLs to go through our domain so ChatGPT renders them
+// Proxy images through our API to serve with clean headers (no restrictive CSP)
 function proxyImageUrl(url: string): string {
-  return url.replace(`https://${BLOB_HOST}`, SITE_CDN);
+  return url.replace(`https://${BLOB_HOST}`, 'https://iqautodeals.com/api/img');
 }
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
