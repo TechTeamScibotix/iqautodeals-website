@@ -260,6 +260,9 @@ export async function syncLexusAlgoliaInventory(): Promise<AlgoliaSyncResult> {
 
           const existing = existingVinMap.get(hit.vin);
 
+          // Pre-compute certified flag (needed for SEO in all branches)
+          const isCertified = hit.certified === true || hit.certified === 1 || String(hit.certified).toLowerCase() === 'true' || String(hit.certified).toLowerCase() === 'yes';
+
           // Check if active vehicle has valid (non-placeholder) photos
           const hasValidPhotos = (() => {
             if (!existing || !existing.photos) return false;
@@ -273,8 +276,38 @@ export async function syncLexusAlgoliaInventory(): Promise<AlgoliaSyncResult> {
             } catch { return false; }
           })();
 
-          // ACTIVE + HAS VALID PHOTOS → skip entirely (SFTP sync owns it)
+          // ACTIVE + HAS VALID PHOTOS → skip, but generate SEO if missing
           if (existing && existing.status === 'active' && hasValidPhotos) {
+            if (!existing.seoDescriptionGenerated && Date.now() - startTime < TIME_BUDGET_MS) {
+              try {
+                const seoData = {
+                  make: (hit.make || 'Lexus').trim(), model: (hit.model || '').trim(),
+                  year: parseInt(String(hit.year), 10) || 0, mileage: parseInt(String(hit.miles), 10) || 0,
+                  color: (hit.ext_color || 'Unknown').trim(), transmission: (hit.transmission_description || 'Automatic').trim(),
+                  salePrice: parseFloat(String(hit.our_price)) || parseFloat(String(hit.msrp)) || 0, city, state, vin: hit.vin,
+                  features: hit.features && hit.features.length > 0 ? JSON.stringify(hit.features) : null,
+                  trim: pickTrim(hit), engine: hit.engine_description?.trim() || null,
+                  drivetrain: hit.drivetrain?.trim() || null, bodyType: normalizeBodyType(hit.body),
+                  fuelType: normalizeFuelType(hit.fueltype, hit.engine_description, hit.model),
+                  interiorColor: hit.int_color?.trim() || null,
+                  condition: determineCondition(hit.type, isCertified, parseInt(String(hit.miles), 10) || 0),
+                  certified: isCertified,
+                  mpgCity: parseInt(String(hit.city_mpg), 10) || null,
+                  mpgHighway: parseInt(String(hit.hw_mpg), 10) || null,
+                };
+                const seoDescription = await generateSEODescription(seoData);
+                if (isValidSEODescription(seoDescription)) {
+                  await prisma.car.update({
+                    where: { id: existing.id },
+                    data: { description: seoDescription, seoDescriptionGenerated: true },
+                  });
+                  console.log(`[Algolia Sync] SEO description generated for active ${hit.vin}`);
+                }
+              } catch (seoErr: any) {
+                console.error(`[Algolia Sync] SEO generation failed for ${hit.vin}:`, seoErr.message);
+              }
+              await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
+            }
             result.skipped++;
             continue;
           }
@@ -318,7 +351,6 @@ export async function syncLexusAlgoliaInventory(): Promise<AlgoliaSyncResult> {
           const cityMpg = parseInt(String(hit.city_mpg), 10) || null;
           const hwMpg = parseInt(String(hit.hw_mpg), 10) || null;
           const doorsNum = parseInt(String(hit.doors), 10) || null;
-          const isCertified = hit.certified === true || hit.certified === 1 || String(hit.certified).toLowerCase() === 'true' || String(hit.certified).toLowerCase() === 'yes';
           const isNew = String(hit.type || '').toLowerCase() === 'new';
           const salePrice = isNew && msrpNum > 0 ? msrpNum : ourPriceNum > 0 ? ourPriceNum : msrpNum;
 
