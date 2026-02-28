@@ -3,9 +3,16 @@ import { prisma } from '@/lib/prisma';
 import { syncDealerSocketInventory } from '@/lib/inventory-sync/dealersocket';
 import { syncLexusFeedInventory } from '@/lib/inventory-sync/lexus-feed';
 import { syncWendleFeedInventory } from '@/lib/inventory-sync/wendle-feed';
+import { syncCarsforsaleInventory } from '@/lib/inventory-sync/carsforsale';
+import { syncRmbFeedInventory } from '@/lib/inventory-sync/rmb-feed';
 
-// Cron job to sync SFTP-based dealer inventories (DealerSocket + Lexus feeds)
-// Runs daily at 4 AM UTC; uses syncFrequencyDays to skip days when sync isn't due
+// 5-minute max for Vercel Pro — each invocation syncs ONE dealer
+export const maxDuration = 300;
+
+// Cron job to sync dealer inventories one at a time.
+// Runs every hour; each invocation picks the single most-overdue dealer
+// whose syncFrequencyDays has elapsed, syncs it, and returns.
+// This spreads dealer syncs ~1 hour apart and avoids timeout issues.
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,12 +24,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find all dealers with SFTP-based sync enabled
+    // Find all dealers with sync enabled
     const dealers = await prisma.user.findMany({
       where: {
         autoSyncEnabled: true,
-        inventoryFeedType: { in: ['dealersocket', 'lexus_sftp', 'wendle_sftp'] },
-        dealerSocketFeedId: { not: null },
+        inventoryFeedType: { in: ['dealersocket', 'lexus_sftp', 'wendle_sftp', 'carsforsale', 'rmb_sftp'] },
       },
       select: {
         id: true,
@@ -33,102 +39,85 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log(`[SFTP Sync Cron] Found ${dealers.length} SFTP-based dealers with sync enabled`);
+    console.log(`[SFTP Sync Cron] Found ${dealers.length} dealers with sync enabled`);
 
-    const results: Array<{
-      dealerId: string;
-      dealerName: string;
-      feedType: string;
-      skipped: boolean;
-      success?: boolean;
-      created?: number;
-      updated?: number;
-      markedSold?: number;
-      errors?: string[];
-      duration?: number;
-    }> = [];
+    // Filter to dealers that are due for sync, then pick the most overdue one
+    const now = Date.now();
+    const dueDealers = dealers
+      .filter((dealer) => {
+        const frequencyDays = dealer.syncFrequencyDays || 2;
+        if (!dealer.lastSyncAt) return true; // never synced
+        const daysSinceSync = (now - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24);
+        return daysSinceSync >= frequencyDays;
+      })
+      .sort((a, b) => {
+        // Most overdue first (null lastSyncAt = highest priority)
+        const aTime = a.lastSyncAt?.getTime() ?? 0;
+        const bTime = b.lastSyncAt?.getTime() ?? 0;
+        return aTime - bTime;
+      });
 
-    for (const dealer of dealers) {
-      // Check if sync is due based on syncFrequencyDays
-      const frequencyDays = dealer.syncFrequencyDays || 2;
-      if (dealer.lastSyncAt) {
-        const daysSinceSync = (Date.now() - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24);
-        if (daysSinceSync < frequencyDays) {
-          console.log(`[SFTP Sync Cron] Skipping ${dealer.businessName} - last synced ${daysSinceSync.toFixed(1)} days ago (frequency: ${frequencyDays} days)`);
-          results.push({
-            dealerId: dealer.id,
-            dealerName: dealer.businessName || 'Unknown',
-            feedType: dealer.inventoryFeedType || '',
-            skipped: true,
-          });
-          continue;
-        }
-      }
-
-      console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType})...`);
-
-      try {
-        // Route to the correct sync function based on feed type
-        let syncResult;
-
-        if (dealer.inventoryFeedType === 'dealersocket') {
-          syncResult = await syncDealerSocketInventory(dealer.id);
-        } else if (dealer.inventoryFeedType === 'lexus_sftp') {
-          syncResult = await syncLexusFeedInventory(dealer.id);
-        } else if (dealer.inventoryFeedType === 'wendle_sftp') {
-          syncResult = await syncWendleFeedInventory(dealer.id);
-        } else {
-          throw new Error(`Unknown SFTP feed type: ${dealer.inventoryFeedType}`);
-        }
-
-        results.push({
-          dealerId: dealer.id,
-          dealerName: dealer.businessName || 'Unknown',
-          feedType: dealer.inventoryFeedType || '',
-          skipped: false,
-          success: syncResult.success,
-          created: syncResult.created,
-          updated: syncResult.updated,
-          markedSold: syncResult.markedSold,
-          errors: syncResult.errors,
-          duration: syncResult.duration,
-        });
-
-      } catch (err: any) {
-        console.error(`[SFTP Sync Cron] Error syncing ${dealer.businessName}:`, err);
-        results.push({
-          dealerId: dealer.id,
-          dealerName: dealer.businessName || 'Unknown',
-          feedType: dealer.inventoryFeedType || '',
-          skipped: false,
-          success: false,
-          errors: [err.message],
-        });
-      }
+    if (dueDealers.length === 0) {
+      console.log('[SFTP Sync Cron] No dealers due for sync this hour');
+      return NextResponse.json({
+        success: true,
+        message: 'No dealers due for sync',
+        totalDealers: dealers.length,
+        dueDealers: 0,
+      });
     }
 
-    // Aggregate stats
-    const synced = results.filter(r => !r.skipped);
-    const successful = synced.filter(r => r.success);
-    const failed = synced.filter(r => !r.success);
-    const totalCreated = synced.reduce((sum, r) => sum + (r.created || 0), 0);
-    const totalUpdated = synced.reduce((sum, r) => sum + (r.updated || 0), 0);
-    const totalMarkedSold = synced.reduce((sum, r) => sum + (r.markedSold || 0), 0);
+    // Pick the single most overdue dealer
+    const dealer = dueDealers[0];
+    const daysSince = dealer.lastSyncAt
+      ? ((now - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24)).toFixed(1)
+      : 'never';
 
-    console.log(`[SFTP Sync Cron] Done: ${successful.length} successful, ${failed.length} failed, ${results.length - synced.length} skipped`);
+    console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType}) — last synced ${daysSince} days ago, ${dueDealers.length - 1} other dealers queued`);
 
-    return NextResponse.json({
-      success: true,
-      totalDealers: dealers.length,
-      synced: synced.length,
-      skipped: results.length - synced.length,
-      successful: successful.length,
-      failed: failed.length,
-      totalCreated,
-      totalUpdated,
-      totalMarkedSold,
-      results,
-    });
+    try {
+      // Route to the correct sync function based on feed type
+      let syncResult;
+
+      if (dealer.inventoryFeedType === 'dealersocket') {
+        syncResult = await syncDealerSocketInventory(dealer.id);
+      } else if (dealer.inventoryFeedType === 'lexus_sftp') {
+        syncResult = await syncLexusFeedInventory(dealer.id);
+      } else if (dealer.inventoryFeedType === 'wendle_sftp') {
+        syncResult = await syncWendleFeedInventory(dealer.id);
+      } else if (dealer.inventoryFeedType === 'carsforsale') {
+        syncResult = await syncCarsforsaleInventory(dealer.id);
+      } else if (dealer.inventoryFeedType === 'rmb_sftp') {
+        syncResult = await syncRmbFeedInventory(dealer.id);
+      } else {
+        throw new Error(`Unknown feed type: ${dealer.inventoryFeedType}`);
+      }
+
+      console.log(`[SFTP Sync Cron] Completed ${dealer.businessName}: ${syncResult.created} created, ${syncResult.updated} updated, ${syncResult.markedSold} marked sold (${syncResult.duration}ms)`);
+
+      return NextResponse.json({
+        success: true,
+        dealer: dealer.businessName,
+        feedType: dealer.inventoryFeedType,
+        created: syncResult.created,
+        updated: syncResult.updated,
+        markedSold: syncResult.markedSold,
+        errors: syncResult.errors,
+        duration: syncResult.duration,
+        remainingDueDealers: dueDealers.length - 1,
+      });
+
+    } catch (err: any) {
+      console.error(`[SFTP Sync Cron] Error syncing ${dealer.businessName}:`, err);
+
+      return NextResponse.json({
+        success: false,
+        dealer: dealer.businessName,
+        feedType: dealer.inventoryFeedType,
+        error: err.message,
+        remainingDueDealers: dueDealers.length - 1,
+      });
+    }
 
   } catch (error) {
     console.error('[SFTP Sync Cron] Fatal error:', error);
