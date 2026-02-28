@@ -39,6 +39,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'content.homenetiol.com',
       },
+      // RBM / CAI Media Management images
+      {
+        protocol: 'https',
+        hostname: 'assets.cai-media-management.com',
+      },
+      // Lexus Algolia / Cars Commerce images
+      {
+        protocol: 'https',
+        hostname: 'vehicle-images.carscommerce.inc',
+      },
       // DealerSocket CDN images
       {
         protocol: 'https',
