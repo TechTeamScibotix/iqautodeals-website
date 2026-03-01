@@ -11,6 +11,7 @@ import {
   trackSignupCompleted,
   trackSignupAbandoned,
 } from '@/lib/analytics';
+import posthog from 'posthog-js';
 
 function RegisterForm() {
   const router = useRouter();
@@ -87,6 +88,15 @@ function RegisterForm() {
 
       // Auto login after registration
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Identify user in PostHog — merges anonymous browsing history with this user
+      if (posthog.__loaded) {
+        posthog.identify(data.user.id, {
+          email: data.user.email,
+          name: data.user.name,
+          userType: data.user.userType,
+        });
+      }
 
       // Mark as completed to prevent abandonment tracking
       hasCompletedRef.current = true;

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, LogIn, UserPlus } from 'lucide-react';
 import { trackLoginSuccess, trackLoginFailed, trackAuthError } from '@/lib/analytics';
+import posthog from 'posthog-js';
 
 export default function LoginClient() {
   const router = useRouter();
@@ -40,6 +41,15 @@ export default function LoginClient() {
       // Store user in localStorage (simple demo auth)
       try {
         localStorage.setItem('user', JSON.stringify(data.user));
+
+        // Identify user in PostHog — merges anonymous browsing history with this user
+        if (posthog.__loaded) {
+          posthog.identify(data.user.id, {
+            email: data.user.email,
+            name: data.user.name,
+            userType: data.user.userType,
+          });
+        }
 
         // Track successful login
         trackLoginSuccess({
