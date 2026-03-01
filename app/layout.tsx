@@ -15,6 +15,7 @@ import AutoDealerSchema from "./components/AutoDealerSchema";
 import { Analytics } from "@vercel/analytics/react";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { PostHogProvider, PostHogPageView } from "./components/PostHogProvider";
+import CookieConsent from "./components/CookieConsent";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
@@ -470,6 +471,7 @@ export default function RootLayout({
             </AnalyticsProvider>
           </Suspense>
           <Analytics debug={true} />
+          <CookieConsent />
         </PostHogProvider>
       </body>
     </html>

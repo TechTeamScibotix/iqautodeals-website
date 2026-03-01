@@ -11,12 +11,16 @@ const POSTHOG_HOST = 'https://us.i.posthog.com';
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== 'undefined' && !posthog.__loaded) {
+      // Check if user previously declined cookies
+      const consent = localStorage.getItem('cookie_consent');
+
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
         person_profiles: 'always',
         capture_pageview: false, // We'll handle this manually
         capture_pageleave: true,
         autocapture: true, // Auto-capture clicks, form submissions, etc.
+        opt_out_capturing_by_default: consent === 'declined',
       });
     }
   }, []);
