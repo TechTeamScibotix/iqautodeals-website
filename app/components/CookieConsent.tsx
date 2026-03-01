@@ -34,29 +34,27 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[9999] p-4 animate-slide-up">
-      <div className="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-2xl p-5 md:p-6 flex flex-col md:flex-row items-start md:items-center gap-4">
-        <div className="flex-1">
-          <p className="text-sm text-gray-700 leading-relaxed">
-            We use cookies and similar technologies to enhance your experience, analyze site traffic, and understand which vehicles interest you.
-            Your browsing activity may be linked to your profile when you register or log in.{' '}
-            <Link href="/privacy" className="text-primary font-semibold hover:underline">
-              Privacy Notice
-            </Link>
-          </p>
-        </div>
+    <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-gray-900 border-t border-gray-700 shadow-lg">
+      <div className="w-full px-4 md:px-8 py-3 flex flex-col sm:flex-row items-center gap-3">
+        <p className="flex-1 text-sm text-gray-300 leading-relaxed text-center sm:text-left">
+          We use cookies to enhance your experience, analyze site traffic, and understand which vehicles interest you.
+          Your browsing activity may be linked to your profile when you register or log in.{' '}
+          <Link href="/privacy" className="text-primary font-semibold hover:underline">
+            Privacy Notice
+          </Link>
+        </p>
         <div className="flex gap-3 shrink-0">
           <button
             onClick={handleDecline}
-            className="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            className="px-5 py-2 text-sm font-semibold text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
           >
             Decline
           </button>
           <button
             onClick={handleAccept}
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors"
+            className="px-5 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors"
           >
-            Accept Cookies
+            Accept
           </button>
         </div>
       </div>
