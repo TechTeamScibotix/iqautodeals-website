@@ -193,6 +193,7 @@ export default function PrivacyClient() {
                 <li><strong>To facilitate deal requests and connect you with dealers.</strong> If you submit a deal request through the Site, we share your contact information and vehicle selections with participating dealers so they may submit competing offers to you.</li>
                 <li><strong>To process availability inquiries.</strong> When you submit a check availability request, we share your information with the relevant dealer to respond to your inquiry.</li>
                 <li><strong>To schedule and manage test drives.</strong> We use your information to coordinate test drive appointments between you and dealers.</li>
+                <li><strong>To generate and share customer leads with participating dealers.</strong> When you create an account, your registration information (name, email, phone) and browsing activity (such as vehicles viewed, searches performed, and location data) may be shared with dealers on our platform as a customer lead to help connect you with relevant inventory and offers — even if you have not yet submitted a deal request or availability inquiry.</li>
                 <li><strong>To provide targeted advertising</strong> both on the Site and on third-party advertising platforms.</li>
                 <li><strong>To engage in data analytics,</strong> including lead scoring, vehicle views, deal submission frequencies, and performance reporting to dealers.</li>
                 <li><strong>To deliver marketing communications</strong> via email or SMS, which you have consented to receive.</li>
@@ -207,6 +208,9 @@ export default function PrivacyClient() {
 
               <h3 className="text-xl font-semibold text-dark mt-6">Affiliates and Subsidiaries</h3>
               <p className="text-gray-700">Scibotix Solutions LLC may share your Personal Information with affiliates and/or subsidiaries, including the DealerHub platform, in a manner consistent with this Privacy Notice.</p>
+
+              <h3 className="text-xl font-semibold text-dark mt-6">Customer Lead Sharing</h3>
+              <p className="text-gray-700">By creating an account on IQ Auto Deals, you agree that your registration information (name, email address, phone number) and browsing activity (such as vehicles viewed, searches performed, and estimated location based on IP address or area code) may be shared with participating dealers on our platform. This information may be shared as a customer lead to connect you with dealers who have relevant inventory, even if you have not submitted a deal request, availability inquiry, or any other explicit request. Lead reports may include your contact information, estimated geographic location, and a summary of your browsing interests.</p>
 
               <h3 className="text-xl font-semibold text-dark mt-6">Deal Requests and Availability Inquiries</h3>
               <p className="text-gray-700">If you submit a deal request or availability inquiry through the Site, you agree that we may share Personal Information with third parties as may be necessary to provide such services. For example, if you submit a deal request for vehicles, we will share your contact information (name, email, phone) and vehicle selections with the relevant dealers.</p>

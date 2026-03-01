@@ -48,6 +48,8 @@ export default function TCPAConsent({
       By clicking &quot;{actionText}&quot;, you authorize IQ Auto Deals
       {sellerName ? ` and ${sellerName}` : ' and its sellers/partners'} to contact you by
       text/calls which may include marketing and may be by autodialer. Calls may be prerecorded.
+      You agree that your contact information and browsing activity may be shared with participating
+      dealers as a customer lead.
       You also agree to our{' '}
       <Link href="/privacy" className="text-primary hover:underline">
         Privacy Policy

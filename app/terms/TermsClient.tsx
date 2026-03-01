@@ -153,6 +153,15 @@ export default function TermsClient() {
             <section id="customer-terms" className="mb-12">
               <h2 className="text-2xl font-bold text-dark border-b border-gray-200 pb-2">5. Terms for Customers (Car Buyers)</h2>
 
+              <h3 className="text-xl font-semibold text-dark mt-6">Lead Sharing Upon Registration</h3>
+              <p className="text-gray-700">By creating an account on IQ Auto Deals, you acknowledge and agree that:</p>
+              <ul className="list-disc pl-6 text-gray-700 space-y-1">
+                <li>Your registration information (name, email, phone number) may be shared with participating dealers on our platform as a customer lead</li>
+                <li>Your browsing activity, including vehicles viewed, searches performed, and estimated location, may be included in lead reports shared with dealers</li>
+                <li>This sharing may occur even if you have not submitted a deal request, availability inquiry, or any other explicit request</li>
+                <li>Dealers who receive your information may contact you by phone, email, or text message regarding their inventory and services</li>
+              </ul>
+
               <h3 className="text-xl font-semibold text-dark mt-6">Deal Requests</h3>
               <p className="text-gray-700">When you submit a deal request:</p>
               <ul className="list-disc pl-6 text-gray-700 space-y-1">
