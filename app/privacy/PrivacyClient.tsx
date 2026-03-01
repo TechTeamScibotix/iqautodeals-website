@@ -51,7 +51,7 @@ export default function PrivacyClient() {
               <h2 className="text-3xl md:text-4xl font-bold">Privacy Notice</h2>
             </div>
             <p className="text-gray-300">
-              Last Updated: January 25, 2026
+              Last Updated: February 28, 2026
             </p>
           </div>
         </div>
@@ -181,6 +181,7 @@ export default function PrivacyClient() {
                 <li>Vehicle views and photo gallery interactions</li>
                 <li>Page navigation and time spent on pages</li>
                 <li>Advertising campaign parameters (UTM codes, click IDs)</li>
+                <li>Browsing activity collected before account creation via a persistent anonymous identifier (cookie), which is linked to your user profile upon registration or login</li>
               </ul>
             </section>
 
@@ -278,7 +279,7 @@ export default function PrivacyClient() {
                   <tbody className="text-sm text-gray-700">
                     <tr className="border-b">
                       <td className="px-4 py-3 font-medium">Analytics Cookies</td>
-                      <td className="px-4 py-3">Track website usage, page views, user journeys</td>
+                      <td className="px-4 py-3">Track website usage, page views, vehicle views, searches, and user journeys. A persistent anonymous identifier is assigned on your first visit and linked to your account upon registration or login, allowing us to associate pre-registration browsing activity with your profile.</td>
                       <td className="px-4 py-3">PostHog, Vercel Analytics</td>
                     </tr>
                     <tr className="border-b bg-gray-50">
@@ -430,7 +431,7 @@ export default function PrivacyClient() {
 
             {/* Effective Date */}
             <div className="text-center text-gray-500 border-t border-gray-200 pt-8 mt-12">
-              <p>This Privacy Notice is effective as of January 25, 2026.</p>
+              <p>This Privacy Notice is effective as of January 25, 2026. Last updated February 28, 2026.</p>
             </div>
 
           </div>

@@ -51,7 +51,7 @@ export default function TermsClient() {
               <h2 className="text-3xl md:text-4xl font-bold">Terms and Conditions of Use</h2>
             </div>
             <p className="text-gray-300">
-              Last Updated: January 25, 2026
+              Last Updated: February 28, 2026
             </p>
           </div>
         </div>
@@ -200,6 +200,20 @@ export default function TermsClient() {
               <h3 className="text-xl font-semibold text-dark mt-6">Fees</h3>
               <p className="text-gray-700">
                 Dealer subscription fees and terms are as agreed upon during registration. We reserve the right to modify fees with 30 days notice.
+              </p>
+            </section>
+
+            {/* Section 6b: Analytics and Tracking */}
+            <section id="analytics" className="mb-12">
+              <h2 className="text-2xl font-bold text-dark border-b border-gray-200 pb-2">Analytics and Tracking</h2>
+              <p className="text-gray-700">
+                By using the Site, you acknowledge and agree that we use analytics technologies, including cookies and persistent anonymous identifiers, to collect information about your browsing activity. This includes, but is not limited to, pages visited, vehicles viewed, searches performed, and interactions with Site features.
+              </p>
+              <p className="text-gray-700">
+                This browsing data is collected from the moment you first visit the Site, prior to account creation. When you register for an account or log in, your pre-registration browsing activity is linked to your user profile. This allows us to provide a more personalized experience and to share relevant lead information with participating dealers.
+              </p>
+              <p className="text-gray-700">
+                For more information on how we collect and use this data, please review our <Link href="/privacy" className="text-primary hover:underline">Privacy Notice</Link>.
               </p>
             </section>
 
@@ -352,7 +366,7 @@ export default function TermsClient() {
 
             {/* Effective Date */}
             <div className="text-center text-gray-500 border-t border-gray-200 pt-8 mt-12">
-              <p>These Terms and Conditions are effective as of January 25, 2026.</p>
+              <p>These Terms and Conditions are effective as of January 25, 2026. Last updated February 28, 2026.</p>
             </div>
 
           </div>
