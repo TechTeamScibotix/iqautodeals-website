@@ -699,7 +699,7 @@ export default function CarsClient({
       </header>
       )}
 
-      {/* Mobile Filters Button */}
+      {/* Mobile Filters Button + Geo Banner */}
       <div className={`lg:hidden sticky ${showHeader ? 'top-14 md:top-20' : 'top-0'} z-40 bg-white border-b border-gray-200 px-4 py-3`}>
         <button
           onClick={() => setShowMobileFilters(true)}
@@ -708,6 +708,24 @@ export default function CarsClient({
           <SlidersHorizontal className="w-5 h-5" />
           Filters
         </button>
+        {geoApplied && !geoDismissed && geoLocation && (
+          <div className="mt-2 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 flex items-center justify-between">
+            <p className="text-xs text-text-primary">
+              <MapPin className="w-3 h-3 inline mr-1 text-primary" />
+              Cars near <strong>{geoLocation.label}</strong>
+            </p>
+            <button
+              onClick={() => {
+                setGeoDismissed(true);
+                setGeoApplied(false);
+                setSearch(prev => ({ ...prev, zipCode: '' }));
+              }}
+              className="text-xs text-primary hover:text-primary-dark font-medium ml-2 whitespace-nowrap"
+            >
+              Show all
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Filters Modal */}
@@ -1160,9 +1178,9 @@ export default function CarsClient({
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
-            {/* Geo location banner */}
+            {/* Geo location banner (desktop only — mobile shows in sticky bar) */}
             {geoApplied && !geoDismissed && geoLocation && (
-              <div className="mb-4 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center justify-between">
+              <div className="hidden lg:flex mb-4 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 items-center justify-between">
                 <p className="text-sm text-text-primary">
                   <MapPin className="w-4 h-4 inline mr-1 text-primary" />
                   Showing cars near <strong>{geoLocation.label}</strong>
