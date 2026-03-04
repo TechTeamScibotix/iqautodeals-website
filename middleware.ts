@@ -63,7 +63,28 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Geo cookie: set iq_geo with lat/lng/city/state from Vercel IP headers
+  const response = NextResponse.next();
+
+  if (!request.cookies.get('iq_geo')) {
+    const country = request.headers.get('x-vercel-ip-country');
+    const lat = request.headers.get('x-vercel-ip-latitude');
+    const lng = request.headers.get('x-vercel-ip-longitude');
+    const city = request.headers.get('x-vercel-ip-city');
+    const region = request.headers.get('x-vercel-ip-country-region');
+
+    if (country === 'US' && lat && lng && city && region) {
+      const value = `${lat}|${lng}|${encodeURIComponent(city)}|${region}`;
+      response.cookies.set('iq_geo', value, {
+        maxAge: 86400,
+        path: '/',
+        sameSite: 'lax',
+        httpOnly: false,
+      });
+    }
+  }
+
+  return response;
 }
 
 export const config = {

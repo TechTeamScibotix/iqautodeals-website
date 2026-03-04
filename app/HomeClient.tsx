@@ -12,6 +12,7 @@ import { BorderBeam } from '@/components/AnimatedBorder';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { trackFunnelStep } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
+import { useGeoLocation } from '@/lib/useGeoLocation';
 
 interface FeaturedCar {
   id: string;
@@ -90,6 +91,9 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
   // Quick search state
   const [quickSearch, setQuickSearch] = useState('');
   const [searchCount, setSearchCount] = useState<number | null>(null);
+
+  // Geo location
+  const geoLocation = useGeoLocation();
 
   // Get models for selected make
   const availableModels = searchForm.make
@@ -201,6 +205,30 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
     fetchNewCars();
   }, []);
+
+  // Fetch nearby cars when geo location is available
+  useEffect(() => {
+    if (!geoLocation) return;
+
+    // Pre-fill search form ZIP
+    setSearchForm(prev => prev.zipCode ? prev : { ...prev, zipCode: geoLocation.zip });
+
+    // Fetch nearby featured cars
+    fetch(`/api/nearby-cars?lat=${geoLocation.lat}&lng=${geoLocation.lng}&limit=12`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.cars?.length > 0) setFeaturedCars(data.cars);
+      })
+      .catch(() => {});
+
+    // Fetch nearby new cars
+    fetch(`/api/nearby-cars?lat=${geoLocation.lat}&lng=${geoLocation.lng}&limit=12&condition=new`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.cars?.length > 0) setNewCars(data.cars);
+      })
+      .catch(() => {});
+  }, [geoLocation]);
 
   return (
     <div className="min-h-screen bg-light-dark font-sans">
@@ -424,7 +452,9 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       <section className="bg-light-dark py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-text-primary">Featured Inventory</h3>
+            <h3 className="text-2xl font-bold text-text-primary">
+              {geoLocation ? `Featured Cars Near ${geoLocation.label}` : 'Featured Inventory'}
+            </h3>
             <Link href="/cars" className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
               View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -532,7 +562,9 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
         <section className="bg-white py-12">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-text-primary">New Inventory</h3>
+              <h3 className="text-2xl font-bold text-text-primary">
+                {geoLocation ? `New Cars Near ${geoLocation.label}` : 'New Inventory'}
+              </h3>
               <Link href="/cars?condition=new" className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
                 View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>

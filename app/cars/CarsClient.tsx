@@ -19,6 +19,7 @@ import {
   trackFunnelStep,
 } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
+import { useGeoLocation } from '@/lib/useGeoLocation';
 import {
   generateStandsOutPoints,
   generateBuyerPersonas,
@@ -181,6 +182,23 @@ export default function CarsClient({
     condition: false,
   });
   const [searchRadius, setSearchRadius] = useState(75);
+  const [geoApplied, setGeoApplied] = useState(false);
+  const [geoDismissed, setGeoDismissed] = useState(false);
+  const geoLocation = useGeoLocation();
+
+  // Auto-populate ZIP from geo when no explicit ZIP is set
+  useEffect(() => {
+    if (
+      geoLocation &&
+      !geoDismissed &&
+      !search.zipCode &&
+      !searchParams.get('zipCode') &&
+      !initialZipCode
+    ) {
+      setSearch(prev => ({ ...prev, zipCode: geoLocation.zip }));
+      setGeoApplied(true);
+    }
+  }, [geoLocation]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -1142,6 +1160,26 @@ export default function CarsClient({
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
+            {/* Geo location banner */}
+            {geoApplied && !geoDismissed && geoLocation && (
+              <div className="mb-4 bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center justify-between">
+                <p className="text-sm text-text-primary">
+                  <MapPin className="w-4 h-4 inline mr-1 text-primary" />
+                  Showing cars near <strong>{geoLocation.label}</strong>
+                </p>
+                <button
+                  onClick={() => {
+                    setGeoDismissed(true);
+                    setGeoApplied(false);
+                    setSearch(prev => ({ ...prev, zipCode: '' }));
+                  }}
+                  className="text-sm text-primary hover:text-primary-dark font-medium ml-4 whitespace-nowrap"
+                >
+                  Show all
+                </button>
+              </div>
+            )}
+
             {/* Results Count */}
             <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-semibold">
