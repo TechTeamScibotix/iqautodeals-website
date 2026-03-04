@@ -28,7 +28,8 @@ interface PromoCar {
   };
 }
 
-const STORAGE_KEY = 'promo_popup_dismissed';
+const STORAGE_KEY = 'promo_popup_dismissed_at';
+const COOLDOWN_MS = 20 * 1000; // 20 seconds
 
 export default function PromoPopup() {
   const [promoCar, setPromoCar] = useState<PromoCar | null>(null);
@@ -36,41 +37,63 @@ export default function PromoPopup() {
   const [dismissed, setDismissed] = useState(false);
   const shownAtRef = useRef<number>(0);
 
-  useEffect(() => {
-    // Check if already dismissed this session
-    if (sessionStorage.getItem(STORAGE_KEY)) return;
+  const promoCarRef = useRef<PromoCar | null>(null);
 
-    const fetchPromo = async () => {
+  const showPopup = (car: PromoCar) => {
+    setPromoCar(car);
+    promoCarRef.current = car;
+    setDismissed(false);
+    setTimeout(() => {
+      setVisible(true);
+      shownAtRef.current = Date.now();
+      trackPromoPopupShown({
+        carId: car.id,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        price: car.salePrice,
+      });
+    }, 4000);
+  };
+
+  useEffect(() => {
+    let cooldownTimer: NodeJS.Timeout | null = null;
+
+    const fetchAndShow = async () => {
       try {
         const res = await fetch('/api/promo/lowest-lexus');
         const data = await res.json();
         if (!data.car) return;
-
-        setPromoCar(data.car);
-
-        // Delay appearance by 4 seconds after data loads
-        setTimeout(() => {
-          setVisible(true);
-          shownAtRef.current = Date.now();
-          trackPromoPopupShown({
-            carId: data.car.id,
-            make: data.car.make,
-            model: data.car.model,
-            year: data.car.year,
-            price: data.car.salePrice,
-          });
-        }, 4000);
+        showPopup(data.car);
       } catch (error) {
         console.error('Failed to fetch promo car:', error);
       }
     };
 
-    fetchPromo();
+    // Check if still in cooldown from a previous dismissal
+    const dismissedAt = sessionStorage.getItem(STORAGE_KEY);
+    if (dismissedAt) {
+      const elapsed = Date.now() - parseInt(dismissedAt, 10);
+      if (elapsed < COOLDOWN_MS) {
+        // Wait for remaining cooldown, then show
+        cooldownTimer = setTimeout(() => {
+          fetchAndShow();
+        }, COOLDOWN_MS - elapsed);
+        return () => { if (cooldownTimer) clearTimeout(cooldownTimer); };
+      }
+    }
+
+    // No cooldown active — show immediately
+    fetchAndShow();
+
+    return () => { if (cooldownTimer) clearTimeout(cooldownTimer); };
   }, []);
+
+  const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDismiss = () => {
     setDismissed(true);
-    sessionStorage.setItem(STORAGE_KEY, 'true');
+    sessionStorage.setItem(STORAGE_KEY, Date.now().toString());
 
     if (promoCar) {
       const timeVisible = Math.round((Date.now() - shownAtRef.current) / 1000);
@@ -83,9 +106,25 @@ export default function PromoPopup() {
     // Remove from DOM after exit animation
     setTimeout(() => {
       setVisible(false);
-      setPromoCar(null);
     }, 500);
+
+    // Schedule re-show after cooldown
+    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+    cooldownTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/promo/lowest-lexus');
+        const data = await res.json();
+        if (data.car) showPopup(data.car);
+      } catch (error) {
+        console.error('Failed to fetch promo car:', error);
+      }
+    }, COOLDOWN_MS);
   };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => { if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current); };
+  }, []);
 
   const handleClick = () => {
     if (promoCar) {
