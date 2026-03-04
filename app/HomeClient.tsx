@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, useRef, Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -525,7 +525,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       </section>
 
       {/* Server-rendered: How It Works */}
-      {howItWorksSection}
+      <Fragment key="how-it-works">{howItWorksSection}</Fragment>
 
       {/* New Inventory Carousel */}
       {(loadingNew || newCars.length > 0) && (
@@ -657,16 +657,16 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       </section>
 
       {/* Server-rendered: Benefits */}
-      {benefitsSection}
+      <Fragment key="benefits">{benefitsSection}</Fragment>
 
       {/* Server-rendered: Resources & Guides */}
-      {resourcesSection}
+      <Fragment key="resources">{resourcesSection}</Fragment>
 
       {/* Server-rendered: Browse by Location & Model */}
-      {browseSection}
+      <Fragment key="browse">{browseSection}</Fragment>
 
       {/* Server-rendered: FAQ */}
-      {faqSection}
+      <Fragment key="faq">{faqSection}</Fragment>
 
       {/* Footer */}
       <Footer />

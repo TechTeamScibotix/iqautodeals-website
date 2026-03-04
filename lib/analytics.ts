@@ -533,6 +533,37 @@ export const trackAdClicked = (data: {
 };
 
 // ============================================
+// PROMO POPUP EVENTS
+// ============================================
+
+export const trackPromoPopupShown = (data: {
+  carId: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+}) => {
+  trackBoth('promo_popup_shown', data);
+};
+
+export const trackPromoPopupClicked = (data: {
+  carId: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+}) => {
+  trackBoth('promo_popup_clicked', data);
+};
+
+export const trackPromoPopupDismissed = (data: {
+  carId: string;
+  timeVisibleSeconds: number;
+}) => {
+  trackBoth('promo_popup_dismissed', data);
+};
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 

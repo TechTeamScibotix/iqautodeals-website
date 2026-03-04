@@ -52,6 +52,8 @@ export default {
         'bounce-slow': 'bounce 2s infinite',
         'spin-slow': 'spin 4s linear infinite',
         'border-beam': 'borderBeam 4s linear infinite',
+        'slide-in-right': 'slideInFromRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-out-right': 'slideOutToRight 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards',
       },
       keyframes: {
         fadeIn: {
@@ -69,6 +71,14 @@ export default {
         borderBeam: {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
+        },
+        slideInFromRight: {
+          '0%': { transform: 'translateX(120%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideOutToRight: {
+          '0%': { transform: 'translateX(0)', opacity: '1' },
+          '100%': { transform: 'translateX(120%)', opacity: '0' },
         },
       },
     },

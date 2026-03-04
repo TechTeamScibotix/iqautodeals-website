@@ -16,6 +16,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { AnalyticsProvider } from "./components/AnalyticsProvider";
 import { PostHogProvider, PostHogPageView } from "./components/PostHogProvider";
 import CookieConsent from "./components/CookieConsent";
+import PromoPopup from "./components/PromoPopup";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
@@ -472,6 +473,7 @@ export default function RootLayout({
           </Suspense>
           <Analytics debug={true} />
           <CookieConsent />
+          <PromoPopup />
         </PostHogProvider>
       </body>
     </html>
