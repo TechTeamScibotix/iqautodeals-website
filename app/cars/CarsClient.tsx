@@ -181,7 +181,7 @@ export default function CarsClient({
     bodyType: false,
     condition: false,
   });
-  const [searchRadius, setSearchRadius] = useState(75);
+  const [searchRadius, setSearchRadius] = useState(1000);
   const [geoApplied, setGeoApplied] = useState(false);
   const [geoDismissed, setGeoDismissed] = useState(false);
   const geoLocation = useGeoLocation();
@@ -799,7 +799,7 @@ export default function CarsClient({
                       <input
                         type="range"
                         min="10"
-                        max="500"
+                        max="1000"
                         value={searchRadius}
                         onChange={(e) => setSearchRadius(parseInt(e.target.value))}
                         className="w-full mt-2 accent-primary"
@@ -1031,7 +1031,7 @@ export default function CarsClient({
                       <input
                         type="range"
                         min="10"
-                        max="500"
+                        max="1000"
                         value={searchRadius}
                         onChange={(e) => setSearchRadius(parseInt(e.target.value))}
                         className="w-full mt-1 accent-primary"
