@@ -17,10 +17,21 @@ export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Location redirects: strip state code suffix (e.g. /locations/atlanta-ga → /locations/atlanta)
+  // But NOT for slugs where the state code is part of the canonical slug (e.g. portland-me, portland-or)
   const locationMatch = pathname.match(/^\/locations\/(.+)-([a-z]{2})$/);
   if (locationMatch) {
-    const city = locationMatch[1];
-    return NextResponse.redirect(new URL(`/locations/${city}`, request.url), { status: 301 });
+    const fullSlug = pathname.replace('/locations/', '');
+    // Slugs where the state suffix is part of the real slug (disambiguating same-name cities)
+    const validSlugsWithState = new Set([
+      'aurora-co', 'aurora-il', 'duluth-ga', 'kansas-city-ks', 'kansas-city-mo',
+      'portland-me', 'portland-or', 'columbia-md', 'columbia-mo', 'columbia-sc',
+      'rochester-mn', 'rochester-ny', 'springfield-mo', 'columbus-oh',
+      'vancouver-wa', 'charleston-wv', 'santa-fe',
+    ]);
+    if (!validSlugsWithState.has(fullSlug)) {
+      const city = locationMatch[1];
+      return NextResponse.redirect(new URL(`/locations/${city}`, request.url), { status: 301 });
+    }
   }
 
   // Model redirects: correct common slug mismatches
