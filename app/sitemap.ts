@@ -96,6 +96,8 @@ function getCorePages(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/about`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/new-cars`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'weekly', priority: 0.95 },
     { url: `${baseUrl}/new-cars/deals`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${baseUrl}/cars-for-sale-near-me`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${baseUrl}/trucks-for-sale-near-me`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'weekly', priority: 0.95 },
     { url: `${baseUrl}/terms`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/privacy`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/for-dealers`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.8 },
@@ -234,6 +236,29 @@ function getNewCarsPages(): MetadataRoute.Sitemap {
   Object.keys(makesData).forEach((makeSlug) => {
     pages.push({
       url: `${baseUrl}/new-cars/make/${makeSlug}`,
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    })
+  })
+
+  // /new-cars/make/[make]/[bodyType] — make + body type combos
+  const makeBodyTypeCombos = [
+    { make: 'ford', bodyType: 'truck' }, { make: 'ram', bodyType: 'truck' },
+    { make: 'chevrolet', bodyType: 'truck' }, { make: 'gmc', bodyType: 'truck' },
+    { make: 'toyota', bodyType: 'truck' }, { make: 'toyota', bodyType: 'suv' },
+    { make: 'toyota', bodyType: 'sedan' }, { make: 'lexus', bodyType: 'sedan' },
+    { make: 'nissan', bodyType: 'sedan' }, { make: 'honda', bodyType: 'sedan' },
+    { make: 'kia', bodyType: 'sedan' }, { make: 'mercedes-benz', bodyType: 'sedan' },
+    { make: 'ford', bodyType: 'suv' }, { make: 'chevrolet', bodyType: 'suv' },
+    { make: 'gmc', bodyType: 'suv' }, { make: 'honda', bodyType: 'suv' },
+    { make: 'nissan', bodyType: 'suv' }, { make: 'kia', bodyType: 'suv' },
+    { make: 'lexus', bodyType: 'luxury' }, { make: 'mercedes-benz', bodyType: 'luxury' },
+    { make: 'jeep', bodyType: 'suv' },
+  ]
+  makeBodyTypeCombos.forEach(({ make, bodyType }) => {
+    pages.push({
+      url: `${baseUrl}/new-cars/make/${make}/${bodyType}`,
       lastModified: STATIC_LAST_MODIFIED,
       changeFrequency: 'weekly',
       priority: 0.85,
