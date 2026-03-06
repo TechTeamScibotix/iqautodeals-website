@@ -508,11 +508,10 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src="https://patch.com/api_v1/bizpost/571516/badge"
                     alt="IQ Auto Deals – New & Used Cars and Trucks Marketplace on Patch"
-                    width={100}
-                    height={50}
                     className="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity"
                   />
                 </a>

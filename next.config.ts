@@ -25,11 +25,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com',
       },
-      // Patch.com badge
-      {
-        protocol: 'https',
-        hostname: 'patch.com',
-      },
       // Dealer website images
       {
         protocol: 'https',
