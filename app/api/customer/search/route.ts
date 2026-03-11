@@ -60,9 +60,10 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    // Only filter by state if a specific state is provided (not 'all' or empty)
-    // Skip state filter if searching by zipcode (zipcode takes precedence)
-    if (state && state !== 'all' && !zipCode) {
+    // Filter by state if a specific state is provided (not 'all' or empty)
+    // Apply state filter even when zipCode is present — they work together:
+    // zipCode controls distance sorting, state narrows to that state's inventory
+    if (state && state !== 'all') {
       where.state = state;
     }
 

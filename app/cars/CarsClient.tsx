@@ -530,18 +530,10 @@ export default function CarsClient({
     }
   };
 
-  // Distance filtering is handled server-side by the search API (with fallback to
-  // all cars sorted by closest when 0 are within radius). Do NOT re-filter by
-  // distance here — the API already returns the best set of results.
-  const filteredCars = cars.filter(car => {
-    const makeMatch = !search.make || car.make.toLowerCase().includes(search.make.toLowerCase());
-    const modelMatch = !search.model || car.model.toLowerCase().includes(search.model.toLowerCase());
-    const stateMatch = search.state === 'all' || car.state === search.state;
-    const fuelTypeMatch = search.fuelType === 'all' || (car.fuelType || 'Gasoline') === search.fuelType;
-    const minPriceMatch = !search.minPrice || car.salePrice >= parseInt(search.minPrice, 10);
-    const maxPriceMatch = !search.maxPrice || car.salePrice <= parseInt(search.maxPrice, 10);
-    return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch;
-  });
+  // All filtering (state, make, model, price, distance, etc.) is handled server-side
+  // by the search API. Do NOT re-filter here — it causes mismatches with server
+  // pagination counts (totalCount/totalPages).
+  const filteredCars = cars;
 
   // Server handles pagination — cars already contains just the current page
   const paginatedCars = filteredCars;
