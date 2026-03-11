@@ -36,12 +36,15 @@ export async function GET(request: NextRequest) {
         inventoryFeedType: true,
         syncFrequencyDays: true,
         lastSyncAt: true,
+        lastSyncStatus: true,
       },
     });
 
     console.log(`[SFTP Sync Cron] Found ${dealers.length} dealers with sync enabled`);
 
-    // Filter to dealers that are due for sync, then pick the most overdue one
+    // Filter to dealers that are due for sync, then pick the best candidate.
+    // Dealers whose last sync failed are deprioritized so they don't block
+    // the queue — other dealers get a turn first, then failed ones retry.
     const now = Date.now();
     const dueDealers = dealers
       .filter((dealer) => {
@@ -51,7 +54,14 @@ export async function GET(request: NextRequest) {
         return daysSinceSync >= frequencyDays;
       })
       .sort((a, b) => {
-        // Most overdue first (null lastSyncAt = highest priority)
+        // Deprioritize dealers whose last sync failed or timed out (stuck in_progress).
+        // This prevents one broken dealer from blocking the entire queue.
+        // "in_progress" means the previous run was killed by Vercel timeout (504).
+        const aFailed = (a.lastSyncStatus === 'failed' || a.lastSyncStatus === 'in_progress') ? 1 : 0;
+        const bFailed = (b.lastSyncStatus === 'failed' || b.lastSyncStatus === 'in_progress') ? 1 : 0;
+        if (aFailed !== bFailed) return aFailed - bFailed;
+
+        // Among same-status dealers, most overdue first (null lastSyncAt = highest priority).
         const aTime = a.lastSyncAt?.getTime() ?? 0;
         const bTime = b.lastSyncAt?.getTime() ?? 0;
         return aTime - bTime;
@@ -73,7 +83,15 @@ export async function GET(request: NextRequest) {
       ? ((now - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24)).toFixed(1)
       : 'never';
 
-    console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType}) — last synced ${daysSince} days ago, ${dueDealers.length - 1} other dealers queued`);
+    console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType}, lastStatus: ${dealer.lastSyncStatus || 'none'}) — last synced ${daysSince} days ago, ${dueDealers.length - 1} other dealers queued`);
+
+    // Mark as in_progress BEFORE starting sync. If Vercel kills us with a 504
+    // timeout, this status stays as "in_progress" which tells the next cron run
+    // to deprioritize this dealer and sync others first.
+    await prisma.user.update({
+      where: { id: dealer.id },
+      data: { lastSyncStatus: 'in_progress' },
+    });
 
     try {
       // Route to the correct sync function based on feed type
@@ -109,6 +127,20 @@ export async function GET(request: NextRequest) {
 
     } catch (err: any) {
       console.error(`[SFTP Sync Cron] Error syncing ${dealer.businessName}:`, err);
+
+      // Mark as failed so the next cron run deprioritizes this dealer
+      try {
+        await prisma.user.update({
+          where: { id: dealer.id },
+          data: {
+            lastSyncAt: new Date(),
+            lastSyncStatus: 'failed',
+            lastSyncMessage: `Cron error: ${err.message}`,
+          },
+        });
+      } catch (updateErr) {
+        console.error('[SFTP Sync Cron] Failed to update sync status:', updateErr);
+      }
 
       return NextResponse.json({
         success: false,
