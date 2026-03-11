@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, type ReadonlyURLSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
@@ -130,6 +130,8 @@ export interface CarsClientProps {
   initialCondition?: string;
   showHeader?: boolean;
   showFooter?: boolean;
+  hideTitle?: boolean;
+  urlSearchParams?: ReadonlyURLSearchParams;
 }
 
 export default function CarsClient({
@@ -144,9 +146,11 @@ export default function CarsClient({
   initialCondition,
   showHeader = true,
   showFooter = true,
+  hideTitle = false,
+  urlSearchParams,
 }: CarsClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = urlSearchParams || new URLSearchParams();
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
   const hasInitialProps = !!(initialZipCode || initialBodyType || initialMake || initialModel || initialMinPrice || initialMaxPrice || initialCondition);
@@ -203,6 +207,8 @@ export default function CarsClient({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -295,7 +301,7 @@ export default function CarsClient({
     }
   }, [searchParams]);
 
-  const loadCarsWithParams = async (searchOverride?: typeof search) => {
+  const loadCarsWithParams = async (searchOverride?: typeof search, pageOverride?: number) => {
     const currentSearch = searchOverride || search;
     setLoading(true);
     try {
@@ -314,16 +320,20 @@ export default function CarsClient({
         params.append('zipCode', currentSearch.zipCode);
         params.append('radius', searchRadius.toString());
       }
+      params.append('page', pageOverride?.toString() || currentPage.toString());
+      params.append('limit', itemsPerPage.toString());
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
       const loadedCars = data.cars || [];
       setCars(loadedCars);
+      setTotalCount(data.totalCount || 0);
+      setTotalPages(data.totalPages || 0);
 
       // Track search performed
       trackSearchPerformed({
         query: `${currentSearch.make} ${currentSearch.model}`.trim(),
-        resultsCount: loadedCars.length,
+        resultsCount: data.totalCount || loadedCars.length,
         location: currentSearch.state,
         filters: {
           make: currentSearch.make,
@@ -354,7 +364,7 @@ export default function CarsClient({
     }
   };
 
-  const loadCars = async () => {
+  const loadCars = async (pageOverride?: number) => {
     setLoading(true);
     try {
       // Build query params
@@ -372,11 +382,15 @@ export default function CarsClient({
         params.append('zipCode', search.zipCode);
         params.append('radius', searchRadius.toString());
       }
+      params.append('page', pageOverride?.toString() || currentPage.toString());
+      params.append('limit', itemsPerPage.toString());
 
       const res = await fetch(`/api/customer/search?${params.toString()}`);
       const data = await res.json();
       const loadedCars = data.cars || [];
       setCars(loadedCars);
+      setTotalCount(data.totalCount || 0);
+      setTotalPages(data.totalPages || 0);
 
       // Track search performed
       trackSearchPerformed({
@@ -528,11 +542,8 @@ export default function CarsClient({
     return makeMatch && modelMatch && stateMatch && fuelTypeMatch && minPriceMatch && maxPriceMatch;
   });
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredCars.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedCars = filteredCars.slice(startIndex, endIndex);
+  // Server handles pagination — cars already contains just the current page
+  const paginatedCars = filteredCars;
 
   // Fetch similar vehicles when no results found
   useEffect(() => {
@@ -555,11 +566,11 @@ export default function CarsClient({
       try {
         // Tier 1: Same make, drop model
         if (search.make) {
-          const params = new URLSearchParams({ make: search.make });
+          const params = new URLSearchParams({ make: search.make, limit: '8' });
           const res = await fetch(`/api/customer/search?${params}`);
           const data = await res.json();
           if (!cancelled && data.cars?.length > 0) {
-            setSimilarCars(data.cars.slice(0, 8));
+            setSimilarCars(data.cars);
             setLoadingSimilar(false);
             return;
           }
@@ -567,21 +578,21 @@ export default function CarsClient({
 
         // Tier 2: Same bodyType, drop make+model
         if (search.bodyType && search.bodyType !== 'all') {
-          const params = new URLSearchParams({ bodyType: search.bodyType });
+          const params = new URLSearchParams({ bodyType: search.bodyType, limit: '8' });
           const res = await fetch(`/api/customer/search?${params}`);
           const data = await res.json();
           if (!cancelled && data.cars?.length > 0) {
-            setSimilarCars(data.cars.slice(0, 8));
+            setSimilarCars(data.cars);
             setLoadingSimilar(false);
             return;
           }
         }
 
         // Tier 3: No filters — popular/recent inventory
-        const res = await fetch('/api/customer/search');
+        const res = await fetch('/api/customer/search?limit=8');
         const data = await res.json();
         if (!cancelled && data.cars?.length > 0) {
-          setSimilarCars(data.cars.slice(0, 8));
+          setSimilarCars(data.cars);
         }
       } catch (err) {
         console.error('Failed to load similar vehicles:', err);
@@ -594,14 +605,16 @@ export default function CarsClient({
     return () => { cancelled = true; };
   }, [loading, filteredCars.length, search.make, search.model, search.q, search.bodyType, search.fuelType, search.condition, search.minPrice, search.maxPrice]);
 
-  // Reset to page 1 when filters change
+  // Reset to page 1 when filters change (fetch is triggered by the search useEffect)
   useEffect(() => {
     setCurrentPage(1);
   }, [search.make, search.model, search.state, search.condition, search.fuelType, search.bodyType, search.minPrice, search.maxPrice, search.zipCode, searchRadius]);
 
   // Page navigation handlers
   const goToPage = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    const safePage = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(safePage);
+    loadCars(safePage);
     // Scroll to top of results
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -952,18 +965,20 @@ export default function CarsClient({
 
       <div className="container mx-auto px-4 py-6">
         {/* Page Title */}
-        <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
-          {pageTitle || (search.fuelType && search.fuelType !== 'all'
-            ? `${search.fuelType} Vehicles for Sale`
-            : search.bodyType && search.bodyType !== 'all'
-            ? `${search.bodyType}s for Sale`
-            : search.condition === 'new'
-            ? 'New Vehicles for Sale'
-            : search.condition === 'used'
-            ? 'Used Cars for Sale'
-            : 'Cars for Sale')}
-        </h2>
-        {pageSubtitle && (
+        {!hideTitle && (
+          <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
+            {pageTitle || (search.fuelType && search.fuelType !== 'all'
+              ? `${search.fuelType} Vehicles for Sale`
+              : search.bodyType && search.bodyType !== 'all'
+              ? `${search.bodyType}s for Sale`
+              : search.condition === 'new'
+              ? 'New Vehicles for Sale'
+              : search.condition === 'used'
+              ? 'Used Cars for Sale'
+              : 'Cars for Sale')}
+          </h2>
+        )}
+        {!hideTitle && pageSubtitle && (
           <p className="text-gray-600 mb-4">{pageSubtitle}</p>
         )}
 
@@ -1156,7 +1171,7 @@ export default function CarsClient({
               {/* Apply & Clear Buttons */}
               <div className="py-4 space-y-2">
                 <button
-                  onClick={loadCars}
+                  onClick={() => loadCars()}
                   className="w-full px-4 py-3 bg-black text-white rounded-full font-semibold hover:bg-gray-800 transition-colors"
                 >
                   Apply filters
@@ -1201,7 +1216,7 @@ export default function CarsClient({
             {/* Results Count */}
             <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-semibold">
-                {loading ? 'Loading...' : `${filteredCars.length} Listings`}
+                {loading ? 'Loading...' : `${totalCount} Listings`}
               </p>
               {!loading && totalPages > 1 && (
                 <p className="text-sm text-gray-500">
@@ -1437,7 +1452,7 @@ export default function CarsClient({
                 <div className="mt-8 flex flex-col items-center gap-4">
                   {/* Results info */}
                   <p className="text-sm text-gray-600">
-                    Showing {startIndex + 1}-{Math.min(endIndex, filteredCars.length)} of {filteredCars.length} vehicles
+                    Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} vehicles
                   </p>
 
                   {/* Page controls */}
@@ -1515,6 +1530,33 @@ export default function CarsClient({
                         onClick={() => {
                           setItemsPerPage(count);
                           setCurrentPage(1);
+                          // Re-fetch with new page size
+                          const params = new URLSearchParams();
+                          if (search.q) params.append('q', search.q);
+                          if (search.make) params.append('make', search.make);
+                          if (search.model) params.append('model', search.model);
+                          if (search.state && search.state !== 'all') params.append('state', search.state);
+                          if (search.condition && search.condition !== 'all') params.append('condition', search.condition);
+                          if (search.bodyType && search.bodyType !== 'all') params.append('bodyType', search.bodyType);
+                          if (search.fuelType && search.fuelType !== 'all') params.append('fuelType', search.fuelType);
+                          if (search.minPrice) params.append('minPrice', search.minPrice);
+                          if (search.maxPrice) params.append('maxPrice', search.maxPrice);
+                          if (search.zipCode) {
+                            params.append('zipCode', search.zipCode);
+                            params.append('radius', searchRadius.toString());
+                          }
+                          params.append('page', '1');
+                          params.append('limit', count.toString());
+                          setLoading(true);
+                          fetch(`/api/customer/search?${params.toString()}`)
+                            .then(res => res.json())
+                            .then(data => {
+                              setCars(data.cars || []);
+                              setTotalCount(data.totalCount || 0);
+                              setTotalPages(data.totalPages || 0);
+                            })
+                            .catch(err => console.error('Failed to load cars:', err))
+                            .finally(() => setLoading(false));
                         }}
                         className={`px-3 py-1 rounded-full transition-colors ${
                           itemsPerPage === count

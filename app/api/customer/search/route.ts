@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
     const condition = searchParams.get('condition'); // new, used
     const bodyType = searchParams.get('bodyType'); // SUV, Sedan, Truck, etc.
     const fuelType = searchParams.get('fuelType'); // Gasoline, Electric, Hybrid, etc.
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '24', 10);
 
     // Get coordinates from zipcode if provided
     let userLat: number | null = null;
@@ -274,7 +276,19 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json({ cars: processedCars });
+    // Server-side pagination
+    const totalCount = processedCars.length;
+    const totalPages = Math.ceil(totalCount / limit);
+    const safePage = Math.max(1, Math.min(page, totalPages || 1));
+    const startIndex = (safePage - 1) * limit;
+    const paginatedCars = processedCars.slice(startIndex, startIndex + limit);
+
+    return NextResponse.json({
+      cars: paginatedCars,
+      totalCount,
+      page: safePage,
+      totalPages,
+    });
   } catch (error: any) {
     console.error('Error searching cars:', error);
     return NextResponse.json({
