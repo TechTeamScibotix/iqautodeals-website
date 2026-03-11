@@ -298,17 +298,19 @@ export async function syncWendleFeedInventory(dealerId: string): Promise<SyncRes
     const state = firstVehicle?.['Dealer State'] || dealer.state || '';
     const coords = getCoordinatesForDealer(city, state);
 
-    // Process each vehicle
+    // Process each vehicle.
+    // For EXISTING vehicles: only update metadata (price, mileage, etc.) — skip photo
+    // re-upload since photos are already on Vercel Blob. This is the key optimization
+    // that keeps sync under the 5-minute Vercel timeout for large inventories (430+ vehicles).
+    // For NEW vehicles: download photos and generate SEO descriptions.
+    let newVehicleCount = 0;
+
     for (const vehicle of vehicles) {
       try {
         if (!vehicle.VIN) {
           result.errors.push('Skipping vehicle with no VIN');
           continue;
         }
-
-        // Download and upload photos to Vercel Blob
-        console.log(`[Wendle Sync] Processing photos for ${vehicle.VIN}...`);
-        const photos = await processVehiclePhotos(vehicle.ImageList, vehicle.VIN);
 
         const mileage = parseInt(vehicle.Miles, 10) || 0;
         const vehicleCity = vehicle['Dealer City'] || city;
@@ -323,85 +325,108 @@ export async function syncWendleFeedInventory(dealerId: string): Promise<SyncRes
         const inStockDate = vehicle.DateInStock ? new Date(vehicle.DateInStock) : null;
         const validInStockDate = inStockDate && !isNaN(inStockDate.getTime()) ? inStockDate : null;
 
-        const carData = {
-          dealerId,
-          vin: vehicle.VIN.trim(),
-          make: (vehicle.Make || '').trim(),
-          model: (vehicle.Model || '').trim(),
-          year: parseInt(vehicle.Year, 10) || 0,
-          mileage,
-          color: (vehicle.ExteriorColor || 'Unknown').trim(),
-          transmission: (vehicle.Transmission || 'Automatic').trim(),
-          salePrice: listingPrice,
-          description: (vehicle.Description || '').trim(),
-          photos,
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          city: vehicleCity.trim(),
-          state: vehicleState.trim(),
-          status: 'active',
-          bodyType: vehicle.Body?.trim() || null,
-          trim: vehicle.Trim?.trim() || null,
-          drivetrain: vehicle.Drivetrain?.trim()
-            ? vehicle.Drivetrain.trim().charAt(0).toUpperCase() + vehicle.Drivetrain.trim().slice(1)
-            : null,
-          engine: vehicle.Engine_Description?.trim() || null,
-          condition: determineCondition(vehicle.Type, mileage),
-          fuelType: normalizeFuelType(vehicle.Fuel_Type, vehicle.Engine_Description, vehicle.Model),
-          slug: generateSlug(
-            vehicle.VIN,
-            parseInt(vehicle.Year, 10),
-            vehicle.Make || '',
-            vehicle.Model || '',
-            vehicleCity,
-            vehicleState
-          ),
-          // Additional inventory fields
-          interiorColor: vehicle.InteriorColor?.trim() || null,
-          msrp: parseFloat(vehicle.MSRP) || null,
-          inStockDate: validInStockDate,
-          mpgCity: parseInt(vehicle.CityMPG, 10) || null,
-          mpgHighway: parseInt(vehicle.HighwayMPG, 10) || null,
-          doors: parseInt(vehicle.Doors, 10) || null,
-          certified: vehicle.Certified === 'True' || vehicle.Certified === 'true',
-          features: parseFeatures(vehicle.Options),
-        };
-
-        let carId: string;
-        let needsSEO = false;
-
         if (existingVinMap.has(vehicle.VIN)) {
-          // Update existing — preserve description if it was customized via Agentix SEO or manual edit
+          // ── EXISTING VEHICLE: fast metadata-only update (no photo re-upload) ──
           const existing = existingVinMap.get(vehicle.VIN)!;
-          carId = existing.id;
-          const updateData = { ...carData };
-          if (existing.seoDescriptionGenerated) {
-            delete (updateData as any).description;
-          } else {
-            needsSEO = true;
+          const updateData: any = {
+            make: (vehicle.Make || '').trim(),
+            model: (vehicle.Model || '').trim(),
+            year: parseInt(vehicle.Year, 10) || 0,
+            mileage,
+            color: (vehicle.ExteriorColor || 'Unknown').trim(),
+            transmission: (vehicle.Transmission || 'Automatic').trim(),
+            salePrice: listingPrice,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            city: vehicleCity.trim(),
+            state: vehicleState.trim(),
+            status: 'active',
+            bodyType: vehicle.Body?.trim() || null,
+            trim: vehicle.Trim?.trim() || null,
+            drivetrain: vehicle.Drivetrain?.trim()
+              ? vehicle.Drivetrain.trim().charAt(0).toUpperCase() + vehicle.Drivetrain.trim().slice(1)
+              : null,
+            engine: vehicle.Engine_Description?.trim() || null,
+            condition: determineCondition(vehicle.Type, mileage),
+            fuelType: normalizeFuelType(vehicle.Fuel_Type, vehicle.Engine_Description, vehicle.Model),
+            interiorColor: vehicle.InteriorColor?.trim() || null,
+            msrp: parseFloat(vehicle.MSRP) || null,
+            inStockDate: validInStockDate,
+            mpgCity: parseInt(vehicle.CityMPG, 10) || null,
+            mpgHighway: parseInt(vehicle.HighwayMPG, 10) || null,
+            doors: parseInt(vehicle.Doors, 10) || null,
+            certified: vehicle.Certified === 'True' || vehicle.Certified === 'true',
+            features: parseFeatures(vehicle.Options),
+          };
+
+          // Preserve existing SEO description
+          if (!existing.seoDescriptionGenerated) {
+            updateData.description = (vehicle.Description || '').trim();
           }
+
           await prisma.car.update({
             where: { id: existing.id },
             data: updateData,
           });
           result.updated++;
         } else {
-          // Create new
-          const created = await prisma.car.create({
-            data: carData,
-          });
-          carId = created.id;
-          needsSEO = true;
-          result.created++;
-        }
+          // ── NEW VEHICLE: full processing with photos + SEO ──
+          newVehicleCount++;
+          console.log(`[Wendle Sync] New vehicle ${vehicle.VIN} — downloading photos...`);
+          const photos = await processVehiclePhotos(vehicle.ImageList, vehicle.VIN);
 
-        // Generate SEO description inline if needed
-        if (needsSEO) {
+          const carData = {
+            dealerId,
+            vin: vehicle.VIN.trim(),
+            make: (vehicle.Make || '').trim(),
+            model: (vehicle.Model || '').trim(),
+            year: parseInt(vehicle.Year, 10) || 0,
+            mileage,
+            color: (vehicle.ExteriorColor || 'Unknown').trim(),
+            transmission: (vehicle.Transmission || 'Automatic').trim(),
+            salePrice: listingPrice,
+            description: (vehicle.Description || '').trim(),
+            photos,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            city: vehicleCity.trim(),
+            state: vehicleState.trim(),
+            status: 'active',
+            bodyType: vehicle.Body?.trim() || null,
+            trim: vehicle.Trim?.trim() || null,
+            drivetrain: vehicle.Drivetrain?.trim()
+              ? vehicle.Drivetrain.trim().charAt(0).toUpperCase() + vehicle.Drivetrain.trim().slice(1)
+              : null,
+            engine: vehicle.Engine_Description?.trim() || null,
+            condition: determineCondition(vehicle.Type, mileage),
+            fuelType: normalizeFuelType(vehicle.Fuel_Type, vehicle.Engine_Description, vehicle.Model),
+            slug: generateSlug(
+              vehicle.VIN,
+              parseInt(vehicle.Year, 10),
+              vehicle.Make || '',
+              vehicle.Model || '',
+              vehicleCity,
+              vehicleState
+            ),
+            interiorColor: vehicle.InteriorColor?.trim() || null,
+            msrp: parseFloat(vehicle.MSRP) || null,
+            inStockDate: validInStockDate,
+            mpgCity: parseInt(vehicle.CityMPG, 10) || null,
+            mpgHighway: parseInt(vehicle.HighwayMPG, 10) || null,
+            doors: parseInt(vehicle.Doors, 10) || null,
+            certified: vehicle.Certified === 'True' || vehicle.Certified === 'true',
+            features: parseFeatures(vehicle.Options),
+          };
+
+          const created = await prisma.car.create({ data: carData });
+          result.created++;
+
+          // Generate SEO description for new vehicles
           try {
             const seoDescription = await generateSEODescription(carData);
             if (isValidSEODescription(seoDescription)) {
               await prisma.car.update({
-                where: { id: carId },
+                where: { id: created.id },
                 data: {
                   description: seoDescription,
                   seoDescriptionGenerated: true,
@@ -411,15 +436,15 @@ export async function syncWendleFeedInventory(dealerId: string): Promise<SyncRes
             }
           } catch (seoErr: any) {
             console.error(`[Wendle Sync] SEO generation failed for ${vehicle.VIN}:`, seoErr.message);
-            // Continue — the vehicle still has the CSV description as fallback
           }
-          // Rate limit delay between Gemini calls
           await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
         }
       } catch (err: any) {
         result.errors.push(`VIN ${vehicle.VIN}: ${err.message}`);
       }
     }
+
+    console.log(`[Wendle Sync] Processed ${result.updated} existing (metadata only) + ${newVehicleCount} new (with photos/SEO)`);
 
     // Mark vehicles not in feed as sold
     for (const [vin, existing] of existingVinMap) {
