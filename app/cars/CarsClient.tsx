@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, type ReadonlyURLSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, type ReadonlyURLSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
@@ -150,7 +150,8 @@ export default function CarsClient({
   urlSearchParams,
 }: CarsClientProps) {
   const router = useRouter();
-  const searchParams = urlSearchParams || new URLSearchParams();
+  const defaultSearchParams = useSearchParams();
+  const searchParams = urlSearchParams || defaultSearchParams;
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
   const hasInitialProps = !!(initialZipCode || initialBodyType || initialMake || initialModel || initialMinPrice || initialMaxPrice || initialCondition);
