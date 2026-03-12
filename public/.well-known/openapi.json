@@ -86,10 +86,10 @@
                       "type": "array",
                       "items": {
                         "type": "object",
-                        "required": ["title", "image_url", "vin", "year", "make", "model", "price", "listing_url"],
+                        "required": ["title", "vin", "year", "make", "model", "price", "listing_url"],
                         "properties": {
                           "title": { "type": "string", "description": "Full vehicle title (Year Make Model Trim)" },
-                          "image_url": { "type": ["string", "null"], "format": "uri", "description": "Direct public URL to the main vehicle photo." },
+                          "image_url": { "type": ["string", "null"], "format": "uri", "description": "Direct public HTTPS URL to the main vehicle photo. The GPT should render this using Markdown image syntax: ![title](image_url)" },
                           "vin": { "type": "string" },
                           "year": { "type": "integer" },
                           "make": { "type": "string" },
