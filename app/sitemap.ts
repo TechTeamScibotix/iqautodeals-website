@@ -61,26 +61,31 @@ export async function generateSitemaps() {
 // ============================================
 
 export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
-  // Next.js passes id as string through URL params — coerce to number
-  const numId = Number(id)
+  try {
+    // Next.js passes id as string through URL params — coerce to number
+    const numId = Number(id)
 
-  switch (numId) {
-    case 0:
-      return getCorePages()
-    case 1:
-      return getGuideAndBlogPages()
-    case 2:
-      return getModelPages()
-    case 3:
-      return getLocationBasePages()
-    case 4:
-      return getLocationFilterPages()
-    case 5:
-      return getNewCarsPages()
-    case 6:
-      return getMakePages()
-    default:
-      return getVehiclePages(numId)
+    switch (numId) {
+      case 0:
+        return getCorePages()
+      case 1:
+        return getGuideAndBlogPages()
+      case 2:
+        return getModelPages()
+      case 3:
+        return getLocationBasePages()
+      case 4:
+        return getLocationFilterPages()
+      case 5:
+        return getNewCarsPages()
+      case 6:
+        return getMakePages()
+      default:
+        return getVehiclePages(numId)
+    }
+  } catch (error) {
+    console.error(`Error generating sitemap ${id}:`, error)
+    return []
   }
 }
 
