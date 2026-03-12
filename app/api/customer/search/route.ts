@@ -257,22 +257,29 @@ export async function GET(request: NextRequest) {
       return car.photos && car.photos !== '[]' && car.photos !== '' && car.photos !== null;
     };
 
-    // Sort: Photos first, then by distance (if zipcode) or date (default)
+    // Sort: distance is primary when zip provided, photos as tiebreaker
     processedCars.sort((a, b) => {
-      // Primary sort: Cars with photos first
-      const aHasPhotos = hasPhotos(a);
-      const bHasPhotos = hasPhotos(b);
-      if (aHasPhotos && !bHasPhotos) return -1;
-      if (!aHasPhotos && bHasPhotos) return 1;
-
-      // Secondary sort: Distance (if zipcode provided) or date
       if (userLat !== null) {
-        // Sort by distance (closest first)
+        // Primary: sort by distance (closest first)
+        if (a.distance === null && b.distance === null) {
+          // Both unknown distance — fall back to photos then date
+          const aP = hasPhotos(a) ? 0 : 1;
+          const bP = hasPhotos(b) ? 0 : 1;
+          if (aP !== bP) return aP - bP;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
         if (a.distance === null) return 1;
         if (b.distance === null) return -1;
-        return a.distance - b.distance;
+        // Tiebreaker at same distance: prefer cars with photos
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        const aP = hasPhotos(a) ? 0 : 1;
+        const bP = hasPhotos(b) ? 0 : 1;
+        return aP - bP;
       } else {
-        // Sort by date (newest first) - already sorted from DB, but maintain consistency
+        // No zip — photos first, then by date
+        const aP = hasPhotos(a) ? 0 : 1;
+        const bP = hasPhotos(b) ? 0 : 1;
+        if (aP !== bP) return aP - bP;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
