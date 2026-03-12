@@ -13,54 +13,55 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .carousel::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
 
 /* Vehicle card */
-.card { min-width: 220px; max-width: 220px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; cursor: pointer; transition: transform 0.2s; flex-shrink: 0; }
-.card:hover { transform: scale(1.02); }
+.card { min-width: 220px; max-width: 220px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; }
 .card-img { width: 100%; height: 140px; object-fit: cover; background: #333; }
 .card-body { padding: 10px; }
 .card-price { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; }
-.card-img-wrap { position: relative; }
+.card-img-wrap { position: relative; cursor: pointer; }
 .card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .card-meta { font-size: 11px; color: #999; }
 .card-btn { display: block; width: 100%; padding: 8px; margin-top: 8px; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
 .card-btn:hover { background: #2563eb; }
+.card-btn.active { background: #1d4ed8; }
 
-/* Detail overlay */
-.detail-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #1e1e1e; z-index: 100; overflow-y: auto; display: none; }
-.detail-overlay.active { display: block; }
-.detail-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #2a2a2a; position: sticky; top: 0; z-index: 10; }
-.detail-header h2 { font-size: 16px; color: #fff; flex: 1; padding-right: 12px; }
-.close-btn { background: none; border: none; color: #999; font-size: 24px; cursor: pointer; padding: 4px 8px; }
+/* Detail panel — inline below carousel */
+.detail-panel { display: none; background: #1e1e1e; border-top: 1px solid #333; }
+.detail-panel.active { display: block; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #2a2a2a; }
+.detail-header h2 { font-size: 15px; color: #fff; flex: 1; padding-right: 12px; }
+.close-btn { background: none; border: none; color: #999; font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1; }
 .close-btn:hover { color: #fff; }
 
 /* Photo gallery */
 .gallery { position: relative; width: 100%; background: #111; }
-.gallery img { width: 100%; height: 300px; object-fit: cover; }
-.gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.gallery img { width: 100%; height: 280px; object-fit: cover; }
+.gallery-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .gallery-nav:hover { background: rgba(0,0,0,0.8); }
 .gallery-prev { left: 8px; }
 .gallery-next { right: 8px; }
-.gallery-counter { position: absolute; bottom: 8px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+.gallery-counter { position: absolute; bottom: 8px; right: 12px; background: rgba(0,0,0,0.7); color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 12px; }
+
+/* Price/mileage row */
+.price-row { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid #333; }
+.price-row .mileage { font-size: 14px; color: #999; }
+.price-row .price { font-size: 22px; font-weight: 700; color: #3b82f6; }
 
 /* Vehicle specs */
-.specs { padding: 16px; }
+.specs { padding: 12px 16px; }
 .specs-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #333; }
-.specs-price { text-align: right; font-size: 22px; font-weight: 700; color: #3b82f6; padding: 12px 16px; }
-.specs-mileage { font-size: 14px; color: #999; padding: 0 16px 12px; }
 .spec-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
 .spec-value { font-size: 14px; color: #e0e0e0; margin-top: 2px; }
 .spec-item { flex: 1; }
 
 /* Dealer section */
-.dealer-section { padding: 16px; border-top: 1px solid #333; margin-top: 8px; }
-.dealer-name { font-size: 16px; font-weight: 600; color: #fff; }
-.dealer-distance { font-size: 13px; color: #999; margin-top: 2px; }
+.dealer-section { padding: 14px 16px; border-top: 1px solid #333; }
+.dealer-name { font-size: 15px; font-weight: 600; color: #fff; }
+.dealer-loc { font-size: 13px; color: #999; margin-top: 2px; }
 
-/* Action buttons */
-.actions { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-.btn-primary { padding: 14px; background: #3b82f6; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: block; }
-.btn-primary:hover { background: #2563eb; }
-.btn-secondary { padding: 14px; background: transparent; color: #3b82f6; border: 2px solid #3b82f6; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; display: block; }
-.btn-secondary:hover { background: rgba(59,130,246,0.1); }
+/* Action button */
+.actions { padding: 14px 16px; }
+.btn-view { display: block; width: 100%; padding: 13px; background: transparent; color: #3b82f6; border: 2px solid #3b82f6; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; }
+.btn-view:hover { background: rgba(59,130,246,0.1); }
 
 .empty { padding: 40px; text-align: center; color: #888; }
 </style>
@@ -69,32 +70,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div id="carousel" class="carousel">
   <div class="empty">Searching vehicles...</div>
 </div>
-<div id="detail" class="detail-overlay"></div>
+<div id="detail" class="detail-panel"></div>
 
 <script>
 let vehicles = [];
 let currentPhoto = 0;
-let selectedVehicle = null;
+let selectedIndex = -1;
 
-// Listen for tool results from ChatGPT
 window.addEventListener('message', (event) => {
   if (event.source !== window.parent) return;
   const msg = event.data;
   if (!msg) return;
 
-  // Handle tool result notification
   if (msg.jsonrpc === '2.0' && msg.method === 'ui/notifications/tool-result') {
     const data = msg.params?.structuredContent || msg.params?.result?.structuredContent;
     if (data && data.vehicles) {
       vehicles = data.vehicles;
+      selectedIndex = -1;
       renderCarousel();
+      closeDetail();
     }
   }
 
-  // Also handle direct data passing
   if (msg.type === 'vehicle-data' && msg.vehicles) {
     vehicles = msg.vehicles;
+    selectedIndex = -1;
     renderCarousel();
+    closeDetail();
   }
 });
 
@@ -107,117 +109,124 @@ function renderCarousel() {
 
   container.innerHTML = vehicles.map((v, i) => {
     const price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact';
-    const title = v.condition ? `${v.condition} ${v.year} ${v.make} ${v.model}` : `${v.year} ${v.make} ${v.model}`;
-    const subtitle = v.trim ? `${v.trim} - ${price}` : price;
-    const meta = [
-      v.mileage ? v.mileage.toLocaleString() + ' mi' : null,
-      v.distanceMiles ? v.distanceMiles + ' mi away' : null,
-    ].filter(Boolean).join(' \u00B7 ');
+    const title = v.condition ? v.condition + ' ' + v.year + ' ' + v.make + ' ' + v.model : v.year + ' ' + v.make + ' ' + v.model;
+    const meta = v.mileage ? v.mileage.toLocaleString() + ' mi' : '';
+    const isActive = i === selectedIndex;
+    const btnText = isActive ? 'Hide Details' : 'View Details';
+    const btnClass = isActive ? 'card-btn active' : 'card-btn';
 
-    return `
-      <div class="card" onclick="showDetail(${i})">
-        <div class="card-img-wrap">
-          <img class="card-img" src="${v.image_url || ''}" alt="${title}" onerror="this.style.display='none'">
-          <span class="card-price">${price}</span>
-        </div>
-        <div class="card-body">
-          <div class="card-title">${title}${v.trim ? ' ' + v.trim : ''}</div>
-          <div class="card-meta">${meta}</div>
-          <button class="card-btn">View Details</button>
-        </div>
-      </div>
-    `;
+    return '<div class="card" id="card-' + i + '">' +
+      '<div class="card-img-wrap" onclick="toggleDetail(' + i + ')">' +
+        '<img class="card-img" src="' + (v.image_url || '') + '" alt="' + title + '" onerror="this.style.display=\'none\'">' +
+        '<span class="card-price">' + price + '</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-title">' + title + (v.trim ? ' ' + v.trim : '') + '</div>' +
+        '<div class="card-meta">' + meta + '</div>' +
+        '<button class="' + btnClass + '" onclick="toggleDetail(' + i + ')">' + btnText + '</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
 }
 
-function showDetail(index) {
-  selectedVehicle = vehicles[index];
+function toggleDetail(index) {
+  if (selectedIndex === index) {
+    closeDetail();
+    return;
+  }
+  selectedIndex = index;
   currentPhoto = 0;
-  const v = selectedVehicle;
+  renderCarousel();
+  showDetail(index);
+}
+
+function showDetail(index) {
+  const v = vehicles[index];
   const photos = v.photos && v.photos.length ? v.photos : (v.image_url ? [v.image_url] : []);
   const price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact dealer';
-  const title = `${v.condition || ''} ${v.year} ${v.make} ${v.model} ${v.trim || ''}`.trim();
-  const dealerName = v.dealer?.name || 'Dealer';
-  const dealerLoc = [v.dealer?.city, v.dealer?.state].filter(Boolean).join(', ');
+  const title = (v.condition || '') + ' ' + v.year + ' ' + v.make + ' ' + v.model + ' ' + (v.trim || '');
+  const dealerName = v.dealer && v.dealer.name ? v.dealer.name : 'Dealer';
+  const dealerLoc = [v.dealer && v.dealer.city, v.dealer && v.dealer.state].filter(Boolean).join(', ');
 
   const detail = document.getElementById('detail');
-  detail.innerHTML = `
-    <div class="detail-header">
-      <h2>${title}</h2>
-      <button class="close-btn" onclick="closeDetail()">&times;</button>
-    </div>
-    ${photos.length ? `
-      <div class="gallery">
-        <img id="gallery-img" src="${photos[0]}" alt="${title}">
-        ${photos.length > 1 ? `
-          <button class="gallery-nav gallery-prev" onclick="prevPhoto()">&lsaquo;</button>
-          <button class="gallery-nav gallery-next" onclick="nextPhoto()">&rsaquo;</button>
-          <span class="gallery-counter" id="gallery-counter">1 / ${photos.length}</span>
-        ` : `
-          <span class="gallery-counter">1 / 1</span>
-        `}
-      </div>
-    ` : ''}
-    <div style="padding:16px;border-bottom:1px solid #333;">
-      <div style="font-size:24px;font-weight:700;color:#3b82f6;">${price}</div>
-      <div style="font-size:14px;color:#999;margin-top:4px;">${v.mileage ? v.mileage.toLocaleString() + ' miles' : 'Mileage N/A'}</div>
-    </div>
-    <div class="specs">
-      ${specRow('Condition', v.condition, 'Body Type', v.bodyType)}
-      ${specRow('Exterior Color', v.exteriorColor, 'Interior Color', v.interiorColor)}
-      ${specRow('Transmission', v.transmission, 'Engine', v.engine)}
-      ${specRow('Fuel Type', v.fuelType, 'Drivetrain', v.drivetrain)}
-      ${specRow('MPG', (v.mpgCity || '—') + ' city / ' + (v.mpgHighway || '—') + ' hwy', 'Doors', v.doors)}
-      ${specRow('VIN', v.vin, '', '')}
-    </div>
-    <div class="dealer-section">
-      <div class="dealer-name">${dealerName}</div>
-      <div class="dealer-distance">${dealerLoc}${v.distanceMiles ? ' \u00B7 ' + v.distanceMiles + ' mi away' : ''}</div>
-    </div>
-    <div class="actions">
-      <a href="${v.listing_url}" target="_blank" class="btn-secondary">Contact Dealer</a>
-      <a href="${v.listing_url}" target="_blank" class="btn-primary">View on IQ Auto Deals</a>
-    </div>
-  `;
+  detail.innerHTML =
+    '<div class="detail-header">' +
+      '<h2>' + title.trim() + ' - ' + price + (v.mileage ? ', ' + v.mileage.toLocaleString() + ' mi' : '') + '</h2>' +
+      '<button class="close-btn" onclick="closeDetail()">&times;</button>' +
+    '</div>' +
+    (photos.length ? (
+      '<div class="gallery">' +
+        '<img id="gallery-img" src="' + photos[0] + '" alt="' + title.trim() + '">' +
+        (photos.length > 1 ? (
+          '<button class="gallery-nav gallery-prev" onclick="prevPhoto()">&lsaquo;</button>' +
+          '<button class="gallery-nav gallery-next" onclick="nextPhoto()">&rsaquo;</button>'
+        ) : '') +
+        '<span class="gallery-counter" id="gallery-counter">1 / ' + photos.length + '</span>' +
+      '</div>'
+    ) : '') +
+    '<div class="price-row">' +
+      '<span class="mileage">' + (v.mileage ? v.mileage.toLocaleString() + ' mi' : '') + '</span>' +
+      '<span class="price">' + price + '</span>' +
+    '</div>' +
+    '<div class="specs">' +
+      specRow('Exterior Color', v.exteriorColor, 'Interior Color', v.interiorColor) +
+      specRow('Transmission', v.transmission, 'Fuel', v.fuelType) +
+      specRow('Drivetrain', v.drivetrain, 'Body Type', v.bodyType) +
+      specRow('MPG', (v.mpgCity || '—') + ' city / ' + (v.mpgHighway || '—') + ' hwy', 'Doors', v.doors) +
+      specRow('VIN', v.vin, '', '') +
+    '</div>' +
+    '<div class="dealer-section">' +
+      '<div class="dealer-name">' + dealerName + '</div>' +
+      '<div class="dealer-loc">' + dealerLoc + '</div>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<a href="' + v.listing_url + '" target="_blank" class="btn-view">View on IQ Auto Deals &#x2197;</a>' +
+    '</div>';
+
   detail.classList.add('active');
+
+  // Scroll detail into view
+  detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function specRow(label1, value1, label2, value2) {
-  return `
-    <div class="specs-row">
-      <div class="spec-item">
-        <div class="spec-label">${label1}</div>
-        <div class="spec-value">${value1 || '—'}</div>
-      </div>
-      ${label2 ? `
-        <div class="spec-item">
-          <div class="spec-label">${label2}</div>
-          <div class="spec-value">${value2 || '—'}</div>
-        </div>
-      ` : ''}
-    </div>
-  `;
+  return '<div class="specs-row">' +
+    '<div class="spec-item">' +
+      '<div class="spec-label">' + label1 + '</div>' +
+      '<div class="spec-value">' + (value1 || '—') + '</div>' +
+    '</div>' +
+    (label2 ? (
+      '<div class="spec-item">' +
+        '<div class="spec-label">' + label2 + '</div>' +
+        '<div class="spec-value">' + (value2 || '—') + '</div>' +
+      '</div>'
+    ) : '') +
+  '</div>';
 }
 
 function closeDetail() {
+  selectedIndex = -1;
   document.getElementById('detail').classList.remove('active');
+  document.getElementById('detail').innerHTML = '';
+  renderCarousel();
 }
 
 function nextPhoto() {
-  const photos = selectedVehicle.photos || [selectedVehicle.image_url];
+  var v = vehicles[selectedIndex];
+  var photos = v.photos && v.photos.length ? v.photos : [v.image_url];
   currentPhoto = (currentPhoto + 1) % photos.length;
   document.getElementById('gallery-img').src = photos[currentPhoto];
   document.getElementById('gallery-counter').textContent = (currentPhoto + 1) + ' / ' + photos.length;
 }
 
 function prevPhoto() {
-  const photos = selectedVehicle.photos || [selectedVehicle.image_url];
+  var v = vehicles[selectedIndex];
+  var photos = v.photos && v.photos.length ? v.photos : [v.image_url];
   currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
   document.getElementById('gallery-img').src = photos[currentPhoto];
   document.getElementById('gallery-counter').textContent = (currentPhoto + 1) + ' / ' + photos.length;
 }
 
-// Notify parent we're ready
 window.parent.postMessage({ jsonrpc: '2.0', method: 'ui/ready', params: {} }, '*');
 </script>
 </body>
