@@ -316,16 +316,17 @@ export async function GET(request: NextRequest) {
         ]);
 
     const results = cars.map((car) => {
-      // Return direct CDN URLs (not proxied) so ChatGPT can render images inline
+      // Proxy photos through our domain — Vercel Blob CSP blocks external rendering,
+      // but our /api/img proxy serves with permissive headers (no CSP img-src restriction)
       let photoUrls: string[] = [];
       try {
         const parsed = JSON.parse(car.photos);
         if (Array.isArray(parsed)) {
-          photoUrls = parsed.slice(0, 3);
+          photoUrls = parsed.slice(0, 3).map((u: string) => proxyImageUrl(u));
         }
       } catch {
         if (car.photos && car.photos.startsWith('http')) {
-          photoUrls = [car.photos];
+          photoUrls = [proxyImageUrl(car.photos)];
         }
       }
 
@@ -348,8 +349,13 @@ export async function GET(request: NextRequest) {
 
       const distance = '_distance' in car ? (car as Record<string, unknown>)._distance as number | null : null;
 
+      const listingUrl = car.slug
+        ? `https://iqautodeals.com/cars/${car.slug}`
+        : `https://iqautodeals.com/cars/${car.id}`;
+
       return {
         title,
+        image_url: photoUrls[0] || null,
         primaryImage: photoUrls[0] || null,
         vin: car.vin,
         year: car.year,
@@ -372,16 +378,18 @@ export async function GET(request: NextRequest) {
         doors: car.doors || null,
         certifiedPreOwned: car.certified,
         features: featureList,
+        photo_urls: photoUrls,
         photos: photoUrls,
+        dealer_name: car.dealer?.businessName || null,
+        dealer_location: `${car.dealer?.city || ''}, ${car.dealer?.state || ''}`.trim(),
         dealer: {
           name: car.dealer?.businessName || null,
           city: car.dealer?.city || null,
           state: car.dealer?.state || null,
         },
         ...(distance !== null ? { distanceMiles: Math.round(distance * 10) / 10 } : {}),
-        url: car.slug
-          ? `https://iqautodeals.com/cars/${car.slug}`
-          : `https://iqautodeals.com/cars/${car.id}`,
+        listing_url: listingUrl,
+        url: listingUrl,
         listedAt: car.createdAt.toISOString(),
       };
     });
