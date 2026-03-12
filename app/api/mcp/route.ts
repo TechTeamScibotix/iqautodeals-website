@@ -66,7 +66,7 @@ const handler = createMcpHandler(
           _meta: {
             ui: {
               prefersBorder: true,
-              height: 420,
+              height: 900,
               domain: 'https://iqautodeals.com',
               csp: {
                 connectDomains: ['https://iqautodeals.com'],
