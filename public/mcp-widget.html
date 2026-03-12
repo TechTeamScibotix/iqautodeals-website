@@ -143,7 +143,7 @@ function showDetail(index) {
   const detail = document.getElementById('detail');
   detail.innerHTML = `
     <div class="detail-header">
-      <h2>${title} - ${price}${v.mileage ? ', ' + v.mileage.toLocaleString() + ' mi' : ''}</h2>
+      <h2>${title}</h2>
       <button class="close-btn" onclick="closeDetail()">&times;</button>
     </div>
     ${photos.length ? `
@@ -153,18 +153,21 @@ function showDetail(index) {
           <button class="gallery-nav gallery-prev" onclick="prevPhoto()">&lsaquo;</button>
           <button class="gallery-nav gallery-next" onclick="nextPhoto()">&rsaquo;</button>
           <span class="gallery-counter" id="gallery-counter">1 / ${photos.length}</span>
-        ` : ''}
+        ` : `
+          <span class="gallery-counter">1 / 1</span>
+        `}
       </div>
     ` : ''}
-    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 0;">
-      <span class="specs-mileage" style="padding:0">${v.mileage ? v.mileage.toLocaleString() + ' mi' : ''}</span>
-      <span class="specs-price" style="padding:0">${price}</span>
+    <div style="padding:16px;border-bottom:1px solid #333;">
+      <div style="font-size:24px;font-weight:700;color:#3b82f6;">${price}</div>
+      <div style="font-size:14px;color:#999;margin-top:4px;">${v.mileage ? v.mileage.toLocaleString() + ' miles' : 'Mileage N/A'}</div>
     </div>
     <div class="specs">
+      ${specRow('Condition', v.condition, 'Body Type', v.bodyType)}
       ${specRow('Exterior Color', v.exteriorColor, 'Interior Color', v.interiorColor)}
-      ${specRow('Transmission', v.transmission, 'Fuel', v.fuelType)}
-      ${specRow('Drivetrain', v.drivetrain, 'Body Type', v.bodyType)}
-      ${v.mpgCity || v.mpgHighway ? specRow('MPG', (v.mpgCity || '?') + ' city / ' + (v.mpgHighway || '?') + ' highway', 'Doors', v.doors) : ''}
+      ${specRow('Transmission', v.transmission, 'Engine', v.engine)}
+      ${specRow('Fuel Type', v.fuelType, 'Drivetrain', v.drivetrain)}
+      ${specRow('MPG', (v.mpgCity || '—') + ' city / ' + (v.mpgHighway || '—') + ' hwy', 'Doors', v.doors)}
       ${specRow('VIN', v.vin, '', '')}
     </div>
     <div class="dealer-section">
@@ -172,6 +175,7 @@ function showDetail(index) {
       <div class="dealer-distance">${dealerLoc}${v.distanceMiles ? ' \u00B7 ' + v.distanceMiles + ' mi away' : ''}</div>
     </div>
     <div class="actions">
+      <a href="${v.listing_url}" target="_blank" class="btn-secondary">Contact Dealer</a>
       <a href="${v.listing_url}" target="_blank" class="btn-primary">View on IQ Auto Deals</a>
     </div>
   `;
@@ -179,7 +183,6 @@ function showDetail(index) {
 }
 
 function specRow(label1, value1, label2, value2) {
-  if (!value1 && !value2) return '';
   return `
     <div class="specs-row">
       <div class="spec-item">
