@@ -1,6 +1,8 @@
 import { createMcpHandler } from 'mcp-handler';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
 
@@ -12,7 +14,7 @@ function parsePhotos(photos: string): string[] {
   try {
     const parsed = JSON.parse(photos);
     if (Array.isArray(parsed)) {
-      return parsed.slice(0, 3).map((u: string) => proxyImageUrl(u));
+      return parsed.slice(0, 10).map((u: string) => proxyImageUrl(u));
     }
   } catch {
     if (photos && photos.startsWith('http')) {
@@ -33,8 +35,44 @@ function parseFeatures(features: string | null): string[] {
   return [];
 }
 
+// Read widget HTML at module load time
+let widgetHtml = '';
+try {
+  widgetHtml = readFileSync(join(process.cwd(), 'public', 'mcp-widget.html'), 'utf-8');
+} catch {
+  // Will be loaded from URL fallback
+}
+
 const handler = createMcpHandler(
   (server) => {
+    // Register the vehicle search widget as a resource
+    server.resource(
+      'vehicle-widget',
+      'ui://widget/vehicle-results.html',
+      {
+        description: 'Interactive vehicle search results with photo carousel and detail cards',
+        mimeType: 'text/html',
+      },
+      async () => ({
+        contents: [{
+          uri: 'ui://widget/vehicle-results.html',
+          mimeType: 'text/html' as const,
+          text: widgetHtml || '<html><body>Widget loading...</body></html>',
+          _meta: {
+            ui: {
+              prefersBorder: true,
+              height: 420,
+              domain: 'https://iqautodeals.com',
+              csp: {
+                connectDomains: ['https://iqautodeals.com'],
+                resourceDomains: ['https://iqautodeals.com', 'https://*.public.blob.vercel-storage.com'],
+              },
+            },
+          },
+        }],
+      }),
+    );
+
     server.tool(
       'search_vehicles',
       'Search the IQ Auto Deals nationwide vehicle inventory. Find cars by make, model, year, price, body type, fuel type, drivetrain, condition, mileage, and location. Returns vehicle details including photos, pricing, dealer info, and listing links.',
@@ -78,7 +116,6 @@ const handler = createMcpHandler(
               { fuelType: { contains: term, mode: 'insensitive' } },
               { drivetrain: { contains: term, mode: 'insensitive' } },
             ];
-            // Also match 4-digit numbers as year
             if (!isNaN(Number(term)) && term.length === 4) {
               conditions.push({ year: Number(term) });
             }
@@ -176,8 +213,14 @@ const handler = createMcpHandler(
             price: car.salePrice,
             mileage: car.mileage,
             exteriorColor: car.color,
+            interiorColor: car.interiorColor || null,
+            transmission: car.transmission || null,
+            engine: car.engine || null,
             fuelType: car.fuelType || null,
             drivetrain: car.drivetrain || null,
+            mpgCity: car.mpgCity || null,
+            mpgHighway: car.mpgHighway || null,
+            doors: car.doors || null,
             features: featureList,
             dealer: {
               name: car.dealer?.businessName || null,
@@ -200,6 +243,11 @@ const handler = createMcpHandler(
             type: 'text' as const,
             text: `Found ${total} vehicles on IQ Auto Deals. Showing ${vehicles.length}:\n\n${summary}\n\nBrowse all results at https://iqautodeals.com/cars`,
           }],
+          _meta: {
+            ui: {
+              resourceUri: 'ui://widget/vehicle-results.html',
+            },
+          },
         };
       },
     );
