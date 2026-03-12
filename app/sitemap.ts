@@ -5,6 +5,8 @@ import { models as modelsData } from '@/lib/data/models'
 import { bodyTypes as bodyTypesData } from '@/lib/data/bodyTypes'
 import { locations as locationsData } from '@/lib/data/locations'
 
+export const dynamic = 'force-dynamic'
+
 const baseUrl = 'https://iqautodeals.com'
 
 // Fixed date for static content — only update when content actually changes
