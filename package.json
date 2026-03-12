@@ -37,6 +37,7 @@
     "node-html-parser": "^7.0.2",
     "nodemailer": "^6.10.1",
     "posthog-js": "^1.309.1",
+    "posthog-node": "^5.21.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.2.2",
