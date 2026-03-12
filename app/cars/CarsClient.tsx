@@ -191,7 +191,7 @@ export default function CarsClient({
   const [geoDismissed, setGeoDismissed] = useState(false);
   const geoLocation = useGeoLocation();
 
-  // Auto-populate ZIP from geo when no explicit ZIP is set
+  // Auto-populate ZIP from geo when no explicit ZIP is set, then re-fetch with distance sorting
   useEffect(() => {
     if (
       geoLocation &&
@@ -200,8 +200,10 @@ export default function CarsClient({
       !searchParams.get('zipCode') &&
       !initialZipCode
     ) {
-      setSearch(prev => ({ ...prev, zipCode: geoLocation.zip }));
+      const updatedSearch = { ...search, zipCode: geoLocation.zip };
+      setSearch(updatedSearch);
       setGeoApplied(true);
+      loadCarsWithParams(updatedSearch, 1);
     }
   }, [geoLocation]); // eslint-disable-line react-hooks/exhaustive-deps
 
