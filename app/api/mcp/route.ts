@@ -231,17 +231,22 @@ const handler = createMcpHandler(
           };
         });
 
-        // Build a text summary for the model
+        // Build a rich text summary with images for the model to render
         const summary = vehicles.map((v) => {
           const price = v.price > 0 ? `$${v.price.toLocaleString()}` : 'Contact dealer';
-          return `${v.title} — ${price}, ${v.mileage.toLocaleString()} mi, ${v.dealer.city}, ${v.dealer.state} — ${v.listing_url}`;
-        }).join('\n');
+          const miles = v.mileage ? `${v.mileage.toLocaleString()} mi` : '';
+          const location = [v.dealer.city, v.dealer.state].filter(Boolean).join(', ');
+          const details = [miles, location].filter(Boolean).join(' · ');
+          const specs = [v.exteriorColor, v.transmission, v.fuelType, v.drivetrain].filter(Boolean).join(' · ');
+          const imageMarkdown = v.image_url ? `![${v.title}](${v.image_url})` : '';
+          return `### ${v.title}\n${imageMarkdown}\n**${price}** · ${details}\n${specs ? specs + '\n' : ''}🏪 ${v.dealer.name || 'Dealer'}\n[View listing](${v.listing_url})`;
+        }).join('\n\n---\n\n');
 
         return {
           structuredContent: { vehicles, total },
           content: [{
             type: 'text' as const,
-            text: `Found ${total} vehicles on IQ Auto Deals. Showing ${vehicles.length}:\n\n${summary}\n\nBrowse all results at https://iqautodeals.com/cars`,
+            text: `Found ${total} vehicles on IQ Auto Deals. Showing ${vehicles.length}:\n\n${summary}\n\n---\n\nBrowse all results at https://iqautodeals.com/cars`,
           }],
           _meta: {
             ui: {
