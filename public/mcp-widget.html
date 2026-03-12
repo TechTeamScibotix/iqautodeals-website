@@ -7,22 +7,43 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1e1e1e; color: #e0e0e0; overflow-x: hidden; }
 
-/* Carousel container */
-.carousel { display: flex; gap: 12px; overflow-x: auto; padding: 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+/* Results count header */
+.results-header { padding: 10px 12px 0; font-size: 13px; color: #999; }
+.results-header strong { color: #fff; }
+
+/* Carousel wrapper with scroll arrows */
+.carousel-wrap { position: relative; }
+.carousel { display: flex; gap: 12px; overflow-x: auto; padding: 8px 12px 12px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 .carousel::-webkit-scrollbar { height: 6px; }
 .carousel::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+.scroll-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; background: rgba(0,0,0,0.7); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.scroll-arrow:hover { background: rgba(0,0,0,0.9); }
+.scroll-left { left: 4px; }
+.scroll-right { right: 4px; }
 
 /* Vehicle card */
-.card { min-width: 220px; max-width: 220px; height: 280px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; display: flex; flex-direction: column; }
+.card { min-width: 220px; max-width: 220px; height: 290px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; display: flex; flex-direction: column; }
 .card-img { width: 100%; height: 140px; object-fit: cover; background: #333; }
 .card-body { padding: 10px; display: flex; flex-direction: column; flex: 1; }
 .card-price { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; }
+.card-badge { position: absolute; top: 8px; left: 8px; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-new { background: #16a34a; color: #fff; }
+.badge-cpo { background: #2563eb; color: #fff; }
+.badge-used { background: #71717a; color: #fff; }
 .card-img-wrap { position: relative; cursor: pointer; flex-shrink: 0; }
 .card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; line-height: 1.3; height: 34px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.card-meta { font-size: 11px; color: #999; }
+.card-meta { font-size: 11px; color: #999; margin-bottom: 2px; }
+.card-loc { font-size: 10px; color: #777; }
 .card-btn { display: block; width: 100%; padding: 8px; margin-top: auto; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
 .card-btn:hover { background: #2563eb; }
 .card-btn.active { background: #1d4ed8; }
+
+/* Browse all card */
+.card-browse { min-width: 220px; max-width: 220px; height: 290px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; cursor: pointer; text-decoration: none; }
+.card-browse:hover { background: #333; }
+.card-browse .browse-icon { font-size: 32px; margin-bottom: 12px; }
+.card-browse .browse-text { font-size: 14px; font-weight: 600; color: #3b82f6; margin-bottom: 4px; }
+.card-browse .browse-sub { font-size: 11px; color: #999; }
 
 /* Detail panel — inline below carousel */
 .detail-panel { display: none; background: #1e1e1e; border-top: 1px solid #333; }
@@ -67,25 +88,32 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </style>
 </head>
 <body>
-<div id="carousel" class="carousel">
-  <div class="empty">Searching vehicles...</div>
+<div id="results-header" class="results-header" style="display:none"></div>
+<div class="carousel-wrap">
+  <button class="scroll-arrow scroll-left" onclick="scrollCarousel(-1)" id="scroll-left" style="display:none">&lsaquo;</button>
+  <div id="carousel" class="carousel">
+    <div class="empty">Searching vehicles...</div>
+  </div>
+  <button class="scroll-arrow scroll-right" onclick="scrollCarousel(1)" id="scroll-right" style="display:none">&rsaquo;</button>
 </div>
 <div id="detail" class="detail-panel"></div>
 
 <script>
-let vehicles = [];
-let currentPhoto = 0;
-let selectedIndex = -1;
+var vehicles = [];
+var totalCount = 0;
+var currentPhoto = 0;
+var selectedIndex = -1;
 
-window.addEventListener('message', (event) => {
+window.addEventListener('message', function(event) {
   if (event.source !== window.parent) return;
-  const msg = event.data;
+  var msg = event.data;
   if (!msg) return;
 
   if (msg.jsonrpc === '2.0' && msg.method === 'ui/notifications/tool-result') {
-    const data = msg.params?.structuredContent || msg.params?.result?.structuredContent;
+    var data = msg.params && msg.params.structuredContent ? msg.params.structuredContent : (msg.params && msg.params.result && msg.params.result.structuredContent ? msg.params.result.structuredContent : null);
     if (data && data.vehicles) {
       vehicles = data.vehicles;
+      totalCount = data.total || vehicles.length;
       selectedIndex = -1;
       renderCarousel();
       closeDetail();
@@ -94,6 +122,7 @@ window.addEventListener('message', (event) => {
 
   if (msg.type === 'vehicle-data' && msg.vehicles) {
     vehicles = msg.vehicles;
+    totalCount = msg.total || vehicles.length;
     selectedIndex = -1;
     renderCarousel();
     closeDetail();
@@ -101,33 +130,83 @@ window.addEventListener('message', (event) => {
 });
 
 function renderCarousel() {
-  const container = document.getElementById('carousel');
+  var container = document.getElementById('carousel');
+  var header = document.getElementById('results-header');
+
   if (!vehicles.length) {
     container.innerHTML = '<div class="empty">No vehicles found</div>';
+    header.style.display = 'none';
+    updateScrollArrows();
     return;
   }
 
-  container.innerHTML = vehicles.map((v, i) => {
-    const price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact';
-    const title = v.condition ? v.condition + ' ' + v.year + ' ' + v.make + ' ' + v.model : v.year + ' ' + v.make + ' ' + v.model;
-    const meta = v.mileage ? v.mileage.toLocaleString() + ' mi' : '';
-    const isActive = i === selectedIndex;
-    const btnText = isActive ? 'Hide Details' : 'View Details';
-    const btnClass = isActive ? 'card-btn active' : 'card-btn';
+  // Results count
+  header.style.display = 'block';
+  header.innerHTML = 'Found <strong>' + totalCount.toLocaleString() + '</strong> vehicle' + (totalCount !== 1 ? 's' : '') + (vehicles.length < totalCount ? ' · Showing top ' + vehicles.length : '');
+
+  container.innerHTML = vehicles.map(function(v, i) {
+    var price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact';
+    var title = v.year + ' ' + v.make + ' ' + v.model;
+    var meta = v.mileage ? v.mileage.toLocaleString() + ' mi' : '';
+    var loc = [v.dealer && v.dealer.city, v.dealer && v.dealer.state].filter(Boolean).join(', ');
+    var isActive = i === selectedIndex;
+    var btnText = isActive ? 'Hide Details' : 'View Details';
+    var btnClass = isActive ? 'card-btn active' : 'card-btn';
+
+    // Condition badge
+    var badge = '';
+    if (v.condition) {
+      var c = v.condition.toLowerCase();
+      if (c === 'new') badge = '<span class="card-badge badge-new">New</span>';
+      else if (c === 'certified pre-owned' || c === 'cpo') badge = '<span class="card-badge badge-cpo">CPO</span>';
+      else if (c === 'used') badge = '<span class="card-badge badge-used">Used</span>';
+    }
 
     return '<div class="card" id="card-' + i + '">' +
       '<div class="card-img-wrap" onclick="toggleDetail(' + i + ')">' +
         '<img class="card-img" src="' + (v.image_url || '') + '" alt="' + title + '" onerror="this.style.display=\'none\'">' +
+        badge +
         '<span class="card-price">' + price + '</span>' +
       '</div>' +
       '<div class="card-body">' +
         '<div class="card-title">' + title + (v.trim ? ' ' + v.trim : '') + '</div>' +
         '<div class="card-meta">' + meta + '</div>' +
+        (loc ? '<div class="card-loc">' + loc + '</div>' : '') +
         '<button class="' + btnClass + '" onclick="toggleDetail(' + i + ')">' + btnText + '</button>' +
       '</div>' +
     '</div>';
-  }).join('');
+  }).join('') +
+  '<a class="card-browse" href="https://iqautodeals.com/cars" target="_blank">' +
+    '<div class="browse-icon">&#x1F50D;</div>' +
+    '<div class="browse-text">Browse All Vehicles</div>' +
+    '<div class="browse-sub">View full inventory on IQ Auto Deals</div>' +
+  '</a>';
+
+  updateScrollArrows();
 }
+
+function scrollCarousel(dir) {
+  var el = document.getElementById('carousel');
+  el.scrollBy({ left: dir * 240, behavior: 'smooth' });
+  setTimeout(updateScrollArrows, 400);
+}
+
+function updateScrollArrows() {
+  var el = document.getElementById('carousel');
+  var leftBtn = document.getElementById('scroll-left');
+  var rightBtn = document.getElementById('scroll-right');
+  if (!vehicles.length) {
+    leftBtn.style.display = 'none';
+    rightBtn.style.display = 'none';
+    return;
+  }
+  leftBtn.style.display = el.scrollLeft > 10 ? 'flex' : 'none';
+  rightBtn.style.display = el.scrollLeft < el.scrollWidth - el.clientWidth - 10 ? 'flex' : 'none';
+}
+
+document.getElementById('carousel').addEventListener('scroll', function() {
+  updateScrollArrows();
+});
 
 function toggleDetail(index) {
   if (selectedIndex === index) {
@@ -141,14 +220,14 @@ function toggleDetail(index) {
 }
 
 function showDetail(index) {
-  const v = vehicles[index];
-  const photos = v.photos && v.photos.length ? v.photos : (v.image_url ? [v.image_url] : []);
-  const price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact dealer';
-  const title = (v.condition || '') + ' ' + v.year + ' ' + v.make + ' ' + v.model + ' ' + (v.trim || '');
-  const dealerName = v.dealer && v.dealer.name ? v.dealer.name : 'Dealer';
-  const dealerLoc = [v.dealer && v.dealer.city, v.dealer && v.dealer.state].filter(Boolean).join(', ');
+  var v = vehicles[index];
+  var photos = v.photos && v.photos.length ? v.photos : (v.image_url ? [v.image_url] : []);
+  var price = v.price > 0 ? '$' + v.price.toLocaleString() : 'Contact dealer';
+  var title = (v.condition || '') + ' ' + v.year + ' ' + v.make + ' ' + v.model + ' ' + (v.trim || '');
+  var dealerName = v.dealer && v.dealer.name ? v.dealer.name : 'Dealer';
+  var dealerLoc = [v.dealer && v.dealer.city, v.dealer && v.dealer.state].filter(Boolean).join(', ');
 
-  const detail = document.getElementById('detail');
+  var detail = document.getElementById('detail');
   detail.innerHTML =
     '<div class="detail-header">' +
       '<h2>' + title.trim() + ' - ' + price + (v.mileage ? ', ' + v.mileage.toLocaleString() + ' mi' : '') + '</h2>' +
@@ -184,8 +263,6 @@ function showDetail(index) {
     '</div>';
 
   detail.classList.add('active');
-
-  // Scroll detail into view
   detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
