@@ -81,7 +81,33 @@
                 "schema": {
                   "type": "object",
                   "required": ["vehicles", "total", "limit", "offset"],
+                  "example": {
+                    "assistant_hint": "Display each vehicle image using Markdown: ![title](image_url). Show listing links using: [View on IQ Auto Deals](listing_url)",
+                    "vehicles": [
+                      {
+                        "title": "2023 Toyota Camry SE",
+                        "image_url": "https://iqautodeals.com/api/img/inventory/4T1G11AK5PU123456/4T1G11AK5PU123456-photo-1.jpg",
+                        "vin": "4T1G11AK5PU123456",
+                        "year": 2023,
+                        "make": "Toyota",
+                        "model": "Camry",
+                        "trim": "SE",
+                        "price": 24995,
+                        "mileage": 18500,
+                        "exteriorColor": "Silver",
+                        "condition": "Used",
+                        "features": ["Apple CarPlay", "Lane Departure Warning", "Adaptive Cruise Control"],
+                        "photos": ["https://iqautodeals.com/api/img/inventory/4T1G11AK5PU123456/4T1G11AK5PU123456-photo-1.jpg"],
+                        "dealer": { "name": "AutoNation Toyota", "city": "Atlanta", "state": "GA" },
+                        "listing_url": "https://iqautodeals.com/cars/4t1g11ak5pu123456-2023-toyota-camry-atlanta-ga"
+                      }
+                    ],
+                    "total": 1,
+                    "limit": 20,
+                    "offset": 0
+                  },
                   "properties": {
+                    "assistant_hint": { "type": "string", "description": "Rendering instructions for the assistant" },
                     "vehicles": {
                       "type": "array",
                       "items": {

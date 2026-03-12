@@ -390,6 +390,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
+      assistant_hint: 'Display each vehicle image using Markdown: ![title](image_url). Show listing links using: [View on IQ Auto Deals](listing_url)',
       vehicles: results,
       total,
       limit,
