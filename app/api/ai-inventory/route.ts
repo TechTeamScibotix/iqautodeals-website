@@ -316,16 +316,16 @@ export async function GET(request: NextRequest) {
         ]);
 
     const results = cars.map((car) => {
-      // Parse photos and proxy through our domain for ChatGPT image rendering
+      // Return direct CDN URLs (not proxied) so ChatGPT can render images inline
       let photoUrls: string[] = [];
       try {
         const parsed = JSON.parse(car.photos);
         if (Array.isArray(parsed)) {
-          photoUrls = parsed.slice(0, 5).map((u: string) => proxyImageUrl(u));
+          photoUrls = parsed.slice(0, 3);
         }
       } catch {
         if (car.photos && car.photos.startsWith('http')) {
-          photoUrls = [proxyImageUrl(car.photos)];
+          photoUrls = [car.photos];
         }
       }
 
@@ -335,7 +335,7 @@ export async function GET(request: NextRequest) {
         try {
           const parsed = JSON.parse(car.features);
           if (Array.isArray(parsed)) {
-            featureList = parsed;
+            featureList = parsed.slice(0, 15);
           }
         } catch {
           // ignore
