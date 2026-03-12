@@ -3,6 +3,11 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import {
+  registerAppResource,
+  registerAppTool,
+  RESOURCE_MIME_TYPE,
+} from '@modelcontextprotocol/ext-apps/server';
 
 const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
 
@@ -43,20 +48,20 @@ try {
   // Will be loaded from URL fallback
 }
 
+const WIDGET_URI = 'ui://widget/vehicle-results.html';
+
 const handler = createMcpHandler(
   (server) => {
-    // Register the vehicle search widget as a resource
-    server.resource(
+    // Register the vehicle search widget as an App resource
+    registerAppResource(
+      server,
       'vehicle-widget',
-      'ui://widget/vehicle-results.html',
-      {
-        description: 'Interactive vehicle search results with photo carousel and detail cards',
-        mimeType: 'text/html',
-      },
+      WIDGET_URI,
+      {},
       async () => ({
         contents: [{
-          uri: 'ui://widget/vehicle-results.html',
-          mimeType: 'text/html' as const,
+          uri: WIDGET_URI,
+          mimeType: RESOURCE_MIME_TYPE,
           text: widgetHtml || '<html><body>Widget loading...</body></html>',
           _meta: {
             ui: {
@@ -73,26 +78,34 @@ const handler = createMcpHandler(
       }),
     );
 
-    server.tool(
+    // Register the search tool linked to the widget
+    registerAppTool(
+      server,
       'search_vehicles',
-      'Search the IQ Auto Deals nationwide vehicle inventory. Find cars by make, model, year, price, body type, fuel type, drivetrain, condition, mileage, and location. Returns vehicle details including photos, pricing, dealer info, and listing links.',
       {
-        q: z.string().optional().describe('Free-text search (e.g. "reliable SUV 3rd row", "truck AWD")'),
-        make: z.string().optional().describe('Vehicle make (Toyota, Ford, BMW, Honda, Lexus, etc.)'),
-        model: z.string().optional().describe('Vehicle model (Camry, F-150, 3 Series, Civic, etc.)'),
-        yearMin: z.number().int().optional().describe('Minimum model year'),
-        yearMax: z.number().int().optional().describe('Maximum model year'),
-        minPrice: z.number().optional().describe('Minimum price in USD'),
-        maxPrice: z.number().optional().describe('Maximum price in USD'),
-        bodyType: z.enum(['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon']).optional().describe('Vehicle body type'),
-        fuelType: z.enum(['Gasoline', 'Diesel', 'Hybrid', 'Electric', 'Plug-In Hybrid']).optional().describe('Fuel type'),
-        drivetrain: z.enum(['AWD', 'FWD', 'RWD', '4WD']).optional().describe('Drivetrain type'),
-        condition: z.enum(['New', 'Used', 'Certified Pre-Owned']).optional().describe('Vehicle condition'),
-        maxMileage: z.number().int().optional().describe('Maximum mileage'),
-        state: z.string().optional().describe('US state abbreviation (GA, FL, TX, CA)'),
-        city: z.string().optional().describe('City name'),
-        sort: z.enum(['relevance', 'priceAsc', 'priceDesc', 'yearDesc', 'mileageAsc']).optional().describe('Sort order'),
-        limit: z.number().int().min(1).max(20).optional().describe('Number of results (max 20, default 10)'),
+        title: 'Search Vehicles',
+        description: 'Search the IQ Auto Deals nationwide vehicle inventory. Find cars by make, model, year, price, body type, fuel type, drivetrain, condition, mileage, and location. Returns vehicle details including photos, pricing, dealer info, and listing links.',
+        inputSchema: {
+          q: z.string().optional().describe('Free-text search (e.g. "reliable SUV 3rd row", "truck AWD")'),
+          make: z.string().optional().describe('Vehicle make (Toyota, Ford, BMW, Honda, Lexus, etc.)'),
+          model: z.string().optional().describe('Vehicle model (Camry, F-150, 3 Series, Civic, etc.)'),
+          yearMin: z.number().int().optional().describe('Minimum model year'),
+          yearMax: z.number().int().optional().describe('Maximum model year'),
+          minPrice: z.number().optional().describe('Minimum price in USD'),
+          maxPrice: z.number().optional().describe('Maximum price in USD'),
+          bodyType: z.enum(['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon']).optional().describe('Vehicle body type'),
+          fuelType: z.enum(['Gasoline', 'Diesel', 'Hybrid', 'Electric', 'Plug-In Hybrid']).optional().describe('Fuel type'),
+          drivetrain: z.enum(['AWD', 'FWD', 'RWD', '4WD']).optional().describe('Drivetrain type'),
+          condition: z.enum(['New', 'Used', 'Certified Pre-Owned']).optional().describe('Vehicle condition'),
+          maxMileage: z.number().int().optional().describe('Maximum mileage'),
+          state: z.string().optional().describe('US state abbreviation (GA, FL, TX, CA)'),
+          city: z.string().optional().describe('City name'),
+          sort: z.enum(['relevance', 'priceAsc', 'priceDesc', 'yearDesc', 'mileageAsc']).optional().describe('Sort order'),
+          limit: z.number().int().min(1).max(20).optional().describe('Number of results (max 20, default 10)'),
+        },
+        _meta: {
+          ui: { resourceUri: WIDGET_URI },
+        },
       },
       async (params) => {
         const limit = params.limit ?? 10;
@@ -231,28 +244,21 @@ const handler = createMcpHandler(
           };
         });
 
-        // Build a rich text summary with images for the model to render
+        // Build text summary for the model
         const summary = vehicles.map((v) => {
           const price = v.price > 0 ? `$${v.price.toLocaleString()}` : 'Contact dealer';
           const miles = v.mileage ? `${v.mileage.toLocaleString()} mi` : '';
           const location = [v.dealer.city, v.dealer.state].filter(Boolean).join(', ');
           const details = [miles, location].filter(Boolean).join(' · ');
-          const specs = [v.exteriorColor, v.transmission, v.fuelType, v.drivetrain].filter(Boolean).join(' · ');
-          const imageMarkdown = v.image_url ? `![${v.title}](${v.image_url})` : '';
-          return `### ${v.title}\n${imageMarkdown}\n**${price}** · ${details}\n${specs ? specs + '\n' : ''}🏪 ${v.dealer.name || 'Dealer'}\n[View listing](${v.listing_url})`;
-        }).join('\n\n---\n\n');
+          return `${v.title} — ${price}, ${details} — ${v.listing_url}`;
+        }).join('\n');
 
         return {
           structuredContent: { vehicles, total },
           content: [{
             type: 'text' as const,
-            text: `Found ${total} vehicles on IQ Auto Deals. Showing ${vehicles.length}:\n\n${summary}\n\n---\n\nBrowse all results at https://iqautodeals.com/cars`,
+            text: `Found ${total} vehicles on IQ Auto Deals. Showing ${vehicles.length}:\n\n${summary}\n\nBrowse all results at https://iqautodeals.com/cars`,
           }],
-          _meta: {
-            ui: {
-              resourceUri: 'ui://widget/vehicle-results.html',
-            },
-          },
         };
       },
     );
