@@ -103,6 +103,11 @@ const handler = createMcpHandler(
           sort: z.enum(['relevance', 'priceAsc', 'priceDesc', 'yearDesc', 'mileageAsc']).optional().describe('Sort order'),
           limit: z.number().int().min(1).max(20).optional().describe('Number of results (max 20, default 10)'),
         },
+        annotations: {
+          readOnlyHint: true,
+          destructiveHint: false,
+          openWorldHint: true,
+        },
         _meta: {
           ui: { resourceUri: WIDGET_URI },
         },
