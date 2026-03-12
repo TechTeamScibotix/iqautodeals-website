@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { PostHog } from 'posthog-node';
+
+const posthog = new PostHog('phc_T6Me1lGvz8Pci141n7HmsSiOuC3UZV0uAy7zq75apJe', {
+  host: 'https://us.i.posthog.com',
+  flushAt: 1,
+  flushInterval: 0,
+});
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 300; // Cache for 5 minutes
@@ -388,6 +395,29 @@ export async function GET(request: NextRequest) {
         listing_url: listingUrl,
         listedAt: car.createdAt.toISOString(),
       };
+    });
+
+    // Track GPT search in PostHog
+    posthog.capture({
+      distinctId: 'chatgpt-gpt-user',
+      event: 'gpt_search_vehicles',
+      properties: {
+        source: 'chatgpt_custom_gpt',
+        query: q || null,
+        make: make || null,
+        model: model || null,
+        bodyType: bodyType || null,
+        condition: condition || null,
+        state: state || null,
+        city: city || null,
+        minPrice: isNaN(minPrice) ? null : minPrice,
+        maxPrice: isNaN(maxPrice) ? null : maxPrice,
+        fuelType: fuelType || null,
+        drivetrain: drivetrain || null,
+        sort,
+        results_count: results.length,
+        total_matches: total,
+      },
     });
 
     return NextResponse.json({
