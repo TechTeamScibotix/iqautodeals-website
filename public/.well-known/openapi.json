@@ -111,7 +111,7 @@
                           "doors": { "type": ["integer", "null"] },
                           "certifiedPreOwned": { "type": "boolean" },
                           "features": { "type": "array", "items": { "type": "string" } },
-                          "photos": { "type": "array", "items": { "type": "string", "format": "uri" } },
+                          "photos": { "type": "array", "description": "Additional direct public HTTPS vehicle photo URLs. If image_url is missing, use the first valid URL in this array as the primary image.", "items": { "type": "string", "format": "uri" } },
                           "dealer": {
                             "type": "object",
                             "properties": {

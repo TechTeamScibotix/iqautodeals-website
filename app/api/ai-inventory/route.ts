@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: Record<string, unknown> = {
       status: 'active',
-      photos: { not: '' },
+      photos: { notIn: ['', '[]'] },
       dealer: { verificationStatus: 'approved' },
     };
 
