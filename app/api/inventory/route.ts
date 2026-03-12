@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 300; // Cache for 5 minutes
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -15,27 +16,64 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
+// Generate search variants to handle hyphen/no-hyphen differences
+// "f150" → ["f150", "f-150"], "cx5" → ["cx5", "cx-5"], "f-150" → ["f-150", "f150"]
+function searchVariants(term: string): string[] {
+  const variants = new Set<string>();
+  variants.add(term);
+  // Version without hyphens: "f-150" → "f150"
+  const noHyphens = term.replace(/-/g, '');
+  variants.add(noHyphens);
+  // Version with hyphens at letter↔digit boundaries: "f150" → "f-150", "cx5" → "cx-5"
+  const withHyphens = noHyphens
+    .replace(/([a-zA-Z])(\d)/g, '$1-$2')
+    .replace(/(\d)([a-zA-Z])/g, '$1-$2');
+  variants.add(withHyphens);
+  return Array.from(variants);
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const lat = parseFloat(searchParams.get('lat') || '');
-    const lng = parseFloat(searchParams.get('lng') || '');
+    const latParam = searchParams.get('lat');
+    const lngParam = searchParams.get('lng');
+    const lat = parseFloat(latParam || '');
+    const lng = parseFloat(lngParam || '');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 100);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const search = searchParams.get('search')?.trim() || '';
+    const radiusMiles = parseFloat(searchParams.get('radius') || '0');
 
-    if (isNaN(lat) || isNaN(lng)) {
-      return NextResponse.json(
-        { error: 'lat and lng query parameters are required' },
-        { status: 400 }
-      );
+    // Treat "null", empty, or missing lat/lng as absent — return empty results instead of 400
+    if (!latParam || !lngParam || latParam === 'null' || lngParam === 'null' || isNaN(lat) || isNaN(lng)) {
+      return NextResponse.json({ cars: [], total: 0 });
+    }
+
+    // Build where clause with optional search filter
+    const where: Record<string, unknown> = {
+      status: 'active',
+      photos: { not: '' },
+      dealer: { verificationStatus: 'approved' },
+    };
+
+    if (search) {
+      const terms = search.split(/\s+/).filter(Boolean);
+      where.AND = terms.map((term) => {
+        const variants = searchVariants(term);
+        const conditions: Record<string, unknown>[] = variants.flatMap((v) => [
+          { make: { contains: v, mode: 'insensitive' } },
+          { model: { contains: v, mode: 'insensitive' } },
+          { trim: { contains: v, mode: 'insensitive' } },
+        ]);
+        if (!isNaN(Number(term)) && term.length === 4) {
+          conditions.push({ year: Number(term) });
+        }
+        return { OR: conditions };
+      });
     }
 
     const cars = await prisma.car.findMany({
-      where: {
-        status: 'active',
-        photos: { not: '' },
-        dealer: { verificationStatus: 'approved' },
-      },
+      where,
       select: {
         id: true,
         year: true,
@@ -93,13 +131,18 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    // Filter by radius if provided
+    const filtered = radiusMiles > 0
+      ? carsWithDistance.filter((car) => car.distance <= radiusMiles)
+      : carsWithDistance;
+
     // Sort by distance (closest first)
-    carsWithDistance.sort((a, b) => a.distance - b.distance);
+    filtered.sort((a, b) => a.distance - b.distance);
 
     // Apply pagination
-    const paginated = carsWithDistance.slice(offset, offset + limit);
+    const paginated = filtered.slice(offset, offset + limit);
 
-    return NextResponse.json({ cars: paginated });
+    return NextResponse.json({ cars: paginated, total: filtered.length });
   } catch (error) {
     console.error('Inventory API error:', error);
     return NextResponse.json(
