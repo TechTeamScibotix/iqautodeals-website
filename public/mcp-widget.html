@@ -13,14 +13,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .carousel::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
 
 /* Vehicle card */
-.card { min-width: 220px; max-width: 220px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; }
-.card-img { width: 100%; height: 140px; object-fit: contain; background: #222; }
-.card-body { padding: 10px; }
+.card { min-width: 220px; max-width: 220px; height: 280px; background: #2a2a2a; border-radius: 12px; overflow: hidden; scroll-snap-align: start; flex-shrink: 0; display: flex; flex-direction: column; }
+.card-img { width: 100%; height: 140px; object-fit: cover; background: #333; }
+.card-body { padding: 10px; display: flex; flex-direction: column; flex: 1; }
 .card-price { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; }
-.card-img-wrap { position: relative; cursor: pointer; }
-.card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card-img-wrap { position: relative; cursor: pointer; flex-shrink: 0; }
+.card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; line-height: 1.3; height: 34px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .card-meta { font-size: 11px; color: #999; }
-.card-btn { display: block; width: 100%; padding: 8px; margin-top: 8px; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+.card-btn { display: block; width: 100%; padding: 8px; margin-top: auto; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
 .card-btn:hover { background: #2563eb; }
 .card-btn.active { background: #1d4ed8; }
 
