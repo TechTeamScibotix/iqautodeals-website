@@ -4,6 +4,7 @@ import { makes as makesData } from '@/lib/data/makes'
 import { models as modelsData } from '@/lib/data/models'
 import { bodyTypes as bodyTypesData } from '@/lib/data/bodyTypes'
 import { locations as locationsData } from '@/lib/data/locations'
+import { allSeoSlugs } from '@/lib/data/seo-pages'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,6 +109,13 @@ function getCorePages(): MetadataRoute.Sitemap {
     { url: `${baseUrl}/terms`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/privacy`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.3 },
     { url: `${baseUrl}/for-dealers`, lastModified: STATIC_LAST_MODIFIED, changeFrequency: 'monthly', priority: 0.8 },
+    // SEO landing pages (body type, price, make, feature, combo)
+    ...allSeoSlugs.map((slug) => ({
+      url: `${baseUrl}/${slug}`,
+      lastModified: STATIC_LAST_MODIFIED,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    })),
   ]
 }
 
