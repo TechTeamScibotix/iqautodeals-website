@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
 export const revalidate = 300; // Cache for 5 minutes
 
 const BLOB_HOST = 'yzkbvk1txue5y0ml.public.blob.vercel-storage.com';
