@@ -356,7 +356,6 @@ export async function GET(request: NextRequest) {
       return {
         title,
         image_url: photoUrls[0] || null,
-        primaryImage: photoUrls[0] || null,
         vin: car.vin,
         year: car.year,
         make: car.make,
@@ -378,10 +377,7 @@ export async function GET(request: NextRequest) {
         doors: car.doors || null,
         certifiedPreOwned: car.certified,
         features: featureList,
-        photo_urls: photoUrls,
         photos: photoUrls,
-        dealer_name: car.dealer?.businessName || null,
-        dealer_location: `${car.dealer?.city || ''}, ${car.dealer?.state || ''}`.trim(),
         dealer: {
           name: car.dealer?.businessName || null,
           city: car.dealer?.city || null,
@@ -389,7 +385,6 @@ export async function GET(request: NextRequest) {
         },
         ...(distance !== null ? { distanceMiles: Math.round(distance * 10) / 10 } : {}),
         listing_url: listingUrl,
-        url: listingUrl,
         listedAt: car.createdAt.toISOString(),
       };
     });

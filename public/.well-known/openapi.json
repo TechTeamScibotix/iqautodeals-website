@@ -89,8 +89,7 @@
                         "required": ["title", "image_url", "vin", "year", "make", "model", "price", "listing_url"],
                         "properties": {
                           "title": { "type": "string", "description": "Full vehicle title (Year Make Model Trim)" },
-                          "image_url": { "type": ["string", "null"], "format": "uri", "description": "Direct URL to the main vehicle photo (JPEG). Display this image for each vehicle result." },
-                          "primaryImage": { "type": ["string", "null"], "format": "uri", "description": "Same as image_url. Direct URL to vehicle photo." },
+                          "image_url": { "type": ["string", "null"], "format": "uri", "description": "Direct public URL to the main vehicle photo." },
                           "vin": { "type": "string" },
                           "year": { "type": "integer" },
                           "make": { "type": "string" },
@@ -122,7 +121,7 @@
                             }
                           },
                           "distanceMiles": { "type": ["number", "null"], "description": "Distance from search coordinates in miles (only present when lat/lng provided)" },
-                          "url": { "type": "string", "format": "uri", "description": "Direct link to vehicle listing on IQ Auto Deals" },
+                          "listing_url": { "type": "string", "format": "uri", "description": "Direct link to vehicle listing on IQ Auto Deals" },
                           "listedAt": { "type": "string", "format": "date-time" }
                         }
                       }
