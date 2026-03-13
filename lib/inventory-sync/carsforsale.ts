@@ -5,7 +5,7 @@ import { generateSEODescription, isValidSEODescription } from '@/lib/seo/generat
 import { decodeVin } from '@/lib/sync/vin-decoder';
 
 const SEO_DELAY_MS = 1500;
-const PAGE_FETCH_DELAY_MS = 1500; // 1.5s between page fetches to avoid DataDome
+const PAGE_FETCH_DELAY_MS = 500; // 0.5s between page fetches
 
 // Full browser headers to bypass DataDome bot protection
 const BROWSER_HEADERS: Record<string, string> = {
@@ -504,13 +504,13 @@ export async function syncCarsforsaleInventory(dealerId: string): Promise<SyncRe
     // Step 2: Visit each detail page, extract VIN only.
     // If VIN already exists in our system, SKIP entirely.
     // Only do full processing (photos, SEO, VIN decode) for NEW vehicles.
+    // Use minimal delay (200ms) for existing VIN checks, full delay only for new vehicles.
     const newVehicles: VehicleDetail[] = [];
     const listingPageUrl = `${baseUrl}/cars-for-sale`;
 
     for (let i = 0; i < listings.length; i++) {
       const listing = listings[i];
       try {
-        console.log(`[Carsforsale] Fetching detail ${i + 1}/${listings.length}: ${listing.detailUrl}`);
         const html = await fetchPage(listing.detailUrl, listingPageUrl);
         const detail = parseDetailPage(html);
 
@@ -524,8 +524,11 @@ export async function syncCarsforsaleInventory(dealerId: string): Promise<SyncRe
 
         // If we already have this VIN, skip everything else
         if (existingVinMap.has(detail.vin)) {
-          console.log(`[Carsforsale]   -> VIN: ${detail.vin} — already exists, skipping`);
           result.updated++;
+          // Minimal delay for existing vehicles
+          if (i < listings.length - 1) {
+            await new Promise(r => setTimeout(r, 200));
+          }
           continue;
         }
 
@@ -535,14 +538,14 @@ export async function syncCarsforsaleInventory(dealerId: string): Promise<SyncRe
         }
 
         newVehicles.push(detail);
-        console.log(`[Carsforsale]   -> VIN: ${detail.vin}, ${detail.year} ${detail.make} ${detail.model} — NEW, will process`);
+        console.log(`[Carsforsale] NEW vehicle: ${detail.vin} — ${detail.year} ${detail.make} ${detail.model}`);
       } catch (err: any) {
         result.errors.push(`Detail page ${listing.detailUrl}: ${err.message}`);
       }
 
-      // Rate limit between detail page fetches
+      // Full rate limit delay only between new vehicle detail page fetches
       if (i < listings.length - 1) {
-        await new Promise(r => setTimeout(r, PAGE_FETCH_DELAY_MS));
+        await new Promise(r => setTimeout(r, 200));
       }
     }
 
