@@ -371,9 +371,9 @@ export async function syncLexusFeedInventory(dealerId: string, options: SyncOpti
             continue;
           }
 
-          // If we only have 1 image (or 0) and feed has more → re-download photos
+          // If we only have 0-1 images → re-download (placeholder filter will strip red tarp)
           let needsPhotoUpdate = false;
-          if (currentPhotoCount <= 1 && feedPhotoCount > currentPhotoCount) {
+          if (currentPhotoCount <= 1 && feedPhotoCount > 0) {
             needsPhotoUpdate = true;
           }
 

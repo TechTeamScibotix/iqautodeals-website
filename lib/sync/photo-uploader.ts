@@ -47,6 +47,13 @@ export async function downloadAndUploadPhoto(
       return null;
     }
 
+    // Skip dealer placeholder images ("Photos Coming Soon" red tarp)
+    // These are consistently small files (28-31KB) while real car photos are 40KB+
+    if (imageBlob.size < 35000) {
+      console.log(`Skipping placeholder image (${imageBlob.size} bytes): ${imageUrl}`);
+      return 'SKIP_PLACEHOLDER';
+    }
+
     // Determine file extension
     let extension = 'jpg';
     if (contentType.includes('png')) extension = 'png';
@@ -106,7 +113,9 @@ export async function uploadVehiclePhotos(
 
     // For each result, use uploaded URL or fall back to original
     results.forEach((uploadedUrl, index) => {
-      if (uploadedUrl) {
+      if (uploadedUrl === 'SKIP_PLACEHOLDER') {
+        // Intentionally skipped placeholder image — do not add
+      } else if (uploadedUrl) {
         uploadedUrls.push(uploadedUrl);
       } else if (useOriginalAsFallback) {
         // Fall back to original URL if upload failed
