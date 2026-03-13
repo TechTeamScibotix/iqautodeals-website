@@ -7,7 +7,9 @@ import Footer from '../../components/Footer';
 import { locations } from '@/lib/data/locations';
 import { fetchInventoryForLocation, type InventoryResult } from '@/lib/inventory';
 import ItemListSchema from '@/app/components/ItemListSchema';
-import CarsClient from '@/app/cars/CarsClient';
+import CarsClientWrapper from '@/app/cars/CarsClientWrapper';
+
+export const revalidate = 3600; // Re-generate every hour with fresh inventory
 
 export async function generateStaticParams() {
   return [];
@@ -96,10 +98,12 @@ export default async function LocationPage({ params }: { params: Promise<{ locat
     <div className="min-h-screen bg-white">
       <ItemListSchema cars={inventory.cars} listName={`Cars for Sale in ${city}, ${stateCode}`} />
 
-      <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading inventory...</div></div>}>
-        <CarsClient
-          pageTitle={`Used Cars for Sale in ${city}, ${stateCode}`}
-          pageSubtitle={`Shop Quality Pre-Owned Vehicles from Trusted Dealers in ${city}, ${state}`}
+      <h1 className="sr-only">New and Used Cars for Sale in {city}, {stateCode}</h1>
+
+      <Suspense fallback={<div className="min-h-[60vh] bg-gray-50 flex items-center justify-center"><div className="text-gray-500">Loading inventory...</div></div>}>
+        <CarsClientWrapper
+          pageTitle={`New and Used Cars for Sale in ${city}, ${stateCode}`}
+          pageSubtitle={`Compare prices from ${city} dealers on cars, trucks, SUVs and more`}
           initialZipCode={zip}
           showFooter={false}
         />
