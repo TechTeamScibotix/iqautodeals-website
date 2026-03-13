@@ -95,6 +95,15 @@ function getPlaceholderImage(bodyType?: string): string {
   return '/placeholder_IQ_Car.png';
 }
 
+// Cache-bust blob URLs to prevent browsers from showing stale cached images
+const CACHE_BUST = 'v=20260313';
+function bustCache(url: string): string {
+  if (url && url.includes('blob.vercel-storage.com')) {
+    return url + (url.includes('?') ? '&' : '?') + CACHE_BUST;
+  }
+  return url;
+}
+
 // Helper function to check if car has real photos
 function hasRealPhotos(photosJson: string): boolean {
   try {
@@ -454,7 +463,7 @@ export default function CarsClient({
     try {
       const photos = JSON.parse(car.photos || '[]');
       // If no photos, use placeholder image
-      const displayPhotos = photos.length > 0 ? photos : [getPlaceholderImage(car.bodyType)];
+      const displayPhotos = photos.length > 0 ? photos.map(bustCache) : [getPlaceholderImage(car.bodyType)];
 
       setViewingPhotos({ car, photos: displayPhotos });
       setCurrentPhotoIndex(0);
@@ -1274,7 +1283,7 @@ export default function CarsClient({
                         let photoUrl = '';
                         try {
                           const photos = JSON.parse(car.photos || '[]');
-                          photoUrl = photos[0] || '';
+                          photoUrl = bustCache(photos[0] || '');
                         } catch (e) {
                           console.error('Failed to parse photos:', e);
                         }
@@ -1367,7 +1376,7 @@ export default function CarsClient({
               let photoUrl = '';
               try {
                 const photos = JSON.parse(car.photos || '[]');
-                photoUrl = photos[0] || '';
+                photoUrl = bustCache(photos[0] || '');
               } catch (e) {
                 console.error('Failed to parse photos:', e);
               }
@@ -1927,7 +1936,7 @@ export default function CarsClient({
 
                   const renderTile = (car: CarListing) => {
                     let photo = '';
-                    try { photo = JSON.parse(car.photos || '[]')[0] || ''; } catch {}
+                    try { photo = bustCache(JSON.parse(car.photos || '[]')[0] || ''); } catch {}
                     return (
                       <Link
                         key={car.id}
