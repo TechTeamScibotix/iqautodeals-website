@@ -9,10 +9,8 @@ import { syncRmbFeedInventory } from '@/lib/inventory-sync/rmb-feed';
 // 5-minute max for Vercel Pro — each invocation syncs ONE dealer
 export const maxDuration = 300;
 
-// Cron job to sync dealer inventories one at a time.
-// Runs every hour; each invocation picks the single most-overdue dealer
-// whose syncFrequencyDays has elapsed, syncs it, and returns.
-// This spreads dealer syncs ~1 hour apart and avoids timeout issues.
+// Cron job to sync dealer inventories.
+// Runs daily at 6 AM UTC; syncs ALL due dealers sequentially.
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,7 +66,7 @@ export async function GET(request: NextRequest) {
       });
 
     if (dueDealers.length === 0) {
-      console.log('[SFTP Sync Cron] No dealers due for sync this hour');
+      console.log('[SFTP Sync Cron] No dealers due for sync');
       return NextResponse.json({
         success: true,
         message: 'No dealers due for sync',
@@ -77,79 +75,86 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Pick the single most overdue dealer
-    const dealer = dueDealers[0];
-    const daysSince = dealer.lastSyncAt
-      ? ((now - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24)).toFixed(1)
-      : 'never';
+    console.log(`[SFTP Sync Cron] ${dueDealers.length} dealers due for sync`);
 
-    console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType}, lastStatus: ${dealer.lastSyncStatus || 'none'}) — last synced ${daysSince} days ago, ${dueDealers.length - 1} other dealers queued`);
+    // Sync all due dealers sequentially
+    const results: any[] = [];
 
-    // Mark as in_progress BEFORE starting sync. If Vercel kills us with a 504
-    // timeout, this status stays as "in_progress" which tells the next cron run
-    // to deprioritize this dealer and sync others first.
-    await prisma.user.update({
-      where: { id: dealer.id },
-      data: { lastSyncStatus: 'in_progress' },
-    });
+    for (const dealer of dueDealers) {
+      const daysSince = dealer.lastSyncAt
+        ? ((now - dealer.lastSyncAt.getTime()) / (1000 * 60 * 60 * 24)).toFixed(1)
+        : 'never';
 
-    try {
-      // Route to the correct sync function based on feed type
-      let syncResult;
+      console.log(`[SFTP Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType}, lastStatus: ${dealer.lastSyncStatus || 'none'}) — last synced ${daysSince} days ago`);
 
-      if (dealer.inventoryFeedType === 'dealersocket') {
-        syncResult = await syncDealerSocketInventory(dealer.id);
-      } else if (dealer.inventoryFeedType === 'lexus_sftp') {
-        syncResult = await syncLexusFeedInventory(dealer.id);
-      } else if (dealer.inventoryFeedType === 'wendle_sftp') {
-        syncResult = await syncWendleFeedInventory(dealer.id);
-      } else if (dealer.inventoryFeedType === 'carsforsale') {
-        syncResult = await syncCarsforsaleInventory(dealer.id);
-      } else if (dealer.inventoryFeedType === 'rmb_sftp') {
-        syncResult = await syncRmbFeedInventory(dealer.id);
-      } else {
-        throw new Error(`Unknown feed type: ${dealer.inventoryFeedType}`);
-      }
-
-      console.log(`[SFTP Sync Cron] Completed ${dealer.businessName}: ${syncResult.created} created, ${syncResult.updated} updated, ${syncResult.markedSold} marked sold (${syncResult.duration}ms)`);
-
-      return NextResponse.json({
-        success: true,
-        dealer: dealer.businessName,
-        feedType: dealer.inventoryFeedType,
-        created: syncResult.created,
-        updated: syncResult.updated,
-        markedSold: syncResult.markedSold,
-        errors: syncResult.errors,
-        duration: syncResult.duration,
-        remainingDueDealers: dueDealers.length - 1,
+      // Mark as in_progress BEFORE starting sync
+      await prisma.user.update({
+        where: { id: dealer.id },
+        data: { lastSyncStatus: 'in_progress' },
       });
 
-    } catch (err: any) {
-      console.error(`[SFTP Sync Cron] Error syncing ${dealer.businessName}:`, err);
-
-      // Mark as failed so the next cron run deprioritizes this dealer
       try {
-        await prisma.user.update({
-          where: { id: dealer.id },
-          data: {
-            lastSyncAt: new Date(),
-            lastSyncStatus: 'failed',
-            lastSyncMessage: `Cron error: ${err.message}`,
-          },
-        });
-      } catch (updateErr) {
-        console.error('[SFTP Sync Cron] Failed to update sync status:', updateErr);
-      }
+        // Route to the correct sync function based on feed type
+        let syncResult;
 
-      return NextResponse.json({
-        success: false,
-        dealer: dealer.businessName,
-        feedType: dealer.inventoryFeedType,
-        error: err.message,
-        remainingDueDealers: dueDealers.length - 1,
-      });
+        if (dealer.inventoryFeedType === 'dealersocket') {
+          syncResult = await syncDealerSocketInventory(dealer.id);
+        } else if (dealer.inventoryFeedType === 'lexus_sftp') {
+          syncResult = await syncLexusFeedInventory(dealer.id);
+        } else if (dealer.inventoryFeedType === 'wendle_sftp') {
+          syncResult = await syncWendleFeedInventory(dealer.id);
+        } else if (dealer.inventoryFeedType === 'carsforsale') {
+          syncResult = await syncCarsforsaleInventory(dealer.id);
+        } else if (dealer.inventoryFeedType === 'rmb_sftp') {
+          syncResult = await syncRmbFeedInventory(dealer.id);
+        } else {
+          throw new Error(`Unknown feed type: ${dealer.inventoryFeedType}`);
+        }
+
+        console.log(`[SFTP Sync Cron] Completed ${dealer.businessName}: ${syncResult.created} created, ${syncResult.updated} updated, ${syncResult.markedSold} marked sold (${syncResult.duration}ms)`);
+
+        results.push({
+          dealer: dealer.businessName,
+          feedType: dealer.inventoryFeedType,
+          success: true,
+          created: syncResult.created,
+          updated: syncResult.updated,
+          markedSold: syncResult.markedSold,
+          errors: syncResult.errors,
+          duration: syncResult.duration,
+        });
+
+      } catch (err: any) {
+        console.error(`[SFTP Sync Cron] Error syncing ${dealer.businessName}:`, err);
+
+        // Mark as failed so next run deprioritizes this dealer
+        try {
+          await prisma.user.update({
+            where: { id: dealer.id },
+            data: {
+              lastSyncAt: new Date(),
+              lastSyncStatus: 'failed',
+              lastSyncMessage: `Cron error: ${err.message}`,
+            },
+          });
+        } catch (updateErr) {
+          console.error('[SFTP Sync Cron] Failed to update sync status:', updateErr);
+        }
+
+        results.push({
+          dealer: dealer.businessName,
+          feedType: dealer.inventoryFeedType,
+          success: false,
+          error: err.message,
+        });
+      }
     }
+
+    return NextResponse.json({
+      success: true,
+      totalSynced: results.length,
+      results,
+    });
 
   } catch (error) {
     console.error('[SFTP Sync Cron] Fatal error:', error);
