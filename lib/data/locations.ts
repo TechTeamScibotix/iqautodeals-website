@@ -1,10 +1,11 @@
-// Shared locations data for all 246 cities across USA
+// Shared locations data for all 253 cities across USA
 export const locations = {
   // Alabama
   'birmingham': { city: 'Birmingham', state: 'Alabama', stateCode: 'AL', lat: 33.5186, lng: -86.8104 },
   'montgomery': { city: 'Montgomery', state: 'Alabama', stateCode: 'AL', lat: 32.3668, lng: -86.3000 },
   'mobile': { city: 'Mobile', state: 'Alabama', stateCode: 'AL', lat: 30.6954, lng: -88.0399 },
   'huntsville': { city: 'Huntsville', state: 'Alabama', stateCode: 'AL', lat: 34.7304, lng: -86.5861 },
+  'phenix-city': { city: 'Phenix City', state: 'Alabama', stateCode: 'AL', lat: 32.4978, lng: -85.0234 },
 
   // Alaska
   'anchorage': { city: 'Anchorage', state: 'Alaska', stateCode: 'AK', lat: 61.2181, lng: -149.9003 },
@@ -62,6 +63,9 @@ export const locations = {
   'savannah': { city: 'Savannah', state: 'Georgia', stateCode: 'GA', lat: 32.0809, lng: -81.0912 },
   'macon': { city: 'Macon', state: 'Georgia', stateCode: 'GA', lat: 32.8407, lng: -83.6324 },
   'duluth-ga': { city: 'Duluth', state: 'Georgia', stateCode: 'GA', lat: 34.0029, lng: -84.1446 },
+  'alpharetta': { city: 'Alpharetta', state: 'Georgia', stateCode: 'GA', lat: 34.1124, lng: -84.3020 },
+  'douglasville': { city: 'Douglasville', state: 'Georgia', stateCode: 'GA', lat: 33.6897, lng: -84.7446 },
+  'norcross': { city: 'Norcross', state: 'Georgia', stateCode: 'GA', lat: 33.9604, lng: -84.0379 },
 
   // Hawaii
   'honolulu': { city: 'Honolulu', state: 'Hawaii', stateCode: 'HI', lat: 21.3099, lng: -157.8581 },
@@ -88,6 +92,7 @@ export const locations = {
   'des-moines': { city: 'Des Moines', state: 'Iowa', stateCode: 'IA', lat: 41.5868, lng: -93.6250 },
   'cedar-rapids': { city: 'Cedar Rapids', state: 'Iowa', stateCode: 'IA', lat: 41.9779, lng: -91.6656 },
   'davenport': { city: 'Davenport', state: 'Iowa', stateCode: 'IA', lat: 41.5236, lng: -90.5776 },
+  'dubuque': { city: 'Dubuque', state: 'Iowa', stateCode: 'IA', lat: 42.5150, lng: -90.6819 },
 
   // Kansas
   'wichita': { city: 'Wichita', state: 'Kansas', stateCode: 'KS', lat: 37.6872, lng: -97.3301 },
@@ -237,6 +242,7 @@ export const locations = {
   'knoxville': { city: 'Knoxville', state: 'Tennessee', stateCode: 'TN', lat: 35.9606, lng: -83.9207 },
   'chattanooga': { city: 'Chattanooga', state: 'Tennessee', stateCode: 'TN', lat: 35.0456, lng: -85.3097 },
   'clarksville': { city: 'Clarksville', state: 'Tennessee', stateCode: 'TN', lat: 36.5298, lng: -87.3595 },
+  'brentwood': { city: 'Brentwood', state: 'Tennessee', stateCode: 'TN', lat: 36.0331, lng: -86.7828 },
 
   // Texas
   'houston': { city: 'Houston', state: 'Texas', stateCode: 'TX', lat: 29.7604, lng: -95.3698 },
@@ -278,6 +284,7 @@ export const locations = {
   'madison': { city: 'Madison', state: 'Wisconsin', stateCode: 'WI', lat: 43.0731, lng: -89.4012 },
   'green-bay': { city: 'Green Bay', state: 'Wisconsin', stateCode: 'WI', lat: 44.5133, lng: -88.0133 },
   'kenosha': { city: 'Kenosha', state: 'Wisconsin', stateCode: 'WI', lat: 42.5847, lng: -87.8212 },
+  'hayward': { city: 'Hayward', state: 'Wisconsin', stateCode: 'WI', lat: 45.9552, lng: -91.2783 },
 
   // Wyoming
   'cheyenne': { city: 'Cheyenne', state: 'Wyoming', stateCode: 'WY', lat: 41.1400, lng: -104.8202 },
