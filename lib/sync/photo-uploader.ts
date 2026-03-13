@@ -4,11 +4,19 @@
  */
 
 import { put } from '@vercel/blob';
+import { createHash } from 'crypto';
 
 export interface UploadedPhoto {
   originalUrl: string;
   blobUrl: string;
 }
+
+// SHA-256 hashes of known dealer placeholder images ("Photos Coming Soon" red tarp).
+// These are exact content hashes — only skip images that match byte-for-byte.
+const PLACEHOLDER_HASHES = new Set([
+  '049b231b860c4c54b23335b3e39d70cc566be1e79ad069f828e115f278f69055', // Cool Springs red tarp
+  '2a4ee647c675affdcbb0127aa3cfd4a512a611ea10ee4ab90eb40db7e145d765', // Cool Springs red tarp variant
+]);
 
 /**
  * Download an image from a URL and upload it to Vercel Blob
@@ -38,19 +46,20 @@ export async function downloadAndUploadPhoto(
       return null;
     }
 
-    // Get the image as a blob
-    const imageBlob = await response.blob();
+    // Get the image as arrayBuffer for hashing, then convert to blob for upload
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
     // Check file size (max 10MB)
-    if (imageBlob.size > 10 * 1024 * 1024) {
-      console.error(`Image too large: ${imageUrl} - ${imageBlob.size} bytes`);
+    if (buffer.length > 10 * 1024 * 1024) {
+      console.error(`Image too large: ${imageUrl} - ${buffer.length} bytes`);
       return null;
     }
 
-    // Skip dealer placeholder images ("Photos Coming Soon" red tarp)
-    // These are consistently small files (28-31KB) while real car photos are 40KB+
-    if (imageBlob.size < 35000) {
-      console.log(`Skipping placeholder image (${imageBlob.size} bytes): ${imageUrl}`);
+    // Skip known dealer placeholder images by content hash
+    const hash = createHash('sha256').update(buffer).digest('hex');
+    if (PLACEHOLDER_HASHES.has(hash)) {
+      console.log(`Skipping placeholder image (hash match): ${imageUrl}`);
       return 'SKIP_PLACEHOLDER';
     }
 
@@ -63,7 +72,7 @@ export async function downloadAndUploadPhoto(
     const finalFilename = `${filename}.${extension}`;
 
     // Upload to Vercel Blob (allow overwrite for re-syncs)
-    const blob = await put(finalFilename, imageBlob, {
+    const blob = await put(finalFilename, buffer, {
       access: 'public',
       contentType,
       addRandomSuffix: false,
