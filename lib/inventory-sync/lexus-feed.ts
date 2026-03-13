@@ -70,6 +70,8 @@ interface LexusCsvVehicle {
 
 interface SyncResult {
   success: boolean;
+  completed: boolean;       // true = all vehicles processed; false = hit time limit
+  nextIndex: number;        // index to resume from on next invocation
   dealerId: string;
   feedId: string;
   totalInFeed: number;
@@ -78,6 +80,11 @@ interface SyncResult {
   markedSold: number;
   errors: string[];
   duration: number;
+}
+
+interface SyncOptions {
+  startIndex?: number;      // vehicle index to resume from (default 0)
+  timeLimitMs?: number;     // max runtime in ms (default 240000 = 4 minutes)
 }
 
 // Generate SEO-friendly slug
@@ -216,10 +223,15 @@ function getCoordinatesForDealer(city: string, state: string): { latitude: numbe
   return { latitude: 39.8283, longitude: -98.5795 };
 }
 
-export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResult> {
+export async function syncLexusFeedInventory(dealerId: string, options: SyncOptions = {}): Promise<SyncResult> {
   const startTime = Date.now();
+  const startIndex = options.startIndex ?? 0;
+  const timeLimitMs = options.timeLimitMs ?? 240000; // 4 minutes default
+
   const result: SyncResult = {
     success: false,
+    completed: false,
+    nextIndex: 0,
     dealerId,
     feedId: '',
     totalInFeed: 0,
@@ -300,8 +312,39 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
     const state = firstVehicle?.['Dealer Region'] || dealer.state || '';
     const coords = getCoordinatesForDealer(city, state);
 
-    // Process each vehicle
-    for (const vehicle of vehicles) {
+    // Process each vehicle (resume from startIndex if continuing a previous run)
+    console.log(`[Lexus Sync] Processing from index ${startIndex} of ${vehicles.length} (time limit: ${timeLimitMs}ms)`);
+
+    for (let i = startIndex; i < vehicles.length; i++) {
+      // Check time before processing each vehicle
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= timeLimitMs) {
+        console.log(`[Lexus Sync] Time limit reached at index ${i}/${vehicles.length} (${elapsed}ms). Will resume next invocation.`);
+        result.nextIndex = i;
+        result.completed = false;
+        result.success = true;
+        result.duration = Date.now() - startTime;
+
+        // Save progress so cron knows to continue
+        await prisma.user.update({
+          where: { id: dealerId },
+          data: {
+            lastSyncAt: new Date(),
+            lastSyncStatus: 'in_progress',
+            lastSyncMessage: JSON.stringify({
+              nextIndex: i,
+              totalInFeed: vehicles.length,
+              created: result.created,
+              updated: result.updated,
+            }),
+          },
+        });
+
+        await sftp.end();
+        return result;
+      }
+
+      const vehicle = vehicles[i];
       try {
         if (!vehicle.VIN) {
           result.errors.push('Skipping vehicle with no VIN');
@@ -459,7 +502,11 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
       }
     }
 
-    // Mark vehicles not in feed as sold
+    // All vehicles processed — mark as fully completed
+    result.completed = true;
+    result.nextIndex = vehicles.length;
+
+    // Only mark vehicles as sold on the final completed pass
     for (const [vin, existing] of existingVinMap) {
       if (!feedVins.has(vin)) {
         try {
@@ -477,7 +524,7 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
       }
     }
 
-    // Update dealer sync status
+    // Update dealer sync status — fully done
     await prisma.user.update({
       where: { id: dealerId },
       data: {

@@ -6,7 +6,8 @@ export const maxDuration = 300;
 
 // Cron job to sync Lexus dealer inventories.
 // Runs every other day at 1 AM EST (6 AM UTC).
-// Syncs Lexus of Nashville first, then Lexus of Cool Springs.
+// Smart time management: stops at 4 minutes, re-invokes itself to continue.
+// Loops until all dealers are fully synced.
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +28,8 @@ export async function GET(request: NextRequest) {
         id: true,
         businessName: true,
         inventoryFeedType: true,
+        lastSyncStatus: true,
+        lastSyncMessage: true,
       },
     });
 
@@ -37,9 +40,24 @@ export async function GET(request: NextRequest) {
     console.log(`[Lexus Sync Cron] Running sync for ${dealers.length} Lexus dealers`);
 
     const results: any[] = [];
+    let needsContinuation = false;
 
     for (const dealer of dealers) {
-      console.log(`[Lexus Sync Cron] Syncing ${dealer.businessName}...`);
+      // Check if this dealer has a partial sync to resume
+      let startIndex = 0;
+      if (dealer.lastSyncStatus === 'in_progress' && dealer.lastSyncMessage) {
+        try {
+          const progress = JSON.parse(dealer.lastSyncMessage);
+          if (progress.nextIndex) {
+            startIndex = progress.nextIndex;
+            console.log(`[Lexus Sync Cron] Resuming ${dealer.businessName} from index ${startIndex}`);
+          }
+        } catch {
+          // Not JSON, fresh start
+        }
+      }
+
+      console.log(`[Lexus Sync Cron] Syncing ${dealer.businessName} (startIndex: ${startIndex})...`);
 
       await prisma.user.update({
         where: { id: dealer.id },
@@ -47,18 +65,33 @@ export async function GET(request: NextRequest) {
       });
 
       try {
-        const syncResult = await syncLexusFeedInventory(dealer.id);
+        const syncResult = await syncLexusFeedInventory(dealer.id, {
+          startIndex,
+          timeLimitMs: 240000, // 4 minutes
+        });
 
-        console.log(`[Lexus Sync Cron] Completed ${dealer.businessName}: ${syncResult.created} new, ${syncResult.updated} existing, ${syncResult.markedSold} sold (${syncResult.duration}ms)`);
+        if (syncResult.completed) {
+          console.log(`[Lexus Sync Cron] Completed ${dealer.businessName}: ${syncResult.created} new, ${syncResult.updated} existing, ${syncResult.markedSold} sold (${syncResult.duration}ms)`);
+        } else {
+          console.log(`[Lexus Sync Cron] Paused ${dealer.businessName} at index ${syncResult.nextIndex} (${syncResult.duration}ms). Will continue next invocation.`);
+          needsContinuation = true;
+        }
 
         results.push({
           dealer: dealer.businessName,
           success: true,
+          completed: syncResult.completed,
+          nextIndex: syncResult.nextIndex,
           created: syncResult.created,
           updated: syncResult.updated,
           markedSold: syncResult.markedSold,
           duration: syncResult.duration,
         });
+
+        // If this dealer didn't finish, don't start the next dealer — re-invoke instead
+        if (!syncResult.completed) {
+          break;
+        }
 
       } catch (err: any) {
         console.error(`[Lexus Sync Cron] Error syncing ${dealer.businessName}:`, err);
@@ -84,7 +117,30 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, results });
+    // If any dealer didn't finish, re-invoke this cron to continue
+    if (needsContinuation) {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'https://iqautodeals.com';
+
+      console.log(`[Lexus Sync Cron] Re-invoking self to continue sync...`);
+
+      try {
+        const headers: Record<string, string> = {};
+        if (cronSecret) {
+          headers['Authorization'] = `Bearer ${cronSecret}`;
+        }
+
+        // Fire-and-forget: trigger new invocation, don't await response
+        fetch(`${baseUrl}/api/cron/sftp-sync`, { headers }).catch(err => {
+          console.error('[Lexus Sync Cron] Failed to re-invoke:', err);
+        });
+      } catch (err) {
+        console.error('[Lexus Sync Cron] Failed to re-invoke:', err);
+      }
+    }
+
+    return NextResponse.json({ success: true, needsContinuation, results });
 
   } catch (error) {
     console.error('[Lexus Sync Cron] Fatal error:', error);
