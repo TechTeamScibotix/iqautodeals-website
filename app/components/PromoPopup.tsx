@@ -28,14 +28,16 @@ interface PromoCar {
   };
 }
 
-const STORAGE_KEY = 'promo_popup_dismissed_at';
+const STORAGE_KEY = 'promo_popup_dismiss_count';
 const COOLDOWN_MS = 20 * 1000; // 20 seconds
+const MAX_DISMISSALS = 2; // Stop showing after user closes it twice
 
 export default function PromoPopup() {
   const [promoCar, setPromoCar] = useState<PromoCar | null>(null);
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const shownAtRef = useRef<number>(0);
+  const dismissCountRef = useRef<number>(0);
 
   const promoCarRef = useRef<PromoCar | null>(null);
 
@@ -57,7 +59,12 @@ export default function PromoPopup() {
   };
 
   useEffect(() => {
-    let cooldownTimer: NodeJS.Timeout | null = null;
+    // Check how many times user has dismissed in this session
+    const storedCount = parseInt(sessionStorage.getItem(STORAGE_KEY) || '0', 10);
+    dismissCountRef.current = storedCount;
+
+    // Already dismissed max times — don't show
+    if (storedCount >= MAX_DISMISSALS) return;
 
     const fetchAndShow = async () => {
       try {
@@ -70,30 +77,17 @@ export default function PromoPopup() {
       }
     };
 
-    // Check if still in cooldown from a previous dismissal
-    const dismissedAt = sessionStorage.getItem(STORAGE_KEY);
-    if (dismissedAt) {
-      const elapsed = Date.now() - parseInt(dismissedAt, 10);
-      if (elapsed < COOLDOWN_MS) {
-        // Wait for remaining cooldown, then show
-        cooldownTimer = setTimeout(() => {
-          fetchAndShow();
-        }, COOLDOWN_MS - elapsed);
-        return () => { if (cooldownTimer) clearTimeout(cooldownTimer); };
-      }
-    }
-
-    // No cooldown active — show immediately
     fetchAndShow();
-
-    return () => { if (cooldownTimer) clearTimeout(cooldownTimer); };
   }, []);
 
   const cooldownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleDismiss = () => {
     setDismissed(true);
-    sessionStorage.setItem(STORAGE_KEY, Date.now().toString());
+
+    // Increment dismiss count
+    dismissCountRef.current += 1;
+    sessionStorage.setItem(STORAGE_KEY, dismissCountRef.current.toString());
 
     if (promoCar) {
       const timeVisible = Math.round((Date.now() - shownAtRef.current) / 1000);
@@ -108,17 +102,19 @@ export default function PromoPopup() {
       setVisible(false);
     }, 500);
 
-    // Schedule re-show after cooldown
-    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
-    cooldownTimerRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch('/api/promo/lowest-lexus');
-        const data = await res.json();
-        if (data.car) showPopup(data.car);
-      } catch (error) {
-        console.error('Failed to fetch promo car:', error);
-      }
-    }, COOLDOWN_MS);
+    // Only re-show if under the max dismissal limit
+    if (dismissCountRef.current < MAX_DISMISSALS) {
+      if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+      cooldownTimerRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch('/api/promo/lowest-lexus');
+          const data = await res.json();
+          if (data.car) showPopup(data.car);
+        } catch (error) {
+          console.error('Failed to fetch promo car:', error);
+        }
+      }, COOLDOWN_MS);
+    }
   };
 
   // Cleanup timer on unmount
