@@ -159,17 +159,22 @@ function determineCondition(newUsed: string, certified: string, mileage: number)
 const DRIVETRAIN_TERMS = ['quattro', '4matic', 'xdrive', 'awd', 'fwd', 'rwd', '4wd', '2wd', '4x4', '4x2', 'e-4orce'];
 
 function isDrivetrainOnly(val: string): boolean {
-  return DRIVETRAIN_TERMS.includes(val.toLowerCase().trim());
+  const cleaned = val.toLowerCase().trim().replace(/[®™©]/g, '');
+  return DRIVETRAIN_TERMS.includes(cleaned);
+}
+
+function stripTrademarks(val: string): string {
+  return val.replace(/[®™©]/g, '').trim();
 }
 
 // Build trim from Series / Series Detail columns
 function buildTrim(series: string, seriesDetail: string): string | null {
   // Prefer Series Detail if it's a real trim (not just a drivetrain designation)
   if (seriesDetail && seriesDetail.trim() && !isDrivetrainOnly(seriesDetail)) {
-    return seriesDetail.trim();
+    return stripTrademarks(seriesDetail);
   }
   if (series && series.trim() && !isDrivetrainOnly(series)) {
-    return series.trim();
+    return stripTrademarks(series);
   }
   return null;
 }
@@ -197,6 +202,7 @@ function getCoordinatesForDealer(city: string, state: string): { latitude: numbe
     'madison-wi': { lat: 43.0731, lng: -89.4012 },
     'nashville-tn': { lat: 36.1627, lng: -86.7816 },
     'brentwood-tn': { lat: 36.0331, lng: -86.7828 },
+    'alpharetta-ga': { lat: 34.0754, lng: -84.2941 },
   };
 
   const key = `${city.toLowerCase().trim()}-${state.toLowerCase().trim()}`;
@@ -280,12 +286,12 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
     result.totalInFeed = vehicles.length;
     console.log(`[Lexus Sync] Found ${vehicles.length} vehicles in feed`);
 
-    // Get existing VINs for this dealer
+    // Get existing VINs for this dealer (include photos to check image counts)
     const existingCars = await prisma.car.findMany({
       where: { dealerId },
-      select: { id: true, vin: true, seoDescriptionGenerated: true },
+      select: { id: true, vin: true, seoDescriptionGenerated: true, photos: true },
     });
-    const existingVinMap = new Map(existingCars.map(c => [c.vin, { id: c.id, seoDescriptionGenerated: c.seoDescriptionGenerated }]));
+    const existingVinMap = new Map(existingCars.map(c => [c.vin, { id: c.id, seoDescriptionGenerated: c.seoDescriptionGenerated, photos: c.photos }]));
     const feedVins = new Set(vehicles.map(v => v.VIN));
 
     // Use city/state from CSV if available, otherwise fall back to dealer record
@@ -302,24 +308,92 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           continue;
         }
 
-        // Download and upload photos to Vercel Blob
-        console.log(`[Lexus Sync] Processing photos for ${vehicle.VIN}...`);
+        const feedPhotoUrls = parsePhotoUrls(vehicle['Photo Url List']);
+        const feedPhotoCount = feedPhotoUrls.length;
+
+        // --- EXISTING VIN: check if we can skip ---
+        if (existingVinMap.has(vehicle.VIN)) {
+          const existing = existingVinMap.get(vehicle.VIN)!;
+
+          // Count how many images we currently have
+          let currentPhotoCount = 0;
+          try {
+            const parsed = JSON.parse(existing.photos || '[]');
+            currentPhotoCount = Array.isArray(parsed) ? parsed.length : 0;
+          } catch { currentPhotoCount = 0; }
+
+          // If images match and SEO exists → skip entirely
+          if (currentPhotoCount >= feedPhotoCount && currentPhotoCount > 1 && existing.seoDescriptionGenerated) {
+            result.updated++;
+            continue;
+          }
+
+          // If we only have 1 image (or 0) and feed has more → re-download photos
+          let needsPhotoUpdate = false;
+          if (currentPhotoCount <= 1 && feedPhotoCount > currentPhotoCount) {
+            needsPhotoUpdate = true;
+          }
+
+          if (needsPhotoUpdate) {
+            console.log(`[Lexus Sync] ${vehicle.VIN} — updating photos (had ${currentPhotoCount}, feed has ${feedPhotoCount})`);
+            const photos = await processVehiclePhotos(vehicle['Photo Url List'], vehicle.VIN);
+            await prisma.car.update({
+              where: { id: existing.id },
+              data: { photos },
+            });
+          }
+
+          // If SEO description is missing, generate it
+          if (!existing.seoDescriptionGenerated) {
+            const mileage = parseInt(vehicle.Odometer, 10) || 0;
+            const vehicleCity = vehicle['Dealer City'] || city;
+            const vehicleState = vehicle['Dealer Region'] || state;
+            const isNewVehicle = (vehicle['New/Used'] || '').toLowerCase().trim() === 'n' ||
+                                 (vehicle['New/Used'] || '').toLowerCase().trim() === 'new';
+            const msrpPrice = parseFloat(vehicle.MSRP) || 0;
+            const regularPrice = parseFloat(vehicle.Price) || 0;
+            const listingPrice = isNewVehicle && msrpPrice > 0 ? msrpPrice : regularPrice;
+
+            try {
+              const seoDescription = await generateSEODescription({
+                vin: vehicle.VIN, make: vehicle.Make || 'Lexus', model: vehicle.Model || '',
+                year: parseInt(vehicle.Year, 10) || 0, mileage, color: vehicle.Colour || 'Unknown',
+                transmission: vehicle.Transmission || 'Automatic', salePrice: listingPrice,
+                bodyType: vehicle.Body || null, trim: buildTrim(vehicle.Series, vehicle['Series Detail']),
+                engine: vehicle.Engine || null, fuelType: normalizeFuelType(vehicle.Fuel, vehicle.Engine, vehicle.Model),
+                condition: determineCondition(vehicle['New/Used'], vehicle.Certified, mileage),
+                city: vehicleCity, state: vehicleState,
+              });
+              if (isValidSEODescription(seoDescription)) {
+                await prisma.car.update({
+                  where: { id: existing.id },
+                  data: { description: seoDescription, seoDescriptionGenerated: true },
+                });
+                console.log(`[Lexus Sync] SEO description generated for ${vehicle.VIN}`);
+              }
+            } catch (seoErr: any) {
+              console.error(`[Lexus Sync] SEO generation failed for ${vehicle.VIN}:`, seoErr.message);
+            }
+            await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
+          }
+
+          result.updated++;
+          continue;
+        }
+
+        // --- NEW VIN: full processing ---
+        console.log(`[Lexus Sync] NEW vehicle: ${vehicle.VIN} — ${vehicle.Year} ${vehicle.Make} ${vehicle.Model}`);
         const photos = await processVehiclePhotos(vehicle['Photo Url List'], vehicle.VIN);
 
         const mileage = parseInt(vehicle.Odometer, 10) || 0;
         const vehicleCity = vehicle['Dealer City'] || city;
         const vehicleState = vehicle['Dealer Region'] || state;
 
-        // For NEW vehicles, use MSRP as the listing price; for USED vehicles, use Price
         const isNewVehicle = (vehicle['New/Used'] || '').toLowerCase().trim() === 'n' ||
                              (vehicle['New/Used'] || '').toLowerCase().trim() === 'new';
         const msrpPrice = parseFloat(vehicle.MSRP) || 0;
         const regularPrice = parseFloat(vehicle.Price) || 0;
         const listingPrice = isNewVehicle && msrpPrice > 0 ? msrpPrice : regularPrice;
-
-        if (isNewVehicle && msrpPrice > 0) {
-          console.log(`[Lexus Sync] NEW vehicle ${vehicle.VIN} - using MSRP $${msrpPrice.toLocaleString()} as listing price`);
-        }
 
         const carData = {
           dealerId,
@@ -341,7 +415,7 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           bodyType: vehicle.Body?.trim() || null,
           trim: buildTrim(vehicle.Series, vehicle['Series Detail']),
           drivetrain: vehicle['Drivetrain Desc']?.trim()
-            ? vehicle['Drivetrain Desc'].trim().charAt(0).toUpperCase() + vehicle['Drivetrain Desc'].trim().slice(1)
+            ? stripTrademarks(vehicle['Drivetrain Desc'].trim().charAt(0).toUpperCase() + vehicle['Drivetrain Desc'].trim().slice(1))
             : null,
           engine: vehicle.Engine?.trim() || null,
           condition: determineCondition(vehicle['New/Used'], vehicle.Certified, mileage),
@@ -354,7 +428,6 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
             vehicleCity,
             vehicleState
           ),
-          // Additional inventory fields
           interiorColor: vehicle['Interior Color']?.trim() || null,
           msrp: msrpPrice > 0 ? msrpPrice : null,
           certified: vehicle.Certified?.toUpperCase() === 'Y' || vehicle.Certified?.toUpperCase() === 'YES',
@@ -364,55 +437,23 @@ export async function syncLexusFeedInventory(dealerId: string): Promise<SyncResu
           doors: parseInt(vehicle['Body Door Ct'], 10) || null,
         };
 
-        let carId: string;
-        let needsSEO = false;
+        const created = await prisma.car.create({ data: carData });
+        result.created++;
 
-        if (existingVinMap.has(vehicle.VIN)) {
-          // Update existing — preserve description if it was customized via Agentix SEO or manual edit
-          const existing = existingVinMap.get(vehicle.VIN)!;
-          carId = existing.id;
-          const updateData = { ...carData };
-          if (existing.seoDescriptionGenerated) {
-            delete (updateData as any).description;
-          } else {
-            needsSEO = true;
+        // Generate SEO description for new vehicle
+        try {
+          const seoDescription = await generateSEODescription(carData);
+          if (isValidSEODescription(seoDescription)) {
+            await prisma.car.update({
+              where: { id: created.id },
+              data: { description: seoDescription, seoDescriptionGenerated: true },
+            });
+            console.log(`[Lexus Sync] SEO description generated for ${vehicle.VIN}`);
           }
-          await prisma.car.update({
-            where: { id: existing.id },
-            data: updateData,
-          });
-          result.updated++;
-        } else {
-          // Create new
-          const created = await prisma.car.create({
-            data: carData,
-          });
-          carId = created.id;
-          needsSEO = true;
-          result.created++;
+        } catch (seoErr: any) {
+          console.error(`[Lexus Sync] SEO generation failed for ${vehicle.VIN}:`, seoErr.message);
         }
-
-        // Generate SEO description inline if needed
-        if (needsSEO) {
-          try {
-            const seoDescription = await generateSEODescription(carData);
-            if (isValidSEODescription(seoDescription)) {
-              await prisma.car.update({
-                where: { id: carId },
-                data: {
-                  description: seoDescription,
-                  seoDescriptionGenerated: true,
-                },
-              });
-              console.log(`[Lexus Sync] SEO description generated for ${vehicle.VIN}`);
-            }
-          } catch (seoErr: any) {
-            console.error(`[Lexus Sync] SEO generation failed for ${vehicle.VIN}:`, seoErr.message);
-            // Continue — the vehicle still has the CSV description as fallback
-          }
-          // Rate limit delay between Gemini calls
-          await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
-        }
+        await new Promise(resolve => setTimeout(resolve, SEO_DELAY_MS));
       } catch (err: any) {
         result.errors.push(`VIN ${vehicle.VIN}: ${err.message}`);
       }
