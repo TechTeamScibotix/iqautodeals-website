@@ -77,6 +77,8 @@ interface DealerSocketVehicle {
 
 interface SyncResult {
   success: boolean;
+  completed: boolean;       // true = all vehicles processed; false = hit time limit
+  nextIndex: number;        // index to resume from on next invocation
   dealerId: string;
   feedId: string;
   totalInFeed: number;
@@ -85,6 +87,11 @@ interface SyncResult {
   markedSold: number;
   errors: string[];
   duration: number;
+}
+
+interface SyncOptions {
+  startIndex?: number;      // vehicle index to resume from (default 0)
+  timeLimitMs?: number;     // max runtime in ms (default 240000 = 4 minutes)
 }
 
 // Generate SEO-friendly slug
@@ -201,10 +208,15 @@ async function getCoordinatesForDealer(city: string, state: string): Promise<{ l
   return { latitude: 39.8283, longitude: -98.5795 };
 }
 
-export async function syncDealerSocketInventory(dealerId: string): Promise<SyncResult> {
+export async function syncDealerSocketInventory(dealerId: string, options: SyncOptions = {}): Promise<SyncResult> {
   const startTime = Date.now();
+  const startIndex = options.startIndex ?? 0;
+  const timeLimitMs = options.timeLimitMs ?? 240000; // 4 minutes default
+
   const result: SyncResult = {
     success: false,
+    completed: false,
+    nextIndex: 0,
     dealerId,
     feedId: '',
     totalInFeed: 0,
@@ -282,8 +294,39 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
     const existingVinMap = new Map(existingCars.map(c => [c.vin, { id: c.id, seoDescriptionGenerated: c.seoDescriptionGenerated }]));
     const feedVins = new Set(vehicles.map(v => v.VIN));
 
-    // Process each vehicle
-    for (const vehicle of vehicles) {
+    // Process each vehicle (resume from startIndex if continuing a previous run)
+    console.log(`[DealerSocket Sync] Processing from index ${startIndex} of ${vehicles.length} (time limit: ${timeLimitMs}ms)`);
+
+    for (let i = startIndex; i < vehicles.length; i++) {
+      // Check time before processing each vehicle
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= timeLimitMs) {
+        console.log(`[DealerSocket Sync] Time limit reached at index ${i}/${vehicles.length} (${elapsed}ms). Will resume next invocation.`);
+        result.nextIndex = i;
+        result.completed = false;
+        result.success = true;
+        result.duration = Date.now() - startTime;
+
+        // Save progress so cron knows to continue
+        await prisma.user.update({
+          where: { id: dealerId },
+          data: {
+            lastSyncAt: new Date(),
+            lastSyncStatus: 'in_progress',
+            lastSyncMessage: JSON.stringify({
+              nextIndex: i,
+              totalInFeed: vehicles.length,
+              created: result.created,
+              updated: result.updated,
+            }),
+          },
+        });
+
+        await sftp.end();
+        return result;
+      }
+
+      const vehicle = vehicles[i];
       try {
         // Download and upload photos to Vercel Blob
         console.log(`Processing photos for ${vehicle.VIN}...`);
@@ -395,7 +438,11 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
       }
     }
 
-    // Mark vehicles not in feed as sold
+    // All vehicles processed — mark as fully completed
+    result.completed = true;
+    result.nextIndex = vehicles.length;
+
+    // Only mark vehicles as sold on the final completed pass
     for (const [vin, existing] of existingVinMap) {
       if (!feedVins.has(vin)) {
         try {
@@ -413,7 +460,7 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
       }
     }
 
-    // Update dealer sync status
+    // Update dealer sync status — fully done
     await prisma.user.update({
       where: { id: dealerId },
       data: {
@@ -424,7 +471,7 @@ export async function syncDealerSocketInventory(dealerId: string): Promise<SyncR
     });
 
     result.success = true;
-    console.log(`Sync completed: ${result.created} created, ${result.updated} updated, ${result.markedSold} marked sold`);
+    console.log(`[DealerSocket Sync] Completed: ${result.created} created, ${result.updated} updated, ${result.markedSold} marked sold`);
 
   } catch (err: any) {
     console.error('Sync error:', err);

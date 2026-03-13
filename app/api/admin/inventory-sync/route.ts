@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { syncDealerSocketInventory, listAvailableFeeds } from '@/lib/inventory-sync/dealersocket';
 import { syncLexusFeedInventory } from '@/lib/inventory-sync/lexus-feed';
 import { syncWendleFeedInventory } from '@/lib/inventory-sync/wendle-feed';
+import { syncCarsforsaleInventory } from '@/lib/inventory-sync/carsforsale';
 import { prisma } from '@/lib/prisma';
 
 // Verify admin authentication via token
@@ -121,9 +122,11 @@ export async function POST(request: NextRequest) {
     if (dealer.inventoryFeedType === 'lexus_sftp') {
       result = await syncLexusFeedInventory(dealerId);
     } else if (dealer.inventoryFeedType === 'wendle_sftp') {
-      result = await syncWendleFeedInventory(dealerId);
+      result = await syncWendleFeedInventory(dealerId, { timeLimitMs: 240000 });
+    } else if (dealer.inventoryFeedType === 'carsforsale') {
+      result = await syncCarsforsaleInventory(dealerId);
     } else {
-      result = await syncDealerSocketInventory(dealerId);
+      result = await syncDealerSocketInventory(dealerId, { timeLimitMs: 240000 });
     }
 
     return NextResponse.json({

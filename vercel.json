@@ -9,6 +9,14 @@
       "schedule": "0 6 */2 * *"
     },
     {
+      "path": "/api/cron/dealersocket-sync",
+      "schedule": "0 7 */2 * *"
+    },
+    {
+      "path": "/api/cron/wendle-sync",
+      "schedule": "0 8 */2 * *"
+    },
+    {
       "path": "/api/cron/algolia-sync",
       "schedule": "30 */6 * * *"
     }
