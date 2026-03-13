@@ -1222,16 +1222,16 @@ export default function CarsClient({
 
             {/* Cars Grid */}
             {loading ? (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 md:gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 md:gap-2">
                 {Array.from({ length: 12 }).map((_, i) => (
                   <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
-                    <div className="aspect-[3/2] md:aspect-[4/3] bg-gray-200" />
-                    <div className="p-1.5 md:p-4 space-y-1 md:space-y-2">
+                    <div className="aspect-[3/2] bg-gray-200" />
+                    <div className="p-1.5 md:p-3 space-y-1">
                       <div className="h-3 md:h-4 bg-gray-200 rounded w-3/4" />
-                      <div className="h-5 md:h-6 bg-gray-200 rounded w-1/2" />
+                      <div className="h-5 bg-gray-200 rounded w-1/2" />
                       <div className="h-3 bg-gray-200 rounded w-2/3" />
                       <div className="h-3 bg-gray-200 rounded w-1/2" />
-                      <div className="hidden md:block h-10 bg-gray-200 rounded-full w-full mt-2" />
+                      <div className="hidden md:block h-8 bg-gray-200 rounded-full w-full mt-1" />
                     </div>
                   </div>
                 ))}
@@ -1250,13 +1250,13 @@ export default function CarsClient({
                 {loadingSimilar && (
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-dark mb-4">Similar Vehicles You Might Like</h3>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 md:gap-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 md:gap-2">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="bg-white rounded-xl shadow-md overflow-hidden animate-pulse">
-                          <div className="aspect-[3/2] md:aspect-[4/3] bg-gray-200" />
-                          <div className="p-1.5 md:p-4 space-y-1 md:space-y-2">
+                          <div className="aspect-[3/2] bg-gray-200" />
+                          <div className="p-1.5 md:p-3 space-y-1">
                             <div className="h-3 md:h-4 bg-gray-200 rounded w-3/4" />
-                            <div className="h-5 md:h-6 bg-gray-200 rounded w-1/2" />
+                            <div className="h-5 bg-gray-200 rounded w-1/2" />
                             <div className="h-3 bg-gray-200 rounded w-2/3" />
                             <div className="h-10 bg-gray-200 rounded-full w-full mt-2" />
                           </div>
@@ -1269,7 +1269,7 @@ export default function CarsClient({
                 {!loadingSimilar && similarCars.length > 0 && (
                   <div className="mt-8">
                     <h3 className="text-lg font-bold text-dark mb-4">Similar Vehicles You Might Like</h3>
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 md:gap-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 md:gap-2">
                       {similarCars.map((car) => {
                         let photoUrl = '';
                         try {
@@ -1284,7 +1284,7 @@ export default function CarsClient({
                             key={car.id}
                             className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                           >
-                            <div className="relative aspect-[3/2] md:aspect-[4/3] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
+                            <div className="relative aspect-[3/2] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
                               <Image
                                 src={photoUrl || getPlaceholderImage(car.bodyType)}
                                 alt={`${car.year} ${car.make} ${car.model}`}
@@ -1301,17 +1301,17 @@ export default function CarsClient({
                               )}
                             </div>
 
-                            <div className="p-1.5 md:p-4">
-                              <h3 className="font-bold text-[11px] md:text-lg text-dark line-clamp-1 mb-0.5 md:mb-1">
+                            <div className="p-1.5 md:p-3">
+                              <h3 className="font-bold text-[11px] md:text-sm text-dark line-clamp-1 mb-0.5">
                                 {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                               </h3>
-                              <p className="text-sm md:text-2xl font-bold text-primary mb-0.5 md:mb-2">
+                              <p className="text-sm md:text-lg font-bold text-primary mb-0.5 md:mb-1">
                                 {formatPrice(car.salePrice)}
                               </p>
-                              <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">
+                              <div className="text-[10px] md:text-xs text-gray-600 mb-0.5">
                                 {car.color} • {car.mileage.toLocaleString()} mi
                               </div>
-                              <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-3">
+                              <div className="text-[10px] md:text-xs text-gray-600 mb-0.5 md:mb-1">
                                 {car.city}, {car.state}
                                 {car.distance !== null && car.distance !== undefined && (
                                   <span className="ml-1 text-primary font-medium">
@@ -1319,14 +1319,14 @@ export default function CarsClient({
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[10px] md:text-xs text-gray-500 mb-0.5 md:mb-3 line-clamp-1">{car.dealer.businessName}</p>
+                              <p className="text-[10px] md:text-xs text-gray-500 mb-0.5 md:mb-1.5 line-clamp-1">{car.dealer.businessName}</p>
 
-                              <div className="hidden md:flex flex-col gap-2">
+                              <div className="hidden md:flex flex-col gap-1.5">
                                 <button
                                   onClick={(e) => handleCheckAvailability(car, e)}
-                                  className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-sm"
+                                  className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                                 >
-                                  Check Availability - Test Drive
+                                  Check Availability
                                 </button>
                                 {!photoUrl && (
                                   <button
@@ -1334,9 +1334,9 @@ export default function CarsClient({
                                       e.stopPropagation();
                                       setRequestingPhotos(car);
                                     }}
-                                    className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-sm"
+                                    className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                                   >
-                                    <Camera className="w-4 h-4" />
+                                    <Camera className="w-3.5 h-3.5" />
                                     Request Photos
                                   </button>
                                 )}
@@ -1362,7 +1362,7 @@ export default function CarsClient({
               </div>
             ) : (
               <>
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 md:gap-3">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 md:gap-2">
             {paginatedCars.map((car) => {
               let photoUrl = '';
               try {
@@ -1377,7 +1377,7 @@ export default function CarsClient({
                   key={car.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
                 >
-                  <div className="relative aspect-[3/2] md:aspect-[4/3] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
+                  <div className="relative aspect-[3/2] bg-gray-200 cursor-pointer" onClick={(e) => openPhotoGallery(car, e)}>
                     <Image
                       src={photoUrl || getPlaceholderImage(car.bodyType)}
                       alt={`${car.year} ${car.make} ${car.model}`}
@@ -1394,17 +1394,17 @@ export default function CarsClient({
                     )}
                   </div>
 
-                  <div className="p-1.5 md:p-4">
-                    <h3 className="font-bold text-[11px] md:text-lg text-dark line-clamp-1 mb-0.5 md:mb-1">
+                  <div className="p-1.5 md:p-3">
+                    <h3 className="font-bold text-[11px] md:text-sm text-dark line-clamp-1 mb-0.5">
                       {car.isDemo ? 'List Your Vehicle Today' : `${car.year} ${car.make} ${car.model}${car.trim ? ` ${car.trim}` : ''}`}
                     </h3>
-                    <p className="text-sm md:text-2xl font-bold text-primary mb-0.5 md:mb-2">
+                    <p className="text-sm md:text-lg font-bold text-primary mb-0.5 md:mb-1">
                       {formatPrice(car.salePrice)}
                     </p>
-                    <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">
+                    <div className="text-[10px] md:text-xs text-gray-600 mb-0.5">
                       {car.color} • {car.mileage.toLocaleString()} mi
                     </div>
-                    <div className="text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-3">
+                    <div className="text-[10px] md:text-xs text-gray-600 mb-0.5 md:mb-1">
                       {car.city}, {car.state}
                       {car.distance !== null && car.distance !== undefined && (
                         <span className="ml-1 text-primary font-medium">
@@ -1412,14 +1412,14 @@ export default function CarsClient({
                         </span>
                       )}
                     </div>
-                    <p className="text-[10px] md:text-xs text-gray-500 mb-0.5 md:mb-3 line-clamp-1">{car.dealer.businessName}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500 mb-0.5 md:mb-1.5 line-clamp-1">{car.dealer.businessName}</p>
 
-                    <div className="hidden md:flex flex-col gap-2">
+                    <div className="hidden md:flex flex-col gap-1.5">
                       <button
                         onClick={(e) => handleCheckAvailability(car, e)}
-                        className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-sm"
+                        className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                       >
-                        Check Availability - Test Drive
+                        Check Availability
                       </button>
                       {!photoUrl && (
                         <button
@@ -1427,9 +1427,9 @@ export default function CarsClient({
                             e.stopPropagation();
                             setRequestingPhotos(car);
                           }}
-                          className="w-full bg-black text-white px-4 py-2.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-sm"
+                          className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                         >
-                          <Camera className="w-4 h-4" />
+                          <Camera className="w-3.5 h-3.5" />
                           Request Photos
                         </button>
                       )}
