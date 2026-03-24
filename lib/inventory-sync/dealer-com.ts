@@ -230,14 +230,24 @@ function parseSRPVehicle(v: any): SRPVehicle | null {
   const msrpStr = pricing.msrp || pricing.retailValue || '0';
   const msrpVal = parseInt(String(msrpStr).replace(/[^0-9]/g, ''), 10) || 0;
 
-  // Pick the best consumer-facing price: collect all non-zero price fields,
-  // then use the lowest one (e.g. internetPrice reflects rebates/discounts
-  // and is lower than askingPrice which is the pre-rebate sticker price).
-  const priceFields = ['internetPrice', 'salePrice', 'askingPrice'];
-  const candidatePrices = priceFields
-    .map(f => parseInt(String(pricing[f] || '0').replace(/[^0-9]/g, ''), 10) || 0)
-    .filter(p => p > 0);
-  const askingPrice = candidatePrices.length > 0 ? Math.min(...candidatePrices) : 0;
+  // 1) Check the pricing.dprice array for isFinalPrice (= "Price After Rebates").
+  //    This is the actual consumer-facing price shown on the dealer's website and
+  //    includes all discounts, rebates, and incentives already applied.
+  let askingPrice = 0;
+  const dprice: any[] = v.pricing?.dprice || [];
+  const finalPriceEntry = dprice.find((d: any) => d.isFinalPrice === true || d.isFinalPrice === 'True');
+  if (finalPriceEntry) {
+    askingPrice = parseInt(String(finalPriceEntry.value || '0').replace(/[^0-9]/g, ''), 10) || 0;
+  }
+
+  // 2) Fallback: pick the lowest non-zero price from trackingPricing fields.
+  if (askingPrice <= 0) {
+    const priceFields = ['internetPrice', 'salePrice', 'askingPrice'];
+    const candidatePrices = priceFields
+      .map(f => parseInt(String(pricing[f] || '0').replace(/[^0-9]/g, ''), 10) || 0)
+      .filter(p => p > 0);
+    askingPrice = candidatePrices.length > 0 ? Math.min(...candidatePrices) : 0;
+  }
 
   const odometerStr = extractTrackingAttr(v, 'odometer');
   const odometer = odometerStr ? parseInt(odometerStr.replace(/,/g, ''), 10) || 0 : 0;
@@ -465,24 +475,11 @@ function enrichFromVDP(html: string, vehicle: SRPVehicle): DealerComVehicle {
     }
   }
 
-  // Extract best consumer price from VDP. The SRP API gives the pre-rebate
-  // asking price, but the VDP page embeds a dprice array with a final price
-  // entry marked "isFinalPrice":true (e.g. "Price After Rebates").
-  // We use that when available and sane (>50% of asking to avoid rebate amounts).
-  let bestPrice = vehicle.askingPrice;
-  const priceFloor = vehicle.askingPrice > 0 ? vehicle.askingPrice * 0.5 : 2000;
-
-  const finalPriceMatch = html.match(/"value"\s*:\s*"\$\s*([\d,]+)"\s*,\s*"isFinalPrice"\s*:\s*true/);
-  if (finalPriceMatch) {
-    const finalPrice = parseInt(finalPriceMatch[1].replace(/,/g, ''), 10);
-    if (finalPrice >= priceFloor && finalPrice < bestPrice) {
-      bestPrice = finalPrice;
-    }
-  }
+  // Price is already resolved from the SRP API's dprice array (isFinalPrice)
+  // in parseSRPVehicle, so no VDP price override needed.
 
   return {
     ...vehicle,
-    askingPrice: bestPrice,
     photoUrls,
     features,
   };
