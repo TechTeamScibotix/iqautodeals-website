@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { syncDealerComInventory } from '@/lib/inventory-sync/dealer-com';
+import { syncCarsCommerceInventory } from '@/lib/inventory-sync/carscommerce';
 
 export const maxDuration = 300;
+
+// Syncs Dealer.com and CarsCommerce dealer inventories.
+// Runs every other day at 9 AM UTC.
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,30 +20,34 @@ export async function GET(request: NextRequest) {
     const dealers = await prisma.user.findMany({
       where: {
         autoSyncEnabled: true,
-        inventoryFeedType: 'dealer-com',
+        inventoryFeedType: { in: ['dealer-com', 'carscommerce'] },
       },
       select: {
         id: true,
         businessName: true,
+        inventoryFeedType: true,
       },
     });
 
     if (dealers.length === 0) {
-      return NextResponse.json({ success: true, message: 'No Dealer.com dealers found' });
+      return NextResponse.json({ success: true, message: 'No scraper-based dealers found' });
     }
 
-    console.log(`[DealerCom Sync Cron] Running sync for ${dealers.length} dealers`);
+    console.log(`[Scraper Sync Cron] Running sync for ${dealers.length} dealers`);
 
     const results: any[] = [];
 
     for (const dealer of dealers) {
-      console.log(`[DealerCom Sync Cron] Syncing ${dealer.businessName}...`);
+      console.log(`[Scraper Sync Cron] Syncing ${dealer.businessName} (${dealer.inventoryFeedType})...`);
 
       try {
-        const syncResult = await syncDealerComInventory(dealer.id);
+        const syncResult = dealer.inventoryFeedType === 'carscommerce'
+          ? await syncCarsCommerceInventory(dealer.id)
+          : await syncDealerComInventory(dealer.id);
 
         results.push({
           dealer: dealer.businessName,
+          type: dealer.inventoryFeedType,
           success: syncResult.success,
           created: syncResult.created,
           updated: syncResult.updated,
@@ -48,9 +56,10 @@ export async function GET(request: NextRequest) {
           duration: syncResult.duration,
         });
       } catch (err: any) {
-        console.error(`[DealerCom Sync Cron] Error syncing ${dealer.businessName}:`, err);
+        console.error(`[Scraper Sync Cron] Error syncing ${dealer.businessName}:`, err);
         results.push({
           dealer: dealer.businessName,
+          type: dealer.inventoryFeedType,
           success: false,
           error: err.message,
         });
@@ -60,7 +69,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: true, results });
 
   } catch (error) {
-    console.error('[DealerCom Sync Cron] Fatal error:', error);
-    return NextResponse.json({ error: 'Failed to run Dealer.com sync' }, { status: 500 });
+    console.error('[Scraper Sync Cron] Fatal error:', error);
+    return NextResponse.json({ error: 'Failed to run scraper sync' }, { status: 500 });
   }
 }

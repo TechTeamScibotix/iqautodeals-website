@@ -4,6 +4,7 @@ import { syncLexusFeedInventory } from '@/lib/inventory-sync/lexus-feed';
 import { syncWendleFeedInventory } from '@/lib/inventory-sync/wendle-feed';
 import { syncCarsforsaleInventory } from '@/lib/inventory-sync/carsforsale';
 import { syncDealerComInventory } from '@/lib/inventory-sync/dealer-com';
+import { syncCarsCommerceInventory } from '@/lib/inventory-sync/carscommerce';
 import { prisma } from '@/lib/prisma';
 
 // Verify admin authentication via token
@@ -128,6 +129,8 @@ export async function POST(request: NextRequest) {
       result = await syncCarsforsaleInventory(dealerId);
     } else if (dealer.inventoryFeedType === 'dealer-com') {
       result = await syncDealerComInventory(dealerId);
+    } else if (dealer.inventoryFeedType === 'carscommerce') {
+      result = await syncCarsCommerceInventory(dealerId);
     } else {
       result = await syncDealerSocketInventory(dealerId, { timeLimitMs: 240000 });
     }
