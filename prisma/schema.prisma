@@ -83,6 +83,8 @@ model Car {
   listingFeePaid  Boolean  @default(false)
   createdAt       DateTime @default(now())
 
+  descriptionEs   String?  // Spanish translation of description
+
   // SEO fields
   seoDescriptionGenerated Boolean @default(false)  // True when description was set via Agentix SEO or manual edit; sync will not overwrite
   slug            String?  @unique  // SEO-friendly URL: "2022-toyota-camry-atlanta-ga"

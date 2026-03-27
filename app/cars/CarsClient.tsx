@@ -67,6 +67,7 @@ interface CarListing {
   salePrice: number;
   photos: string;
   description: string;
+  descriptionEs?: string;
   transmission: string;
   fuelType?: string;
   bodyType?: string;
@@ -1788,15 +1789,16 @@ export default function CarsClient({
                 </div>
 
                 {/* AI Description Sections */}
-                {viewingPhotos.car.description && (() => {
-                  const sections = parseStructuredDescription(viewingPhotos.car.description);
+                {(viewingPhotos.car.description || viewingPhotos.car.descriptionEs) && (() => {
+                  const descText = (isES && viewingPhotos.car.descriptionEs) ? viewingPhotos.car.descriptionEs : viewingPhotos.car.description;
+                  const sections = parseStructuredDescription(descText);
                   if (!sections) {
                     // Legacy format — show as plain "About This Vehicle"
                     return (
                       <div className="mb-6">
-                        <h3 className="text-lg font-bold text-dark mb-2">About This Vehicle</h3>
+                        <h3 className="text-lg font-bold text-dark mb-2">{isES ? 'Sobre Este Vehículo' : 'About This Vehicle'}</h3>
                         <p className="text-gray-700 leading-relaxed text-sm">
-                          {getDescriptionPreview(viewingPhotos.car.description)}
+                          {getDescriptionPreview(descText)}
                         </p>
                       </div>
                     );
