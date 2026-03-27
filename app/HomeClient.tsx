@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Car, Search, TrendingDown, CheckCircle, Sparkles, ArrowRight, LogIn, UserPlus, MapPin } from 'lucide-react';
+import { Car, Search, TrendingDown, CheckCircle, Sparkles, ArrowRight, LogIn, UserPlus, MapPin, Globe } from 'lucide-react';
 import AIChat from './components/AIChat';
 import FinancingCalculator from './components/FinancingCalculator';
 import Footer from './components/Footer';
@@ -262,7 +262,8 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
-              <Link href="/es" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm font-semibold">
+              <Link href="/es" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
+                <Globe className="w-3 h-3 md:w-4 md:h-4" />
                 ES
               </Link>
               <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
