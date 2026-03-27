@@ -57,9 +57,86 @@ interface HomeClientProps {
   resourcesSection: ReactNode;
   browseSection: ReactNode;
   faqSection: ReactNode;
+  lang?: 'en' | 'es';
 }
 
-export default function HomeClient({ howItWorksSection, benefitsSection, resourcesSection, browseSection, faqSection }: HomeClientProps) {
+const t = {
+  en: {
+    heroTitle: 'Shop Cars. Compare Offers. Save More.',
+    heroSub: 'AI-powered vehicle comparisons, market insights, and competitive dealer offers —',
+    heroSubBold: 'all in one place.',
+    searchPlaceholder: 'Search make, model, or type',
+    search: 'Search',
+    states: 'States',
+    vehicles: 'Vehicles',
+    nationwide: 'Nationwide Shipping',
+    shopNew: 'Shop New',
+    shopUsed: 'Shop Used',
+    shopElectric: 'Shop Electric',
+    buyOnline: 'Buy Online',
+    sources: 'Sources',
+    browseByBody: 'Browse by Body Type',
+    featuredInventory: 'Featured Inventory',
+    featuredNear: 'Featured Cars Near',
+    newInventory: 'New Inventory',
+    newNear: 'New Cars Near',
+    viewAll: 'View All',
+    hoverPause: 'Hover to pause',
+    calcTitle: 'Car Loan Calculator',
+    calcSub: 'Calculate your monthly car payment and see how different loan terms affect your budget. Find the perfect financing plan for your next vehicle.',
+    calcCta: 'Start shopping now',
+    calcCtaPrefix: 'Ready to find your perfect car?',
+    calcCtaSuffix: 'and compare prices from local dealers.',
+    newVehicles: 'New Vehicles',
+    usedVehicles: 'Used Vehicles',
+    forDealers: 'For Dealers',
+    research: 'Research & Reviews',
+    financing: 'Financing',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    langSwitch: 'ES',
+    langHref: '/es',
+  },
+  es: {
+    heroTitle: 'Compra Autos. Compara Ofertas. Ahorra Más.',
+    heroSub: 'Comparaciones de vehículos impulsadas por IA, información del mercado y ofertas competitivas —',
+    heroSubBold: 'todo en un solo lugar.',
+    searchPlaceholder: 'Buscar marca, modelo o tipo',
+    search: 'Buscar',
+    states: 'Estados',
+    vehicles: 'Vehículos',
+    nationwide: 'Envío Nacional',
+    shopNew: 'Nuevos',
+    shopUsed: 'Usados',
+    shopElectric: 'Eléctricos',
+    buyOnline: 'Comprar',
+    sources: 'Fuentes',
+    browseByBody: 'Buscar por Tipo de Carrocería',
+    featuredInventory: 'Inventario Destacado',
+    featuredNear: 'Autos Cerca de',
+    newInventory: 'Inventario Nuevo',
+    newNear: 'Autos Nuevos Cerca de',
+    viewAll: 'Ver Todo',
+    hoverPause: 'Pausa al pasar el cursor',
+    calcTitle: 'Calculadora de Préstamo de Auto',
+    calcSub: 'Calcula tu pago mensual y ve cómo diferentes plazos afectan tu presupuesto.',
+    calcCta: 'Empieza a buscar ahora',
+    calcCtaPrefix: '¿Listo para encontrar tu auto perfecto?',
+    calcCtaSuffix: 'y compara precios de concesionarios locales.',
+    newVehicles: 'Nuevos',
+    usedVehicles: 'Usados',
+    forDealers: 'Concesionarios',
+    research: 'Investigación',
+    financing: 'Financiamiento',
+    signIn: 'Iniciar Sesión',
+    signUp: 'Registrarse',
+    langSwitch: 'EN',
+    langHref: '/',
+  },
+};
+
+export default function HomeClient({ howItWorksSection, benefitsSection, resourcesSection, browseSection, faqSection, lang = 'en' }: HomeClientProps) {
+  const i = t[lang];
   const router = useRouter();
   const [featuredCars, setFeaturedCars] = useState<FeaturedCar[]>([]);
   const [newCars, setNewCars] = useState<FeaturedCar[]>([]);
@@ -244,38 +321,38 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             {/* Navigation Menu */}
             <nav className="hidden lg:flex gap-8 text-sm font-semibold">
               <Link href="/cars?condition=new" className="text-white hover:text-primary transition-colors py-2">
-                New Vehicles
+                {i.newVehicles}
               </Link>
               <Link href="/cars?condition=used" className="text-white hover:text-primary transition-colors py-2">
-                Used Vehicles
+                {i.usedVehicles}
               </Link>
               <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">
-                For Dealers
+                {i.forDealers}
               </Link>
               <Link href="/blog" className="text-white hover:text-primary transition-colors py-2">
-                Research & Reviews
+                {i.research}
               </Link>
               <Link href="/guides/car-financing-guide" className="text-white hover:text-primary transition-colors py-2">
-                Financing
+                {i.financing}
               </Link>
             </nav>
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
-              <Link href="/es" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
+              <Link href={i.langHref} className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
                 <Globe className="w-3 h-3 md:w-4 md:h-4" />
-                ES
+                {i.langSwitch}
               </Link>
               <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
                 <LogIn className="w-3 h-3 md:w-4 md:h-4" />
-                Sign In
+                {i.signIn}
               </Link>
               <Link
                 href="/register"
                 className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2"
               >
                 <UserPlus className="w-3 h-3 md:w-4 md:h-4" />
-                Sign Up
+                {i.signUp}
               </Link>
             </div>
           </div>
@@ -299,10 +376,10 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white drop-shadow-lg">
-            Shop Cars. Compare Offers. Save More.
+            {i.heroTitle}
           </h1>
           <p className="text-sm md:text-base text-gray-300 mb-6 drop-shadow-lg">
-            AI-powered vehicle comparisons, market insights, and competitive dealer offers — <span className="font-bold text-white">all in one place.</span>
+            {i.heroSub} <span className="font-bold text-white">{i.heroSubBold}</span>
           </p>
 
           {/* Search Bar + Stats Row */}
@@ -315,8 +392,8 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
                   value={quickSearch}
                   onChange={(e) => setQuickSearch(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="Search make, model, or type"
-                  aria-label="Search for vehicles"
+                  placeholder={i.searchPlaceholder}
+                  aria-label={i.searchPlaceholder}
                   className="flex-1 min-w-0 px-3 py-2.5 bg-transparent border-none focus:outline-none text-text-primary placeholder-gray-400 text-sm"
                 />
                 <button
