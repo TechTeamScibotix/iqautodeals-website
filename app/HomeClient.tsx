@@ -286,7 +286,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
           loop
           muted
           playsInline
-          preload="none"
+          preload="auto"
           poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover"
         >
