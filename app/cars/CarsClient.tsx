@@ -686,7 +686,11 @@ export default function CarsClient({
               Financing
             </Link>
           </nav>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <Link href="/es" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              ES
+            </Link>
             {user ? (
               <Link
                 href={user.userType === 'customer' ? '/customer' : '/dealer'}

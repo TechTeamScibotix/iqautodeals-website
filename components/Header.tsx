@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, Globe } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 
 export function Header() {
@@ -30,7 +30,11 @@ export function Header() {
           </nav>
 
           {/* Auth Buttons */}
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <Link href="/es" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
+              <Globe className="w-4 h-4" />
+              ES
+            </Link>
             <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
               <LogIn className="w-4 h-4" />
               Sign In
