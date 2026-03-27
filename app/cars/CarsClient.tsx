@@ -161,6 +161,7 @@ export default function CarsClient({
   const router = useRouter();
   const defaultSearchParams = useSearchParams();
   const searchParams = urlSearchParams || defaultSearchParams;
+  const isES = searchParams.get('lang') === 'es';
   const [cars, setCars] = useState<CarListing[]>([]);
   const [loading, setLoading] = useState(true);
   const hasInitialProps = !!(initialZipCode || initialBodyType || initialMake || initialModel || initialMinPrice || initialMaxPrice || initialCondition);
@@ -670,26 +671,26 @@ export default function CarsClient({
             <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link href="/cars?condition=new" className={search.condition === 'new' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
-              New Vehicles
+            <Link href={`/cars?condition=new${isES ? '&lang=es' : ''}`} className={search.condition === 'new' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
+              {isES ? 'Nuevos' : 'New Vehicles'}
             </Link>
-            <Link href="/cars?condition=used" className={search.condition === 'used' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
-              Used Vehicles
+            <Link href={`/cars?condition=used${isES ? '&lang=es' : ''}`} className={search.condition === 'used' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
+              {isES ? 'Usados' : 'Used Vehicles'}
             </Link>
             <Link href="/for-dealers" className="text-gray-300 hover:text-primary transition-colors">
-              For Dealers
+              {isES ? 'Concesionarios' : 'For Dealers'}
             </Link>
             <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
-              Research & Reviews
+              {isES ? 'Investigación' : 'Research & Reviews'}
             </Link>
             <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
-              Financing
+              {isES ? 'Financiamiento' : 'Financing'}
             </Link>
           </nav>
           <div className="flex items-center gap-3">
-            <Link href="/es" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
+            <Link href={isES ? '/' : '/es'} className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
               <Globe className="w-4 h-4" />
-              ES
+              {isES ? 'EN' : 'ES'}
             </Link>
             {user ? (
               <Link
@@ -727,7 +728,7 @@ export default function CarsClient({
           className="w-full flex items-center justify-center gap-2 px-4 py-3 border border-gray-300 rounded-full font-medium text-gray-700 hover:bg-gray-50"
         >
           <SlidersHorizontal className="w-5 h-5" />
-          Filters
+          {isES ? 'Filtros' : 'Filters'}
         </button>
         {geoApplied && !geoDismissed && geoLocation && (
           <div className="mt-2 bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 flex items-center justify-between">
@@ -975,15 +976,19 @@ export default function CarsClient({
         {/* Page Title */}
         {!hideTitle && (
           <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
-            {pageTitle || (search.fuelType && search.fuelType !== 'all'
-              ? `${search.fuelType} Vehicles for Sale`
-              : search.bodyType && search.bodyType !== 'all'
-              ? `${search.bodyType}s for Sale`
-              : search.condition === 'new'
-              ? 'New Vehicles for Sale'
-              : search.condition === 'used'
-              ? 'Used Cars for Sale'
-              : 'Cars for Sale')}
+            {pageTitle || (isES
+              ? (search.condition === 'new' ? 'Vehículos Nuevos en Venta'
+                : search.condition === 'used' ? 'Autos Usados en Venta'
+                : 'Autos en Venta')
+              : (search.fuelType && search.fuelType !== 'all'
+                ? `${search.fuelType} Vehicles for Sale`
+                : search.bodyType && search.bodyType !== 'all'
+                ? `${search.bodyType}s for Sale`
+                : search.condition === 'new'
+                ? 'New Vehicles for Sale'
+                : search.condition === 'used'
+                ? 'Used Cars for Sale'
+                : 'Cars for Sale'))}
           </h2>
         )}
         {!hideTitle && pageSubtitle && (
@@ -1224,7 +1229,7 @@ export default function CarsClient({
             {/* Results Count */}
             <div className="mb-4 flex items-center justify-between">
               <p className="text-lg font-semibold">
-                {loading ? 'Loading...' : `${totalCount} Listings`}
+                {loading ? (isES ? 'Cargando...' : 'Loading...') : `${totalCount} ${isES ? 'Resultados' : 'Listings'}`}
               </p>
               {!loading && totalPages > 1 && (
                 <p className="text-sm text-gray-500">
@@ -1308,7 +1313,7 @@ export default function CarsClient({
                               {photoUrl && (
                                 <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-black/60 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded-pill text-[9px] md:text-xs font-semibold backdrop-blur-sm">
                                   <Camera className="w-2.5 h-2.5 md:w-3 md:h-3 inline mr-0.5" />
-                                  <span className="hidden sm:inline">View Photos</span>
+                                  <span className="hidden sm:inline">{isES ? 'Ver Fotos' : 'View Photos'}</span>
                                   <span className="sm:hidden">Photos</span>
                                 </div>
                               )}
@@ -1339,7 +1344,7 @@ export default function CarsClient({
                                   onClick={(e) => handleCheckAvailability(car, e)}
                                   className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                                 >
-                                  Check Availability
+                                  {isES ? 'Consultar Disponibilidad' : 'Check Availability'}
                                 </button>
                                 {!photoUrl && (
                                   <button
@@ -1401,7 +1406,7 @@ export default function CarsClient({
                     {photoUrl && (
                       <div className="absolute top-1 right-1 md:top-2 md:right-2 bg-black/60 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded-pill text-[9px] md:text-xs font-semibold backdrop-blur-sm">
                         <Camera className="w-2.5 h-2.5 md:w-3 md:h-3 inline mr-0.5" />
-                        <span className="hidden sm:inline">View Photos</span>
+                        <span className="hidden sm:inline">{isES ? 'Ver Fotos' : 'View Photos'}</span>
                         <span className="sm:hidden">Photos</span>
                       </div>
                     )}
@@ -1432,7 +1437,7 @@ export default function CarsClient({
                         onClick={(e) => handleCheckAvailability(car, e)}
                         className="w-full bg-black text-white px-3 py-1.5 rounded-full font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-1 text-xs"
                       >
-                        Check Availability
+                        {isES ? 'Consultar Disponibilidad' : 'Check Availability'}
                       </button>
                       {!photoUrl && (
                         <button
@@ -1912,7 +1917,7 @@ export default function CarsClient({
                     }}
                     className="w-full bg-primary text-white px-6 py-4 rounded-pill font-bold text-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
                   >
-                    Check Availability - Schedule Test Drive
+                    {isES ? 'Consultar Disponibilidad' : 'Check Availability'} - Schedule Test Drive
                   </button>
                   <Link
                     href={`/cars/${viewingPhotos.car.slug || viewingPhotos.car.id}`}

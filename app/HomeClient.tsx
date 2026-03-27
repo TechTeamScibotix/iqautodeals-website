@@ -137,6 +137,8 @@ const t = {
 
 export default function HomeClient({ howItWorksSection, benefitsSection, resourcesSection, browseSection, faqSection, lang = 'en' }: HomeClientProps) {
   const i = t[lang];
+  // Prefix helper: appends lang=es to links when on Spanish page
+  const lp = (href: string) => lang === 'es' ? `${href}${href.includes('?') ? '&' : '?'}lang=es` : href;
   const router = useRouter();
   const [featuredCars, setFeaturedCars] = useState<FeaturedCar[]>([]);
   const [newCars, setNewCars] = useState<FeaturedCar[]>([]);
@@ -223,6 +225,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       if (searchForm.condition) params.append('condition', searchForm.condition);
     }
     if (searchForm.zipCode) params.append('zipCode', searchForm.zipCode);
+    if (lang === 'es') params.append('lang', 'es');
     router.push(`/cars?${params.toString()}`);
   };
 
@@ -320,10 +323,10 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
             {/* Navigation Menu */}
             <nav className="hidden lg:flex gap-8 text-sm font-semibold">
-              <Link href="/cars?condition=new" className="text-white hover:text-primary transition-colors py-2">
+              <Link href={lp("/cars?condition=new")} className="text-white hover:text-primary transition-colors py-2">
                 {i.newVehicles}
               </Link>
-              <Link href="/cars?condition=used" className="text-white hover:text-primary transition-colors py-2">
+              <Link href={lp("/cars?condition=used")} className="text-white hover:text-primary transition-colors py-2">
                 {i.usedVehicles}
               </Link>
               <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">
@@ -423,7 +426,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
           {/* Quick Action Tiles */}
           <div className="flex gap-2">
             <Link
-              href="/cars?condition=new"
+              href={lp("/cars?condition=new")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -435,7 +438,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href="/cars?condition=used"
+              href={lp("/cars?condition=used")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -447,7 +450,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href="/cars?fuelType=Electric"
+              href={lp("/cars?fuelType=Electric")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -459,7 +462,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href="/cars"
+              href={lp("/cars")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center relative"
             >
               <div className="absolute -top-1.5 -right-1.5 bg-accent text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
@@ -503,7 +506,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             {['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon', 'Van', 'Crossover'].map((type) => (
               <Link
                 key={type}
-                href={`/cars?bodyType=${encodeURIComponent(type)}`}
+                href={lp(`/cars?bodyType=${encodeURIComponent(type)}`)}
                 className="px-5 py-2.5 bg-white/10 hover:bg-primary hover:text-white rounded-pill font-medium text-white transition-all"
               >
                 {type}
@@ -512,14 +515,14 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
           </div>
           <div className="flex flex-wrap justify-center gap-3 mt-3">
             <Link
-              href="/cars?fuelType=Electric"
+              href={lp("/cars?fuelType=Electric")}
               className="flex items-center gap-2 px-5 py-2.5 bg-accent/20 hover:bg-accent hover:text-white rounded-pill font-medium text-accent transition-all"
             >
               <Sparkles className="w-4 h-4" />
               Electric
             </Link>
             <Link
-              href="/cars?fuelType=Hybrid"
+              href={lp("/cars?fuelType=Hybrid")}
               className="flex items-center gap-2 px-5 py-2.5 bg-accent/20 hover:bg-accent hover:text-white rounded-pill font-medium text-accent transition-all"
             >
               <TrendingDown className="w-4 h-4" />
@@ -536,7 +539,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             <h3 className="text-2xl font-bold text-text-primary">
               {geoLocation ? `Featured Cars Near ${geoLocation.label}` : 'Featured Inventory'}
             </h3>
-            <Link href="/cars" className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
+            <Link href={lp("/cars")} className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
               View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -594,7 +597,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
                   return (
                     <Link
-                      href={`/cars/${car.slug || car.id}`}
+                      href={lp(`/cars/${car.slug || car.id}`)}
                       key={`${car.id}-${index}`}
                       className="flex-shrink-0 w-72 bg-white rounded-xl border border-border shadow-card overflow-hidden hover:shadow-card-hover hover:border-primary/30 transition-all cursor-pointer group"
                     >
@@ -646,7 +649,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
               <h3 className="text-2xl font-bold text-text-primary">
                 {geoLocation ? `New Cars Near ${geoLocation.label}` : 'New Inventory'}
               </h3>
-              <Link href="/cars?condition=new" className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
+              <Link href={lp("/cars?condition=new")} className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
                 View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
@@ -700,7 +703,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
                     return (
                       <Link
-                        href={`/cars/${car.slug || car.id}`}
+                        href={lp(`/cars/${car.slug || car.id}`)}
                         key={`new-${car.id}-${index}`}
                         className="flex-shrink-0 w-72 bg-white rounded-xl border border-border shadow-card overflow-hidden hover:shadow-card-hover hover:border-primary/30 transition-all cursor-pointer group"
                       >
@@ -761,7 +764,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
 
               <div className="mt-6 pt-6 border-t border-gray-700">
                 <p className="text-sm text-gray-400 text-center">
-                  Ready to find your perfect car? <Link href="/cars" className="text-accent font-semibold hover:text-accent-light transition-colors">Start shopping now</Link> and compare prices from local dealers.
+                  Ready to find your perfect car? <Link href={lp("/cars")} className="text-accent font-semibold hover:text-accent-light transition-colors">Start shopping now</Link> and compare prices from local dealers.
                 </p>
               </div>
             </div>
