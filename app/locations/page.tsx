@@ -54,7 +54,7 @@ const locationsByState = {
   'Rhode Island': ['providence', 'warwick'],
   'South Carolina': ['charleston', 'columbia-sc', 'greenville', 'myrtle-beach'],
   'South Dakota': ['sioux-falls', 'rapid-city'],
-  'Tennessee': ['nashville', 'memphis', 'knoxville', 'chattanooga', 'clarksville'],
+  'Tennessee': ['nashville', 'memphis', 'knoxville', 'chattanooga', 'clarksville', 'brentwood'],
   'Texas': ['houston', 'san-antonio', 'dallas', 'austin', 'fort-worth', 'el-paso', 'arlington'],
   'Utah': ['salt-lake-city', 'provo', 'west-valley-city'],
   'Vermont': ['burlington'],

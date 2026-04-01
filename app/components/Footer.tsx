@@ -242,6 +242,7 @@ const allLocations = [
   { slug: 'knoxville', name: 'Knoxville, TN' },
   { slug: 'chattanooga', name: 'Chattanooga, TN' },
   { slug: 'clarksville', name: 'Clarksville, TN' },
+  { slug: 'brentwood', name: 'Brentwood, TN' },
   // Texas
   { slug: 'houston', name: 'Houston, TX' },
   { slug: 'san-antonio', name: 'San Antonio, TX' },
