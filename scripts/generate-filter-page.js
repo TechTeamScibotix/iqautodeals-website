@@ -137,7 +137,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "AutoDealer",
+            "@type": "Organization",
             "name": \`IQ Auto Deals - \${city}\`,
             "address": {
               "@type": "PostalAddress",
@@ -150,14 +150,7 @@ export default async function PriceRangePage({ params }: { params: Promise<{ loc
               "latitude": lat,
               "longitude": lng
             },
-            "priceRange": label,
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "247",
-              "bestRating": "5",
-              "worstRating": "1"
-            }
+            "priceRange": label
           })
         }}
       />

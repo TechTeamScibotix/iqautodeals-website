@@ -12,7 +12,7 @@ export default function LocalBusinessSchema() {
   // Primary schema: Online Business / E-commerce Platform
   const onlineBusinessSchema = {
     '@context': 'https://schema.org',
-    '@type': 'OnlineBusiness',
+    '@type': 'Organization',
     '@id': 'https://iqautodeals.com/#online-business',
     name: 'IQ Auto Deals',
     alternateName: ['IQAutoDeals', 'IQ AutoDeals'],
@@ -59,13 +59,7 @@ export default function LocalBusinessSchema() {
     priceRange: 'Free to use',
     currenciesAccepted: 'USD',
     paymentAccepted: 'Dealers handle transactions directly',
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '1250',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // aggregateRating removed — no real review system in place yet
     // Social profiles for brand identity
     sameAs: [
       'https://www.facebook.com/iqautodeals',

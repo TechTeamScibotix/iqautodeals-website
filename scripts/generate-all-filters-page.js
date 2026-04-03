@@ -222,7 +222,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "AutoDealer",
+            "@type": "Organization",
             "name": \`IQ Auto Deals - \${city}\`,
             "address": {
               "@type": "PostalAddress",
@@ -235,14 +235,7 @@ export default async function FilterPage({ params }: { params: Promise<{ locatio
               "latitude": lat,
               "longitude": lng
             },
-            "priceRange": isPriceRange ? label : "$$-$$$",
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.8",
-              "reviewCount": "247",
-              "bestRating": "5",
-              "worstRating": "1"
-            }
+            "priceRange": isPriceRange ? label : "$$-$$$"
           })
         }}
       />

@@ -123,31 +123,14 @@ export default function AutoDealerSchema() {
     },
   };
 
-  // Action schema for interactivity
-  const searchActionSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://iqautodeals.com/cars?search={search_term}',
-    },
-    'query-input': 'required name=search_term',
-    name: 'Search Used Cars on IQ Auto Deals',
-    description: 'Search the IQ Auto Deals online marketplace for used cars from certified dealers nationwide',
-  };
+  // SearchAction removed — already defined in WebsiteSchema.tsx
+  // Having it in two places causes duplicate/conflicting structured data errors
 
   return (
-    <>
-      <Script
-        id="marketplace-service-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(marketplaceServiceSchema) }}
-      />
-      <Script
-        id="search-action-schema"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(searchActionSchema) }}
-      />
-    </>
+    <Script
+      id="marketplace-service-schema"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(marketplaceServiceSchema) }}
+    />
   );
 }

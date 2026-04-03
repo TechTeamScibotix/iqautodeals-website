@@ -86,13 +86,8 @@ export default function OrganizationSchema() {
         areaServed: 'US',
       },
     ],
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '1250',
-      bestRating: '5',
-      worstRating: '1',
-    },
+    // aggregateRating removed — no real review system in place yet
+    // Re-add once backed by verified customer reviews
     knowsAbout: [
       'Online car marketplace',
       'Used car comparison shopping',
@@ -172,11 +167,7 @@ export default function OrganizationSchema() {
       priceCurrency: 'USD',
       description: 'Free to use for car buyers',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '1250',
-    },
+    // aggregateRating removed — no real review system in place yet
     creator: {
       '@id': 'https://iqautodeals.com/#organization',
     },
