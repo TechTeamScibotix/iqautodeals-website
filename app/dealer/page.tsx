@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings, Search, X, Sparkles, Loader2, Car } from 'lucide-react';
+import { Trash2, Pencil, AlertCircle, CheckCircle, XCircle, Clock, Mail, Settings, Search, X, Sparkles, Loader2, Car, Users } from 'lucide-react';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { formatPrice } from '@/lib/format';
 
@@ -311,6 +311,15 @@ export default function DealerDashboard() {
             >
               Reporting
             </button>
+            {!user?.parentDealerId && (
+              <button
+                onClick={() => router.push('/dealer/team')}
+                className="text-gray-600 hover:text-gray-800 p-1.5 md:p-2 rounded-lg hover:bg-gray-100 transition"
+                title="Team Members"
+              >
+                <Users className="w-5 h-5" />
+              </button>
+            )}
             <button
               onClick={() => router.push('/dealer/settings')}
               className="text-gray-600 hover:text-gray-800 p-1.5 md:p-2 rounded-lg hover:bg-gray-100 transition"
