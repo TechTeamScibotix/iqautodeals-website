@@ -1,4 +1,5 @@
-import Script from 'next/script';
+// Using inline <script> instead of next/script <Script> so JSON-LD is
+// present in the initial server-rendered HTML for Googlebot indexing.
 
 interface FAQItem {
   question: string;
@@ -24,8 +25,7 @@ export default function FAQSchema({ faqs }: FAQSchemaProps) {
   };
 
   return (
-    <Script
-      id="faq-schema"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />

@@ -1,4 +1,5 @@
-import Script from 'next/script';
+// Using inline <script> instead of next/script <Script> so JSON-LD is
+// present in the initial server-rendered HTML for Googlebot indexing.
 
 export default function WebsiteSchema() {
   const schema = {
@@ -11,15 +12,14 @@ export default function WebsiteSchema() {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://iqautodeals.com/search?q={search_term_string}',
+        urlTemplate: 'https://iqautodeals.com/cars?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
   };
 
   return (
-    <Script
-      id="website-schema"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />

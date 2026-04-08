@@ -1,4 +1,5 @@
-import Script from 'next/script';
+// Using inline <script> instead of next/script <Script> so JSON-LD is
+// present in the initial server-rendered HTML for Googlebot indexing.
 
 /**
  * OnlineBusinessSchema - Replaces LocalBusinessSchema
@@ -27,10 +28,8 @@ export default function LocalBusinessSchema() {
     // Headquarters address (not a car lot)
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '345 W Washington Ave Ste 301',
-      addressLocality: 'Madison',
-      addressRegion: 'WI',
-      postalCode: '53703',
+      addressLocality: 'Atlanta',
+      addressRegion: 'GA',
       addressCountry: 'US',
     },
     // Service area: NATIONWIDE
@@ -153,13 +152,11 @@ export default function LocalBusinessSchema() {
 
   return (
     <>
-      <Script
-        id="online-business-schema"
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(onlineBusinessSchema) }}
       />
-      <Script
-        id="platform-features-schema"
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(platformSchema) }}
       />

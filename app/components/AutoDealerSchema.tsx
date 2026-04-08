@@ -1,4 +1,5 @@
-import Script from 'next/script';
+// Using inline <script> instead of next/script <Script> so JSON-LD is
+// present in the initial server-rendered HTML for Googlebot indexing.
 
 /**
  * MarketplaceServiceSchema - Replaces AutoDealerSchema
@@ -127,8 +128,7 @@ export default function AutoDealerSchema() {
   // Having it in two places causes duplicate/conflicting structured data errors
 
   return (
-    <Script
-      id="marketplace-service-schema"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(marketplaceServiceSchema) }}
     />

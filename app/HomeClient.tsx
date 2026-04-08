@@ -62,9 +62,9 @@ interface HomeClientProps {
 
 const t = {
   en: {
-    heroTitle: 'Shop Cars. Compare Offers. Save More.',
-    heroSub: 'AI-powered vehicle comparisons, market insights, and competitive dealer offers —',
-    heroSubBold: 'all in one place.',
+    heroTitle: 'Buy New & Used Cars Online — Dealers Compete, You Save',
+    heroSub: 'Browse thousands of vehicles from verified dealers nationwide. Select up to 4 cars and receive competing offers —',
+    heroSubBold: 'no haggling required.',
     searchPlaceholder: 'Search make, model, or type',
     search: 'Search',
     states: 'States',
@@ -98,9 +98,9 @@ const t = {
     langHref: '/es',
   },
   es: {
-    heroTitle: 'Compra Autos. Compara Ofertas. Ahorra Más.',
-    heroSub: 'Comparaciones de vehículos impulsadas por IA, información del mercado y ofertas competitivas —',
-    heroSubBold: 'todo en un solo lugar.',
+    heroTitle: 'Compra Autos Nuevos y Usados en Línea — Los Concesionarios Compiten, Tú Ahorras',
+    heroSub: 'Explora miles de vehículos de concesionarios verificados en todo el país. Selecciona hasta 4 autos y recibe ofertas competitivas —',
+    heroSubBold: 'sin regatear.',
     searchPlaceholder: 'Buscar marca, modelo o tipo',
     search: 'Buscar',
     states: 'Estados',
@@ -178,6 +178,14 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
   const availableModels = searchForm.make
     ? filterOptions.modelsByMake[searchForm.make.toUpperCase()] || []
     : [];
+
+  // Set html lang attribute for Spanish page
+  useEffect(() => {
+    if (lang === 'es') {
+      document.documentElement.lang = 'es';
+      return () => { document.documentElement.lang = 'en'; };
+    }
+  }, [lang]);
 
   // Track funnel step: homepage landed
   useEffect(() => {
@@ -317,7 +325,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
         <div className="container mx-auto px-3 md:px-4 h-full">
           <div className="flex justify-between items-center h-full">
-            <Link href="/" className="flex items-center h-full py-1">
+            <Link href="/" className="flex items-center h-full py-1" aria-label="IQ Auto Deals - Home">
               <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
             </Link>
 
@@ -373,6 +381,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
           preload="auto"
           poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover"
+          aria-label="IQ Auto Deals nationwide online car marketplace - browse new and used cars from verified dealers"
         >
           <source src="/New.mp4" type="video/mp4" />
         </video>
@@ -423,10 +432,10 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </div>
           </div>
 
-          {/* Quick Action Tiles */}
+          {/* Quick Action Tiles — link to SEO pages for link equity */}
           <div className="flex gap-2">
             <Link
-              href={lp("/cars?condition=new")}
+              href={lp("/new-cars")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -438,26 +447,26 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href={lp("/cars?condition=used")}
+              href={lp("/cars-for-sale-near-me")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
                 <Car className="w-6 h-6 text-pink-400" />
               </div>
               <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
-                Shop Used <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                Near Me <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
             <Link
-              href={lp("/cars?fuelType=Electric")}
+              href={lp("/trucks-for-sale-near-me")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-teal-400" />
+                <Car className="w-6 h-6 text-teal-400" />
               </div>
               <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
-                Shop Electric <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                Trucks <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
@@ -465,14 +474,11 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
               href={lp("/cars")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center relative"
             >
-              <div className="absolute -top-1.5 -right-1.5 bg-accent text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                NEW
-              </div>
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
                 <CheckCircle className="w-6 h-6 text-cyan-400" />
               </div>
               <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
-                Buy Online <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                Browse All <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
           </div>
@@ -501,7 +507,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
       {/* Browse by Body Type - Simple Text Pills */}
       <section className="bg-black py-4">
         <div className="container mx-auto px-4">
-          <h3 className="text-2xl font-bold text-white mb-4 text-center">Browse by Body Type</h3>
+          <h2 className="text-2xl font-bold text-white mb-4 text-center">Browse by Body Type</h2>
           <div className="flex flex-wrap justify-center gap-3">
             {['SUV', 'Sedan', 'Truck', 'Coupe', 'Hatchback', 'Convertible', 'Minivan', 'Wagon', 'Van', 'Crossover'].map((type) => (
               <Link
@@ -532,13 +538,16 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
         </div>
       </section>
 
+      {/* Server-rendered: How It Works — placed early for SEO weight */}
+      <Fragment key="how-it-works">{howItWorksSection}</Fragment>
+
       {/* Featured Cars Carousel */}
       <section className="bg-light-dark py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bold text-text-primary">
-              {geoLocation ? `Featured Cars Near ${geoLocation.label}` : 'Featured Inventory'}
-            </h3>
+            <h2 className="text-2xl font-bold text-text-primary">
+              {geoLocation ? `Used Cars for Sale Near ${geoLocation.label}` : 'Featured Used Cars for Sale'}
+            </h2>
             <Link href={lp("/cars")} className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
               View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
@@ -604,7 +613,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
                       <div className="relative h-44 bg-light-dark overflow-hidden">
                         <Image
                           src={photoUrl || getPlaceholderImage(car.bodyType)}
-                          alt={`${car.year} ${car.make} ${car.model}`}
+                          alt={`${car.year} ${car.make} ${car.model} for sale in ${car.dealer.city} ${car.dealer.state} - IQ Auto Deals`}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                           sizes="288px"
@@ -638,17 +647,14 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
         </div>
       </section>
 
-      {/* Server-rendered: How It Works */}
-      <Fragment key="how-it-works">{howItWorksSection}</Fragment>
-
       {/* New Inventory Carousel */}
       {(loadingNew || newCars.length > 0) && (
         <section className="bg-white py-12">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-text-primary">
-                {geoLocation ? `New Cars Near ${geoLocation.label}` : 'New Inventory'}
-              </h3>
+              <h2 className="text-2xl font-bold text-text-primary">
+                {geoLocation ? `New Cars for Sale Near ${geoLocation.label}` : 'New Cars for Sale'}
+              </h2>
               <Link href={lp("/cars?condition=new")} className="text-primary font-semibold hover:text-primary-dark flex items-center gap-1 group">
                 View All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -710,7 +716,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
                         <div className="relative h-44 bg-light-dark overflow-hidden">
                           <Image
                             src={photoUrl || getPlaceholderImage(car.bodyType)}
-                            alt={`${car.year} ${car.make} ${car.model}`}
+                            alt={`New ${car.year} ${car.make} ${car.model} for sale in ${car.dealer.city} ${car.dealer.state} - IQ Auto Deals`}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                             sizes="288px"

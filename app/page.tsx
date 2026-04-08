@@ -257,7 +257,7 @@ export default function HomePage() {
 
               <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
                 {/* Browse by Location */}
-                <Link href="/locations" className="bg-black rounded-xl p-8 shadow-card hover:shadow-card-hover transition-all group">
+                <div className="bg-black rounded-xl p-8 shadow-card hover:shadow-card-hover transition-all">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-xl flex items-center justify-center">
                       <MapPin className="w-10 h-10 text-primary" />
@@ -265,23 +265,27 @@ export default function HomePage() {
                     <h3 className="text-2xl font-bold text-white">Browse by Location</h3>
                   </div>
                   <p className="text-gray-400 mb-6 leading-relaxed">
-                    Find used cars from trusted dealers in your city. We cover all 50 states and 180+ major cities across the US.
+                    Find used cars from trusted dealers in your city. We cover all 50 states and 250+ major cities across the US.
                   </p>
                   <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Atlanta</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Los Angeles</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Houston</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Chicago</span>
-                    <span className="bg-primary/20 text-primary px-3 py-1.5 rounded-pill text-sm font-medium">+178 more</span>
+                    <Link href="/locations/atlanta" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Atlanta</Link>
+                    <Link href="/locations/los-angeles" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Los Angeles</Link>
+                    <Link href="/locations/houston" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Houston</Link>
+                    <Link href="/locations/chicago" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Chicago</Link>
+                    <Link href="/locations/miami" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Miami</Link>
+                    <Link href="/locations/dallas" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Dallas</Link>
+                    <Link href="/locations/phoenix" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Phoenix</Link>
+                    <Link href="/locations/nashville" className="bg-white/10 hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Nashville</Link>
+                    <Link href="/locations" className="bg-primary/20 text-primary hover:bg-primary/30 px-3 py-1.5 rounded-pill text-sm font-medium transition-colors">+245 more</Link>
                   </div>
-                  <div className="flex items-center text-primary font-semibold group-hover:gap-3 transition-all">
+                  <Link href="/locations" className="flex items-center text-primary font-semibold hover:gap-3 transition-all">
                     View All Locations
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
+                    <ArrowRight className="w-5 h-5 ml-2 hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
 
                 {/* Browse by Model */}
-                <Link href="/models" className="bg-black rounded-xl p-8 shadow-card hover:shadow-card-hover transition-all group">
+                <div className="bg-black rounded-xl p-8 shadow-card hover:shadow-card-hover transition-all">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-xl flex items-center justify-center">
                       <Car className="w-10 h-10 text-accent" />
@@ -289,20 +293,24 @@ export default function HomePage() {
                     <h3 className="text-2xl font-bold text-white">Browse by Model</h3>
                   </div>
                   <p className="text-gray-400 mb-6 leading-relaxed">
-                    Shop used cars by your favorite make and model. Find popular vehicles from Toyota, Honda, Ford, Chevrolet, and more.
+                    Shop new and used cars by your favorite make and model. Find popular vehicles from Toyota, Honda, Ford, Chevrolet, and more.
                   </p>
                   <div className="flex flex-wrap gap-2 mb-6">
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Toyota Tacoma</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Honda Civic</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Ford F-150</span>
-                    <span className="bg-white/10 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300">Jeep Wrangler</span>
-                    <span className="bg-accent/20 text-accent px-3 py-1.5 rounded-pill text-sm font-medium">+58 more</span>
+                    <Link href="/models/toyota-tacoma" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Toyota Tacoma</Link>
+                    <Link href="/models/honda-civic" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Honda Civic</Link>
+                    <Link href="/models/ford-f150" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Ford F-150</Link>
+                    <Link href="/models/jeep-wrangler" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Jeep Wrangler</Link>
+                    <Link href="/models/toyota-camry" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Toyota Camry</Link>
+                    <Link href="/models/chevrolet-silverado" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Chevy Silverado</Link>
+                    <Link href="/models/honda-accord" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Honda Accord</Link>
+                    <Link href="/models/toyota-rav4" className="bg-white/10 hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium text-gray-300 transition-colors">Toyota RAV4</Link>
+                    <Link href="/models" className="bg-accent/20 text-accent hover:bg-accent/30 px-3 py-1.5 rounded-pill text-sm font-medium transition-colors">+70 more</Link>
                   </div>
-                  <div className="flex items-center text-accent font-semibold group-hover:gap-3 transition-all">
+                  <Link href="/models" className="flex items-center text-accent font-semibold hover:gap-3 transition-all">
                     View All Models
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </Link>
+                    <ArrowRight className="w-5 h-5 ml-2 hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
               </div>
             </div>
           </section>

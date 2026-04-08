@@ -1,4 +1,5 @@
-import Script from 'next/script';
+// Using inline <script> instead of next/script <Script> so JSON-LD is
+// present in the initial server-rendered HTML for Googlebot indexing.
 
 export interface Author {
   name: string;
@@ -88,8 +89,7 @@ export default function BlogPostingSchema({
   const cleanSchema = JSON.parse(JSON.stringify(schema));
 
   return (
-    <Script
-      id={`blog-posting-schema-${title.slice(0, 20).replace(/\s/g, '-')}`}
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(cleanSchema) }}
     />
