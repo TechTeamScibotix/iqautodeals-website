@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Calendar, ArrowLeft, CheckCircle, Star, Shield } from 'lucide-react';
+import { Calendar, CheckCircle, Star, Shield } from 'lucide-react';
 import type { Metadata } from 'next';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 
 // Force static generation for SEO
 export const dynamic = 'force-static';
@@ -15,18 +15,7 @@ export const metadata: Metadata = {
 export default function BestCarsUnder20kArticle() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" variant="dark" />
-          </Link>
-          <Link href="/blog" className="text-primary hover:underline font-semibold flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog
-          </Link>
-        </div>
-      </header>
+      <Header activeItem="research" />
 
       {/* Article Header */}
       <article className="container mx-auto px-4 py-12 max-w-4xl">

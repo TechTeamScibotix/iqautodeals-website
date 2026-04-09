@@ -127,7 +127,7 @@ export default function RootLayout({
           </Suspense>
           <Analytics debug={true} />
           <CookieConsent />
-          <PromoPopup />
+          {/* <PromoPopup /> */}
         </PostHogProvider>
       </body>
     </html>

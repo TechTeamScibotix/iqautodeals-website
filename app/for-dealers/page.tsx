@@ -15,7 +15,7 @@ import {
   Rocket,
 } from 'lucide-react';
 import Footer from '../components/Footer';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'For Dealers - Join IQ Auto Deals Marketplace',
@@ -38,33 +38,7 @@ export const dynamic = 'force-static';
 export default function ForDealersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <nav className="hidden lg:flex gap-6 text-sm font-semibold">
-            <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
-              Cars for Sale
-            </Link>
-            <Link href="/for-dealers" className="text-primary transition-colors">
-              For Dealers
-            </Link>
-            <Link href="/about" className="text-gray-300 hover:text-primary transition-colors">
-              About Us
-            </Link>
-          </nav>
-          <div className="flex gap-2 md:gap-3">
-            <Link href="/login" className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold">
-              Dealer Login
-            </Link>
-            <Link href="/register?type=dealer" className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold">
-              Start Free Pilot
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header activeItem="dealers" />
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-dark via-gray-900 to-dark text-white py-20 overflow-hidden">

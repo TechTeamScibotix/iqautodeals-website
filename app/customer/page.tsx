@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Search, LogOut, FileText, Check, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, AlertCircle, ShoppingCart, Phone, SlidersHorizontal, ChevronDown, ChevronUp, Globe, ExternalLink } from 'lucide-react';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import {
   trackQuoteFormStarted,
   trackQuoteFormSubmitted,
@@ -364,30 +364,7 @@ export default function CustomerDashboard() {
   return (
     <div className="min-h-screen bg-light">
       {/* Header */}
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => router.push('/customer/deals')}
-              className="bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-all font-semibold flex items-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              My Deals
-            </button>
-            <span className="text-gray-300 font-medium">{user?.name}</span>
-            <button
-              onClick={handleLogout}
-              className="text-gray-400 hover:text-white transition flex items-center gap-1"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto px-4 py-8">
         {/* Deal Status Banner */}

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Calendar, ArrowLeft, CheckCircle, X, TrendingDown, User } from 'lucide-react';
+import { Calendar, CheckCircle, X, TrendingDown, User } from 'lucide-react';
 import type { Metadata } from 'next';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import BlogPostingSchema from '@/app/components/BlogPostingSchema';
 import BreadcrumbSchema from '@/app/components/BreadcrumbSchema';
 import { authors } from '@/lib/authors';
@@ -62,18 +62,7 @@ export default function NewVsUsedArticle() {
       />
       <BreadcrumbSchema items={breadcrumbs} />
 
-      {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-200 h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full" variant="dark" />
-          </Link>
-          <Link href="/blog" className="text-primary hover:underline font-semibold flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog
-          </Link>
-        </div>
-      </header>
+      <Header activeItem="research" />
 
       {/* Breadcrumb Navigation */}
       <nav className="container mx-auto px-4 py-4 max-w-4xl">

@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Footer from '../../../../components/Footer';
+import { Header } from '@/components/Header';
 import { makes } from '@/lib/data/makes';
 import { models } from '@/lib/data/models';
 import { locations } from '@/lib/data/locations';
@@ -113,29 +113,7 @@ export default async function UsedCarsModelPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen bg-light-dark font-sans">
-      {/* Header */}
-      <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-3 md:px-4 h-full">
-          <div className="flex justify-between items-center h-full">
-            <Link href="/" className="flex items-center h-full py-2">
-              <Image src="/logo-header.png" alt="IQ Auto Deals" width={180} height={40} className="h-8 md:h-10 w-auto" priority />
-            </Link>
-            <nav className="hidden lg:flex gap-8 text-sm font-semibold">
-              <Link href="/new-cars" className="text-white hover:text-primary transition-colors py-2">New Vehicles</Link>
-              <Link href="/cars" className="text-primary transition-colors py-2">Used Vehicles</Link>
-              <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">For Dealers</Link>
-            </nav>
-            <div className="flex gap-2 md:gap-3">
-              <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold">
-                Sign In
-              </Link>
-              <Link href="/register" className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold">
-                Sign Up
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Breadcrumb */}
       <nav className="bg-white border-b border-border">

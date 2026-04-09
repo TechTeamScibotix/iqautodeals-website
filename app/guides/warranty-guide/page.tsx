@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucide-react';
+import { CheckCircle, Shield, AlertTriangle, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import Footer from '../../components/Footer';
 
 export const dynamic = 'force-static';
@@ -15,17 +15,7 @@ export const metadata: Metadata = {
 export default function WarrantyGuide() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <Link href="/cars" className="text-gray-300 hover:text-white font-semibold flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Browse Cars
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <article className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">

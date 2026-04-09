@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import { MapPin, Gauge, Settings, ArrowLeft, AlertCircle, ArrowRight, Globe, ExternalLink, Fuel, DoorOpen, Zap, Palette } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
 import VehicleSchema from '@/app/components/VehicleSchema';
@@ -337,28 +338,7 @@ export default async function CarDetailPage({ params }: PageProps) {
           goodDealAnswer={generateGoodDealAnswer(car)}
         />
 
-        {/* Header */}
-        <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-          <div className="container mx-auto px-4 h-full flex justify-between items-center">
-            <Link href="/" className="flex items-center h-full py-1">
-              <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-            </Link>
-            <nav className="hidden md:flex gap-6 text-sm font-semibold">
-              <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
-                Cars for Sale
-              </Link>
-              <Link href="/locations" className="text-gray-300 hover:text-primary transition-colors">
-                Locations
-              </Link>
-            </nav>
-            <Link
-              href="/register"
-              className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </header>
+        <Header />
 
         <div className="container mx-auto px-4 py-8 max-w-7xl overflow-x-hidden">
           {/* Breadcrumb */}
@@ -619,28 +599,7 @@ export default async function CarDetailPage({ params }: PageProps) {
       {/* Track view in Scibotix for Price Pulse analytics */}
       <ViewTracker vin={car.vin} />
 
-      {/* Header */}
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link href="/cars" className="text-gray-300 hover:text-primary transition-colors">
-              Cars for Sale
-            </Link>
-            <Link href="/locations" className="text-gray-300 hover:text-primary transition-colors">
-              Locations
-            </Link>
-          </nav>
-          <Link
-            href="/register"
-            className="bg-primary text-white px-3 sm:px-6 py-2 sm:py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold text-sm sm:text-base"
-          >
-            Sign Up
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl overflow-x-hidden">
         {/* Breadcrumb */}

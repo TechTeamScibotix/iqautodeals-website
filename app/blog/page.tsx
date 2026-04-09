@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import type { Metadata } from 'next';
 
 // Force static generation for SEO
@@ -122,17 +122,7 @@ const guides = [
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <Link href="/" className="text-gray-300 hover:text-white font-semibold">
-            ← Back to Home
-          </Link>
-        </div>
-      </header>
+      <Header activeItem="research" />
 
       {/* Hero Section */}
       <section className="bg-black text-white py-16">

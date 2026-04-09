@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, type ReadonlyURLSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, LogIn, Globe, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
+import { Search, Car, MapPin, Camera, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ExternalLink, Sparkles, TrendingDown, ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react';
 import Footer from '../components/Footer';
+import { Header } from '@/components/Header';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import CheckAvailabilityModal from '../components/CheckAvailabilityModal';
 import DealerWebsiteLink from '../components/DealerWebsiteLink';
@@ -286,6 +287,8 @@ export default function CarsClient({
 
   // Reload when URL params change (e.g., clicking New Vehicles / Used Vehicles links, or search query)
   // Skip when embedded with initial props — location pages control state via props, not URL params
+  // Use searchParams.toString() as dependency to guarantee effect fires on any param change
+  const searchParamsString = searchParams.toString();
   useEffect(() => {
     if (hasInitialProps) return;
 
@@ -297,9 +300,8 @@ export default function CarsClient({
     const urlBodyType = searchParams.get('bodyType') || 'all';
     const urlFuelType = searchParams.get('fuelType') || 'all';
 
-    // Update state and reload if URL params changed
+    // Always sync state from URL and reload
     const newSearch = {
-      ...search,
       q: urlQ,
       condition: urlCondition,
       make: urlMake,
@@ -307,13 +309,14 @@ export default function CarsClient({
       zipCode: urlZipCode,
       bodyType: urlBodyType,
       fuelType: urlFuelType,
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+      state: searchParams.get('state') || 'all',
     };
 
-    if (urlQ !== search.q || urlCondition !== search.condition || urlMake !== search.make || urlModel !== search.model || urlZipCode !== search.zipCode || urlBodyType !== search.bodyType || urlFuelType !== search.fuelType) {
-      setSearch(newSearch);
-      loadCarsWithParams(newSearch);
-    }
-  }, [searchParams]);
+    setSearch(newSearch);
+    loadCarsWithParams(newSearch);
+  }, [searchParamsString]);
 
   const loadCarsWithParams = async (searchOverride?: typeof search, pageOverride?: number) => {
     const currentSearch = searchOverride || search;
@@ -666,60 +669,10 @@ export default function CarsClient({
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       {showHeader && (
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <nav className="hidden md:flex gap-6 text-sm font-semibold">
-            <Link href={`/cars?condition=new${isES ? '&lang=es' : ''}`} className={search.condition === 'new' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
-              {isES ? 'Nuevos' : 'New Vehicles'}
-            </Link>
-            <Link href={`/cars?condition=used${isES ? '&lang=es' : ''}`} className={search.condition === 'used' ? 'text-primary border-b-2 border-primary pb-1' : 'text-gray-300 hover:text-primary transition-colors'}>
-              {isES ? 'Usados' : 'Used Vehicles'}
-            </Link>
-            <Link href="/for-dealers" className="text-gray-300 hover:text-primary transition-colors">
-              {isES ? 'Concesionarios' : 'For Dealers'}
-            </Link>
-            <Link href="/blog" className="text-gray-300 hover:text-primary transition-colors">
-              {isES ? 'Investigación' : 'Research & Reviews'}
-            </Link>
-            <Link href="/guides/car-financing-guide" className="text-gray-300 hover:text-primary transition-colors">
-              {isES ? 'Financiamiento' : 'Financing'}
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href={isES ? '/' : '/es'} className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2">
-              <Globe className="w-4 h-4" />
-              {isES ? 'EN' : 'ES'}
-            </Link>
-            {user ? (
-              <Link
-                href={user.userType === 'customer' ? '/customer' : '/dealer'}
-                className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="text-gray-300 hover:text-white border border-gray-600 hover:border-white px-5 py-2.5 rounded-pill transition-colors font-semibold flex items-center gap-2"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-primary text-white px-6 py-2.5 rounded-pill hover:bg-primary-dark transition-colors font-semibold"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+        <Header
+          lang={isES ? 'es' : 'en'}
+          activeItem={search.condition === 'new' ? 'new' : search.condition === 'used' ? 'used' : undefined}
+        />
       )}
 
       {/* Mobile Filters Button + Geo Banner */}

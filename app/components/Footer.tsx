@@ -494,28 +494,14 @@ export default function Footer() {
           {/* Logo & Copyright */}
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-700">
             <div className="mb-4 md:mb-0">
-              <div className="flex items-center gap-4">
-                <div className="h-14">
-                  <Image
-                    src="/logo-header.png"
-                    alt="IQ Auto Deals - Intelligent Quality Deals"
-                    width={500}
-                    height={80}
-                    className="h-full w-auto"
-                  />
-                </div>
-                <a
-                  href="https://patch.com/tennessee/nashville/business/listing/571516/iq-auto-deals-new-used-cars-and-trucks-marketplace?utm_source=badge&utm_medium=referral&utm_campaign=business_badge"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="https://patch.com/api_v1/bizpost/571516/badge"
-                    alt="IQ Auto Deals – New & Used Cars and Trucks Marketplace on Patch"
-                    className="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity"
-                  />
-                </a>
+              <div className="h-14">
+                <Image
+                  src="/logo-header.png"
+                  alt="IQ Auto Deals - Intelligent Quality Deals"
+                  width={500}
+                  height={80}
+                  className="h-full w-auto"
+                />
               </div>
               <p className="text-gray-400 text-sm mt-1">Your Trusted Marketplace for Intelligent Quality Deals</p>
               <p className="text-gray-500 text-xs mt-1">A product of Scibotix Solutions LLC</p>

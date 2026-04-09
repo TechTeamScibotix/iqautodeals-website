@@ -4,10 +4,11 @@ import { useState, useEffect, useRef, Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Car, Search, TrendingDown, CheckCircle, Sparkles, ArrowRight, LogIn, UserPlus, MapPin, Globe } from 'lucide-react';
+import { Car, Search, TrendingDown, CheckCircle, Sparkles, ArrowRight, MapPin } from 'lucide-react';
 import AIChat from './components/AIChat';
 import FinancingCalculator from './components/FinancingCalculator';
 import Footer from './components/Footer';
+import { Header } from '@/components/Header';
 import { BorderBeam } from '@/components/AnimatedBorder';
 import { LogoWithBeam } from '@/components/LogoWithBeam';
 import { trackFunnelStep } from '@/lib/analytics';
@@ -321,54 +322,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
   return (
     <div className="min-h-screen bg-light-dark font-sans">
       <AIChat />
-      {/* Header */}
-      <header className="bg-black sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-3 md:px-4 h-full">
-          <div className="flex justify-between items-center h-full">
-            <Link href="/" className="flex items-center h-full py-1" aria-label="IQ Auto Deals - Home">
-              <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-            </Link>
-
-            {/* Navigation Menu */}
-            <nav className="hidden lg:flex gap-8 text-sm font-semibold">
-              <Link href={lp("/cars?condition=new")} className="text-white hover:text-primary transition-colors py-2">
-                {i.newVehicles}
-              </Link>
-              <Link href={lp("/cars?condition=used")} className="text-white hover:text-primary transition-colors py-2">
-                {i.usedVehicles}
-              </Link>
-              <Link href="/for-dealers" className="text-white hover:text-primary transition-colors py-2">
-                {i.forDealers}
-              </Link>
-              <Link href="/blog" className="text-white hover:text-primary transition-colors py-2">
-                {i.research}
-              </Link>
-              <Link href="/guides/car-financing-guide" className="text-white hover:text-primary transition-colors py-2">
-                {i.financing}
-              </Link>
-            </nav>
-
-            {/* Auth Buttons */}
-            <div className="flex items-center gap-2 md:gap-3">
-              <Link href={i.langHref} className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
-                <Globe className="w-3 h-3 md:w-4 md:h-4" />
-                {i.langSwitch}
-              </Link>
-              <Link href="/login" className="text-white hover:text-primary border border-white hover:border-primary px-3 py-1.5 md:px-5 md:py-2.5 rounded-pill transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2">
-                <LogIn className="w-3 h-3 md:w-4 md:h-4" />
-                {i.signIn}
-              </Link>
-              <Link
-                href="/register"
-                className="bg-primary text-white px-3 py-1.5 md:px-6 md:py-2.5 rounded-pill hover:bg-primary-dark transition-colors text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2"
-              >
-                <UserPlus className="w-3 h-3 md:w-4 md:h-4" />
-                {i.signUp}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header lang={lang} />
 
       {/* Hero Section with Search */}
       <section className="relative py-16 min-h-[600px]">
@@ -432,10 +386,10 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </div>
           </div>
 
-          {/* Quick Action Tiles — link to SEO pages for link equity */}
-          <div className="flex gap-2">
+          {/* Quick Action Tiles */}
+          <div className="flex flex-wrap gap-2">
             <Link
-              href={lp("/new-cars")}
+              href={lp("/cars?condition=new")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -447,7 +401,19 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href={lp("/cars-for-sale-near-me")}
+              href={lp("/cars?condition=used")}
+              className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
+            >
+              <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
+                <Car className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div className="text-white text-xs font-semibold flex items-center justify-center gap-1 whitespace-nowrap">
+                Shop Used <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href={lp("/cars")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">
@@ -459,7 +425,7 @@ export default function HomeClient({ howItWorksSection, benefitsSection, resourc
             </Link>
 
             <Link
-              href={lp("/trucks-for-sale-near-me")}
+              href={lp("/cars?bodyType=Truck")}
               className="bg-black/50 backdrop-blur-sm rounded-lg px-5 py-3 hover:bg-black/60 transition-all group text-center"
             >
               <div className="w-8 h-8 mb-1 mx-auto flex items-center justify-center">

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { ArrowLeft, CheckSquare, AlertTriangle, Wrench } from 'lucide-react';
+import { CheckSquare, AlertTriangle, Wrench } from 'lucide-react';
 import type { Metadata } from 'next';
-import { LogoWithBeam } from '@/components/LogoWithBeam';
+import { Header } from '@/components/Header';
 import Footer from '../../components/Footer';
 
 // Force static generation for SEO
@@ -16,17 +16,7 @@ export const metadata: Metadata = {
 export default function PrePurchaseInspectionGuide() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-black shadow-md sticky top-0 z-50 h-14 md:h-20">
-        <div className="container mx-auto px-4 h-full flex justify-between items-center">
-          <Link href="/" className="flex items-center h-full py-1">
-            <LogoWithBeam className="h-full max-h-8 md:max-h-14" />
-          </Link>
-          <Link href="/" className="text-gray-300 hover:text-white font-semibold flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <article className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="bg-white rounded-xl shadow-lg p-8 md:p-12">
