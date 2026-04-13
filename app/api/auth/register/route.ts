@@ -113,9 +113,12 @@ export async function POST(request: NextRequest) {
       );
     } else if (userType === 'dealer') {
       const businessName = rest.businessName || name || 'Dealer';
-      sendDealerWelcomeEmail(email, businessName).catch(err =>
-        console.error('Failed to send dealer welcome email:', err)
-      );
+      // Dealer welcome/verification email DISABLED — onboarding is now handled
+      // manually through Centrix CRM + Nate's email flow. The automatic email
+      // was confusing dealers by asking for a business license before setup.
+      // sendDealerWelcomeEmail(email, businessName).catch(err =>
+      //   console.error('Failed to send dealer welcome email:', err)
+      // );
       // Notify admin of new dealer registration via email
       sendAdminNewDealerNotification(email, businessName, name, rest.phone || null).catch(err =>
         console.error('Failed to send admin notification:', err)
