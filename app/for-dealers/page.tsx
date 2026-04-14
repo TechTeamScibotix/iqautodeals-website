@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Shield,
   Clock,
-  Award,
   Bot,
   Target,
   Rocket,
@@ -302,94 +301,7 @@ export default function ForDealersPage() {
       {/* Pricing Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
-              Start Free for 90 Days — Then Lock in Exclusive Early-Adopter Pricing
-            </h2>
-            <p className="text-lg text-gray-600">
-              No surprises. No long-term contracts during the pilot. Just real results and the lowest cost in the industry.
-            </p>
-          </div>
-
-          {/* Pricing Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full max-w-4xl mx-auto bg-white rounded-xl border border-gray-200 shadow-lg">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="px-6 py-4 text-left text-gray-600 font-medium"></th>
-                  <th className="px-6 py-4 text-center">
-                    <div className="bg-primary/10 rounded-lg py-2 px-4">
-                      <span className="text-primary font-bold">90-Day Risk-Free Pilot</span>
-                    </div>
-                  </th>
-                  <th className="px-6 py-4 text-center text-gray-700 font-semibold">After Pilot<br />(Early Adopter Rate)</th>
-                  <th className="px-6 py-4 text-center text-gray-500 font-medium">Typical Legacy<br />Competitors</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">Monthly Subscription</td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-2xl font-bold text-green-600">$0</span>
-                    <p className="text-xs text-gray-500 mt-1">Completely free for 90 days</p>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-xl font-bold text-dark">$2,500</span>
-                    <span className="text-gray-500">/month</span>
-                  </td>
-                  <td className="px-6 py-4 text-center text-gray-500">$3,500 – $4,000+/month</td>
-                </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">Full Marketplace Listing</td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-gray-400 mx-auto" /></td>
-                </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">Agentic AI SEO &amp; Unique Descriptions</td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center text-gray-500 text-sm">Not available or extra cost</td>
-                </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">Proactive Customer Engagement Leads</td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center"><CheckCircle className="w-5 h-5 text-green-500 mx-auto" /></td>
-                  <td className="px-6 py-4 text-center text-gray-500 text-sm">Not available</td>
-                </tr>
-                <tr className="border-b border-gray-100">
-                  <td className="px-6 py-4 font-medium text-dark">Commitment</td>
-                  <td className="px-6 py-4 text-center text-green-600 font-semibold">None — cancel anytime</td>
-                  <td className="px-6 py-4 text-center text-gray-600">Month-to-month</td>
-                  <td className="px-6 py-4 text-center text-gray-500 text-sm">12–36 month contracts</td>
-                </tr>
-                <tr className="bg-gray-50">
-                  <td className="px-6 py-4 font-bold text-dark">Total First 90 Days</td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-2xl font-bold text-green-600">$0</span>
-                  </td>
-                  <td className="px-6 py-4 text-center text-gray-600">—</td>
-                  <td className="px-6 py-4 text-center text-gray-500">$10,000 – $15,000+ upfront</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Value Highlight */}
-          <div className="max-w-3xl mx-auto mt-8 text-center">
-            <p className="text-lg text-gray-700 mb-6">
-              Most dealerships will save <strong className="text-primary">$10,000 – $15,000 per month</strong> by
-              consolidating outdated tools with our all-in-one Dealer Agentics suite — while getting superior
-              AI-driven leads competitors can&apos;t match.
-            </p>
-
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-4 py-2 mb-8">
-              <Award className="w-5 h-5 text-green-600" />
-              <span className="text-green-700 font-medium">
-                Exclusive &quot;family pricing&quot; locked in forever for dealers who join during the pilot phase.
-              </span>
-            </div>
-
+          <div className="max-w-3xl mx-auto text-center">
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
