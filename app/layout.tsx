@@ -21,7 +21,7 @@ import PromoPopup from "./components/PromoPopup";
 export const metadata: Metadata = {
   metadataBase: new URL('https://iqautodeals.com'),
   title: {
-    default: "IQ Auto Deals — Buy New & Used Cars Online | Dealers Compete, You Save",
+    default: "Buy New & Used Cars Online | Dealers Compete, You Save",
     template: "%s | IQ Auto Deals"
   },
   description: "Shop thousands of new and used cars online. Compare prices from verified dealers who compete for your business. ✓ No haggling ✓ Free for buyers ✓ Nationwide.",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://iqautodeals.com',
-    title: 'IQ Auto Deals — Buy New & Used Cars Online | Dealers Compete, You Save',
+    title: 'Buy New & Used Cars Online | Dealers Compete, You Save',
     description: 'Shop thousands of new and used cars online. Compare prices from verified dealers who compete to offer you the lowest price. Free for buyers, nationwide coverage.',
     siteName: 'IQ Auto Deals',
     images: [
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'IQ Auto Deals — Buy New & Used Cars Online | Dealers Compete, You Save',
+    title: 'Buy New & Used Cars Online | Dealers Compete, You Save',
     description: 'Shop thousands of new and used cars online. Compare prices from verified dealers who compete to offer you the lowest price.',
     images: ['/og-image.jpg'],
   },
