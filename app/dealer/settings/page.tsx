@@ -288,7 +288,6 @@ export default function DealerSettings() {
                   <option value="dealercenter">DealerCenter</option>
                   <option value="autoraptor">AutoRaptor</option>
                   <option value="xtime">Xtime (Service)</option>
-                  <option value="other">Other</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
                   {formData.crmIntegrationProvider === 'elead' && (
@@ -318,11 +317,8 @@ export default function DealerSettings() {
                   {formData.crmIntegrationProvider === 'xtime' && (
                     <>Xtime is for service-drive leads only. Ask Xtime support for your ADF intake address.</>
                   )}
-                  {formData.crmIntegrationProvider === 'other' && (
-                    <>Most dealer CRMs accept ADF/XML over email. Ask your CRM provider for your lead intake address.</>
-                  )}
                   {!formData.crmIntegrationProvider && (
-                    <>Choose your CRM so we know where to route leads. Don&apos;t see yours? Pick &quot;Other&quot;.</>
+                    <>Choose your CRM so we know where to route leads.</>
                   )}
                 </p>
               </div>
