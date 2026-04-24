@@ -29,7 +29,8 @@ model User {
   parentDealer        User?     @relation("DealerTeam", fields: [parentDealerId], references: [id], onDelete: SetNull)
   teamMembers         User[]    @relation("DealerTeam")
   notificationEmail   String?   // Override email for customer notifications (availability, deals, offers)
-  crmIntegrationEmail String?   // Dealer CRM integration email (ADF/lead intake)
+  crmIntegrationEmail    String?   // Dealer CRM integration email (ADF/lead intake)
+  crmIntegrationProvider String?   // Dealer CRM provider identifier (elead, vinsolutions, dealersocket, etc.)
   businessName        String?
   websiteUrl          String?   // Dealer's website URL for SEO backlinks
   showCustomMessage   Boolean   @default(false)  // Toggle for custom availability message

@@ -17,6 +17,7 @@ export default function DealerSettings() {
     phone: '',
     notificationEmail: '',
     crmIntegrationEmail: '',
+    crmIntegrationProvider: '',
     businessName: '',
     websiteUrl: '',
     showCustomMessage: false,
@@ -60,6 +61,7 @@ export default function DealerSettings() {
           phone: data.user.phone || '',
           notificationEmail: data.user.notificationEmail || '',
           crmIntegrationEmail: data.user.crmIntegrationEmail || '',
+          crmIntegrationProvider: data.user.crmIntegrationProvider || '',
           businessName: data.user.businessName || '',
           websiteUrl: data.user.websiteUrl || '',
           showCustomMessage: data.user.showCustomMessage || false,
@@ -269,13 +271,75 @@ export default function DealerSettings() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CRM Provider
+                </label>
+                <select
+                  value={formData.crmIntegrationProvider}
+                  onChange={(e) => setFormData({ ...formData, crmIntegrationProvider: e.target.value })}
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition bg-white"
+                >
+                  <option value="">Select your CRM...</option>
+                  <option value="elead">Elead (CDK)</option>
+                  <option value="vinsolutions">VinSolutions (Cox)</option>
+                  <option value="dealersocket">DealerSocket</option>
+                  <option value="dealertrack">Dealertrack CRM (Cox)</option>
+                  <option value="reynolds">Reynolds &amp; Reynolds</option>
+                  <option value="promax">ProMax</option>
+                  <option value="dealercenter">DealerCenter</option>
+                  <option value="autoraptor">AutoRaptor</option>
+                  <option value="xtime">Xtime (Service)</option>
+                  <option value="other">Other</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.crmIntegrationProvider === 'elead' && (
+                    <>Ask Elead support for your ADF/XML intake address (usually <code>yourname@eleadtrack.net</code>).</>
+                  )}
+                  {formData.crmIntegrationProvider === 'vinsolutions' && (
+                    <>Ask VinSolutions support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'dealersocket' && (
+                    <>Ask DealerSocket support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'dealertrack' && (
+                    <>Ask Dealertrack support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'reynolds' && (
+                    <>Ask Reynolds support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'promax' && (
+                    <>Ask ProMax support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'dealercenter' && (
+                    <>Ask DealerCenter support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'autoraptor' && (
+                    <>Ask AutoRaptor support for your ADF/XML intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'xtime' && (
+                    <>Xtime is for service-drive leads only. Ask Xtime support for your ADF intake address.</>
+                  )}
+                  {formData.crmIntegrationProvider === 'other' && (
+                    <>Most dealer CRMs accept ADF/XML over email. Ask your CRM provider for your lead intake address.</>
+                  )}
+                  {!formData.crmIntegrationProvider && (
+                    <>Choose your CRM so we know where to route leads. Don&apos;t see yours? Pick &quot;Other&quot;.</>
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   CRM Integration Email
                 </label>
                 <input
                   type="email"
                   value={formData.crmIntegrationEmail}
                   onChange={(e) => setFormData({ ...formData, crmIntegrationEmail: e.target.value })}
-                  placeholder="leads@yourcrm.com"
+                  placeholder={
+                    formData.crmIntegrationProvider === 'elead' ? 'yourname@eleadtrack.net' :
+                    formData.crmIntegrationProvider === 'vinsolutions' ? 'ILMxxxxx@vinsolutions.com' :
+                    'leads@yourcrm.com'
+                  }
                   className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition"
                 />
                 <p className="text-xs text-gray-500 mt-1">
