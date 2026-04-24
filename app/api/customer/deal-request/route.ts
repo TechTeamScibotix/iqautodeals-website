@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendDealerDealRequestNotification } from '@/lib/email';
 import { getNotificationRecipients } from '@/lib/notification-recipients';
+import { sendAdfLead } from '@/lib/crm/adf';
 
 // Webhook to notify DealerHub of new deal requests
 const DEALERHUB_WEBHOOK_URL = process.env.DEALERHUB_WEBHOOK_URL || 'https://scibotixsolutions.com/api/webhooks/iqautodeals/deal-request';
@@ -148,8 +149,12 @@ export async function POST(request: NextRequest) {
             id: true,
             email: true,
             notificationEmail: true,
+            crmIntegrationEmail: true,
             name: true,
             businessName: true,
+            city: true,
+            state: true,
+            zip: true,
           },
         },
       },
@@ -200,6 +205,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Parse customer name into first/last for ADF
+    const customerNameParts = (customer?.name || '').trim().split(/\s+/);
+    const customerFirstName = customerNameParts[0] || 'Customer';
+    const customerLastName = customerNameParts.slice(1).join(' ') || 'Unknown';
+
     // Send webhook and email for each dealer (don't await - fire and forget)
     for (const [dealerId, dealerData] of carsByDealer) {
       // Webhook to DealerHub
@@ -225,6 +235,36 @@ export async function POST(request: NextRequest) {
           }
         })
         .catch(err => console.error('Failed to get notification recipients:', err));
+    }
+
+    // Forward ADF leads to dealer CRMs (one per car, only if dealer has crmIntegrationEmail configured)
+    for (const car of cars) {
+      if (!car.dealer?.crmIntegrationEmail) continue;
+      sendAdfLead(car.dealer.crmIntegrationEmail, {
+        leadId: `IQAD-DEAL-${dealList.id}-${car.id}`,
+        vehicle: {
+          year: car.year,
+          make: car.make,
+          model: car.model,
+          vin: car.vin,
+          trim: car.trim,
+          mileage: car.mileage,
+          price: car.salePrice,
+        },
+        customer: {
+          firstName: customerFirstName,
+          lastName: customerLastName,
+          email: customer?.email || null,
+          phone: customer?.phone || null,
+        },
+        vendor: {
+          name: car.dealer.businessName || car.dealer.name || 'Dealer',
+          email: car.dealer.notificationEmail || car.dealer.email,
+          city: car.dealer.city,
+          state: car.dealer.state,
+          zip: car.dealer.zip,
+        },
+      }).catch(err => console.error('[Deal Request] ADF forward failed:', err));
     }
 
     // Get accurate counts using stored values from earlier

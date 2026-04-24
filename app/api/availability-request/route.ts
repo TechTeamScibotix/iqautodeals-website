@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { sendDealerAvailabilityRequestNotification } from '@/lib/email';
 import { getNotificationRecipients } from '@/lib/notification-recipients';
+import { sendAdfLead } from '@/lib/crm/adf';
 
 const prisma = new PrismaClient();
 
@@ -82,10 +83,14 @@ export async function POST(request: NextRequest) {
             id: true,
             email: true,
             notificationEmail: true,
+            crmIntegrationEmail: true,
             name: true,
             businessName: true,
             showCustomMessage: true,
             availabilityMessage: true,
+            city: true,
+            state: true,
+            zip: true,
           }
         }
       },
@@ -147,6 +152,42 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       // Log email error but don't fail the request
       console.error(`[Availability Request] Failed to send email to dealer:`, emailError);
+    }
+
+    // Forward ADF lead to dealer's CRM (Elead etc.) if configured
+    if (car.dealer.crmIntegrationEmail) {
+      try {
+        await sendAdfLead(car.dealer.crmIntegrationEmail, {
+          leadId: `IQAD-AVAIL-${availabilityRequest.id}`,
+          vehicle: {
+            year: car.year,
+            make: car.make,
+            model: car.model,
+            vin: car.vin,
+            trim: car.trim,
+            mileage: car.mileage,
+            price: car.salePrice,
+          },
+          customer: {
+            firstName,
+            lastName,
+            email,
+            phone,
+            zipCode,
+            comments: comments || null,
+          },
+          vendor: {
+            name: car.dealer.businessName || car.dealer.name,
+            email: car.dealer.notificationEmail || car.dealer.email,
+            city: car.dealer.city,
+            state: car.dealer.state,
+            zip: car.dealer.zip,
+          },
+        });
+        console.log(`[Availability Request] ADF lead forwarded to ${car.dealer.crmIntegrationEmail}`);
+      } catch (adfError) {
+        console.error('[Availability Request] ADF forward failed:', adfError);
+      }
     }
 
     // Notify Scibotix Solutions - must await in serverless to prevent early termination
