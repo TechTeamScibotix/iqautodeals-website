@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare, Mail, Bell, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Building2, MapPin, Globe, Clock, Save, Loader2, MessageSquare, Mail, Bell, ChevronRight, Link2 } from 'lucide-react';
 
 export default function DealerSettings() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function DealerSettings() {
     name: '',
     phone: '',
     notificationEmail: '',
+    crmIntegrationEmail: '',
     businessName: '',
     websiteUrl: '',
     showCustomMessage: false,
@@ -58,6 +59,7 @@ export default function DealerSettings() {
           name: data.user.name || '',
           phone: data.user.phone || '',
           notificationEmail: data.user.notificationEmail || '',
+          crmIntegrationEmail: data.user.crmIntegrationEmail || '',
           businessName: data.user.businessName || '',
           websiteUrl: data.user.websiteUrl || '',
           showCustomMessage: data.user.showCustomMessage || false,
@@ -252,6 +254,32 @@ export default function DealerSettings() {
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Customer notifications (availability requests, deal requests, offer declines, cancellations) will be sent to this email instead of your login email. Leave blank to use your login email.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dealer CRM Integration Email */}
+          <div className="bg-white rounded-xl shadow p-6">
+            <h2 className="font-bold text-lg mb-4 flex items-center gap-2 text-secondary">
+              <Link2 className="w-5 h-5" />
+              Dealer CRM Integration Email
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  CRM Integration Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.crmIntegrationEmail}
+                  onChange={(e) => setFormData({ ...formData, crmIntegrationEmail: e.target.value })}
+                  placeholder="leads@yourcrm.com"
+                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary transition"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter the email address your dealer CRM uses to ingest leads (e.g. ADF/XML intake). We will forward new leads to this address in addition to your normal notifications.
                 </p>
               </div>
             </div>
